@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iGV 客服工作台 · 交互 Demo</title>
+<style>
+:root{--bg:#f2f3f5;--panel:#fff;--line:#e5e7eb;--line2:#eff0f2;--ink:#15171c;--ink2:#555c69;--ink3:#8d94a1;--brand:#0c8f62;--brand-bg:#e7f6ef;--buyer:#2563eb;--buyer-bg:#eaf1ff;--seller:#7c3aed;--seller-bg:#f1eaff;--note:#fff6d1;--note-line:#e9bf3a;--note-ink:#7a5a00;--danger:#d92d20;--danger-bg:#fdecea;--warn:#c76a06;--warn-bg:#fff1dd;--r:10px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;color:var(--ink);background:var(--bg);overflow:hidden;min-width:1180px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,h4,p{margin:0}
+.app{display:flex;flex-direction:column;height:100vh}
+/* top bar */
+.top{height:50px;flex:none;background:#12161c;color:#fff;display:flex;align-items:center;gap:14px;padding:0 14px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;white-space:nowrap}
+.logo i{width:26px;height:26px;border-radius:7px;background:var(--brand);display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;letter-spacing:.3px}
+.logo small{font-weight:400;color:#9aa3b2;font-size:12px}
+.demo-switch{display:flex;align-items:center;gap:8px;margin-left:10px;padding:4px 6px 4px 10px;border:1px dashed #3b4350;border-radius:9px;font-size:12px;color:#9aa3b2;white-space:nowrap}
+.seg{display:flex;background:#232a33;border-radius:7px;padding:2px}
+.seg button{border:0;background:none;color:#aeb6c4;padding:4px 12px;border-radius:5px;font-size:12px}
+.seg button.on{background:#fff;color:#12161c;font-weight:600}
+.top select{background:#232a33;color:#fff;border:0;border-radius:6px;padding:5px 8px;font-size:12px}
+.top .sp{flex:1}
+.tbtn{border:1px solid #3b4350;background:none;color:#dfe3ea;border-radius:7px;padding:5px 11px;font-size:12px;white-space:nowrap}
+.tbtn:hover{background:#232a33}
+.tbtn.pri{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.me{display:flex;align-items:center;gap:7px;font-size:12px;color:#dfe3ea;white-space:nowrap}
+/* layout */
+.main{flex:1;display:flex;min-height:0}
+.nav{width:196px;flex:none;background:#fafafb;border-right:1px solid var(--line);padding:10px 8px;overflow:auto}
+.nav h5{margin:12px 8px 4px;font-size:11px;color:var(--ink3);font-weight:600;letter-spacing:.5px}
+.nav h5:first-child{margin-top:2px}
+.q{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;text-align:left;padding:7px 9px;border-radius:7px;color:var(--ink2)}
+.q:hover{background:#eef0f2}
+.q.on{background:#e4ebe8;color:var(--ink);font-weight:600}
+.q .n{margin-left:auto;font-size:11px;color:var(--ink3);font-weight:500;font-variant-numeric:tabular-nums}
+.q .n.hot{background:var(--danger);color:#fff;border-radius:9px;padding:0 6px;font-weight:600}
+.q .n.warm{background:var(--brand);color:#fff;border-radius:9px;padding:0 6px;font-weight:600}
+.q .d{width:7px;height:7px;border-radius:50%;background:#c3c8d0;flex:none}
+.list{width:330px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.list-h{padding:10px 12px 8px;border-bottom:1px solid var(--line2)}
+.list-h .row{display:flex;align-items:center;gap:8px}
+.list-h h3{font-size:14px;flex:1}
+.search{width:100%;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#f7f8f9;margin-top:8px;outline:0}
+.search:focus{border-color:var(--brand);background:#fff}
+.chips{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.chipb{border:1px solid var(--line);background:#fff;border-radius:14px;padding:2px 10px;font-size:12px;color:var(--ink2)}
+.chipb.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chipb b{font-weight:600;margin-left:3px}
+.items{flex:1;overflow:auto}
+.it{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-bottom:1px solid var(--line2);position:relative}
+.it:hover{background:#f7f8f9}
+.it.on{background:#eef6f2}
+.it.on:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand)}
+.it .r1{display:flex;align-items:center;gap:6px}
+.it .ttl{font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .tm{font-size:11px;color:var(--ink3);flex:none}
+.it .sub{font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.it .last{font-size:12px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.it.unread .last{color:var(--ink);font-weight:500}
+.it .r4{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap}
+.badge{background:var(--danger);color:#fff;border-radius:9px;font-size:11px;padding:0 6px;font-weight:600;margin-left:auto}
+.empty{padding:40px 20px;text-align:center;color:var(--ink3)}
+/* tags */
+.tg{display:inline-flex;align-items:center;gap:3px;border-radius:5px;padding:1px 6px;font-size:11px;font-weight:600;white-space:nowrap;background:#eef0f2;color:var(--ink2)}
+.tg.buyer{background:var(--buyer-bg);color:var(--buyer)}
+.tg.seller{background:var(--seller-bg);color:var(--seller)}
+.tg.agent{background:var(--brand-bg);color:var(--brand)}
+.tg.group{background:#12161c;color:#fff}
+.tg.bs{background:#eef0f2;color:var(--ink2)}
+.tg.red{background:var(--danger-bg);color:var(--danger)}
+.tg.amber{background:var(--warn-bg);color:var(--warn)}
+.tg.green{background:var(--brand-bg);color:var(--brand)}
+.tg.note{background:var(--note);color:var(--note-ink)}
+.tg.line{background:#fff;border:1px solid var(--line);font-weight:500}
+.tg.x{cursor:pointer}
+.av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;color:#fff;flex:none;background:#8d94a1}
+.av.s{width:18px;height:18px;font-size:9px}
+.av.l{width:40px;height:40px;font-size:14px}
+.av.buyer{background:var(--buyer)}.av.seller{background:var(--seller)}.av.agent{background:var(--brand)}
+/* chat */
+.chat{flex:1;display:flex;flex-direction:column;min-width:0;background:#f7f8f9}
+.ch{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px}
+.ch .r1{display:flex;align-items:center;gap:8px}
+.ch h2{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch .who{font-size:12px;color:var(--ink2);margin-top:7px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ch .acts{margin-left:auto;display:flex;gap:6px;flex:none;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;font-size:12px;white-space:nowrap}
+.btn:hover{background:#f3f4f6}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.btn.pri:hover{filter:brightness(.95)}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.btn.warn{background:var(--note-line);border-color:var(--note-line);color:#3d2e00;font-weight:600}
+.btn.danger{color:var(--danger);border-color:#f3c2bd}
+.btn.sm{padding:2px 8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{border-color:transparent;background:none;color:var(--ink2)}
+.hbar{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);font-size:12px;color:var(--ink2)}
+.hbar label{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.hbar select,.sel{border:1px solid var(--line);border-radius:6px;padding:2px 6px;background:#fff;font-size:12px;max-width:150px}
+.next{flex:1;min-width:200px;display:flex;align-items:center;gap:6px}
+.next input{flex:1;border:1px solid transparent;border-radius:6px;padding:3px 6px;background:#f3f4f6;font-size:12px;outline:0}
+.next input:focus{border-color:var(--brand);background:#fff}
+.stages{display:flex;gap:0;align-items:center;font-size:11px}
+.stages span{padding:2px 9px;background:#eef0f2;color:var(--ink3);position:relative}
+.stages span:first-child{border-radius:10px 0 0 10px}.stages span:last-child{border-radius:0 10px 10px 0}
+.stages span.done{background:var(--brand-bg);color:var(--brand)}
+.stages span.cur{background:var(--brand);color:#fff;font-weight:600}
+.strip{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;border-bottom:1px solid var(--line)}
+.strip.info{background:#eef6f2;color:#0a5c40}
+.strip.task{background:var(--warn-bg);color:#7a4300}
+.strip.prev{background:#12161c;color:#fff}
+.strip.red{background:var(--danger-bg);color:#8f1d14}
+.strip .sp{flex:1}
+.msearch{display:flex;align-items:center;gap:8px;padding:6px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.msearch input{flex:1;border:1px solid var(--line);border-radius:6px;padding:4px 8px;outline:0}
+.msgs{flex:1;overflow:auto;padding:14px 18px 8px}
+.m{display:flex;gap:8px;margin:10px 0;max-width:78%;position:relative}
+.m.mine{margin-left:auto;flex-direction:row-reverse}
+.m .bd{min-width:0}
+.m .meta{font-size:11px;color:var(--ink3);display:flex;gap:6px;align-items:center;margin-bottom:3px}
+.m.mine .meta{justify-content:flex-end}
+.m .meta b{color:var(--ink);font-weight:600;font-size:12px}
+.bub{background:#fff;border:1px solid var(--line);border-radius:4px 12px 12px 12px;padding:8px 11px;white-space:pre-wrap;word-break:break-word;display:inline-block;text-align:left}
+.m.mine .bub{border-radius:12px 4px 12px 12px}
+.m.buyer .bub{border-left:3px solid var(--buyer)}
+.m.seller .bub{border-left:3px solid var(--seller)}
+.m.agent .bub{background:var(--brand-bg);border-color:#bfe5d3}
+.m.mine.buyer .bub,.m.mine.seller .bub{border-left:1px solid var(--line);background:#12161c;color:#fff;border-color:#12161c}
+.m.mine .bd{text-align:right}
+.m .foot{font-size:11px;color:var(--ink3);margin-top:2px}
+.m .ops{position:absolute;top:-6px;right:0;display:none;background:#fff;border:1px solid var(--line);border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:2px;z-index:2;white-space:nowrap}
+.m.mine .ops{right:auto;left:0}
+.m:hover .ops{display:flex}
+.ops button{border:0;background:none;padding:2px 7px;font-size:11px;color:var(--ink2);border-radius:5px}
+.ops button:hover{background:#f0f1f3;color:var(--ink)}
+.quote{border-left:2px solid #c3c8d0;padding:1px 7px;margin-bottom:5px;font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}
+.tr{margin-top:6px;padding-top:6px;border-top:1px dashed rgba(128,128,128,.4);font-size:12px;opacity:.85}
+.gone{font-style:italic;color:var(--ink3)}
+.hid{opacity:.55;text-decoration:line-through}
+.att{display:flex;align-items:center;gap:9px;margin-top:6px;border:1px solid var(--line);border-radius:8px;padding:6px 9px 6px 6px;background:#fff;color:var(--ink);cursor:pointer;min-width:200px;text-align:left}
+.att .th{width:44px;height:44px;border-radius:6px;flex:none;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#31445c,#6f89a8);background-size:cover;background-position:center}
+.att.video .th{background:linear-gradient(135deg,#3b2f5c,#8a6fc0)}
+.att.file .th{background:linear-gradient(135deg,#5c4a2f,#b59460)}
+.att .nm{font-size:12px;font-weight:600;word-break:break-all}
+.att .sz{font-size:11px;color:var(--ink3)}
+.sys{text-align:center;margin:12px 0}
+.sys span{display:inline-block;background:#e9ebee;color:var(--ink2);font-size:11.5px;padding:3px 12px;border-radius:12px;max-width:86%}
+.sys.int span{background:var(--note);color:var(--note-ink);border:1px dashed var(--note-line)}
+.sys a,.lnk{color:var(--brand);font-weight:600;cursor:pointer;text-decoration:underline;background:none;border:0;padding:0;font-size:inherit}
+.divider{display:flex;align-items:center;gap:12px;margin:22px 0 16px;color:var(--brand);font-size:12px;font-weight:600}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--brand)}
+.divider small{display:block;font-weight:400;color:var(--ink2);text-align:center}
+.note{margin:10px 0;border:1px solid var(--note-line);border-left:4px solid var(--note-line);border-radius:8px;padding:8px 12px;background:repeating-linear-gradient(135deg,var(--note),var(--note) 12px,#fff1bd 12px,#fff1bd 24px);position:relative}
+.note .nh{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--note-ink);margin-bottom:3px;font-weight:600}
+.note .nh .ops{top:4px}
+.note:hover .ops{display:flex}
+.note .ops{position:absolute;right:6px;top:4px;display:none;background:#fff;border:1px solid var(--line);border-radius:7px;padding:2px}
+.note .nb{white-space:pre-wrap;color:#3d2e00}
+.note.locked{background:#f3f4f6;border-color:#d5d8de;border-style:dashed;color:var(--ink3);font-size:12px}
+.card{border:1px solid var(--line);border-radius:var(--r);background:#fff;padding:10px 12px;margin:10px 0}
+.card.order{max-width:420px;margin-left:auto;margin-right:auto}
+.card.dir{border:1.5px solid var(--brand);max-width:520px;margin-left:auto;margin-right:auto}
+.card.dir.over{border-color:var(--danger)}
+.card.res{border:1.5px solid var(--ink);max-width:540px;margin-left:auto;margin-right:auto}
+.card h4{font-size:13px;display:flex;align-items:center;gap:6px}
+.card .kv{margin-top:6px}
+.card .cf{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}
+/* composer */
+.comp{background:#fff;border-top:1px solid var(--line);padding:8px 14px 10px;position:relative}
+.modes{display:flex;gap:4px;margin-bottom:6px;align-items:center}
+.modes button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:3px 11px;font-size:12px;color:var(--ink2)}
+.modes button.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.modes button.on.dirm{background:var(--ink);border-color:var(--ink)}
+.modes button.on.notem{background:var(--note-line);border-color:var(--note-line);color:#3d2e00}
+.aud{font-size:12px;margin-bottom:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;color:var(--ink2)}
+.comp.note-mode{background:repeating-linear-gradient(135deg,var(--note),var(--note) 12px,#fff1bd 12px,#fff1bd 24px);border-top:2px solid var(--note-line)}
+.comp.note-mode textarea{background:#fffdf2;border-color:var(--note-line)}
+.comp textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;resize:none;height:64px;outline:0;display:block}
+.comp textarea:focus{border-color:var(--brand)}
+.cbar{display:flex;align-items:center;gap:4px;margin-top:6px}
+.cbar .sp{flex:1}
+.cbar .hint{font-size:11px;color:var(--ink3);margin-right:8px}
+.ib{border:0;background:none;border-radius:6px;padding:4px 8px;font-size:12px;color:var(--ink2)}
+.ib:hover{background:#f0f1f3}
+.replying{display:flex;align-items:center;gap:8px;font-size:12px;background:#f3f4f6;border-radius:6px;padding:4px 8px;margin-bottom:6px;color:var(--ink2)}
+.warnbox{background:var(--danger-bg);color:#8f1d14;border:1px solid #f3c2bd;border-radius:8px;padding:7px 10px;font-size:12px;margin-bottom:6px}
+.closedbar{background:#fff;border-top:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:10px;color:var(--ink2)}
+.closedbar .sp{flex:1}
+details.pop{position:relative;display:inline-block}
+details.pop>summary{list-style:none;cursor:pointer}
+details.pop>summary::-webkit-details-marker{display:none}
+.menu{position:absolute;bottom:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.14);padding:5px;min-width:200px;z-index:20}
+.menu.down{bottom:auto;top:calc(100% + 6px);left:auto;right:0}
+.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:6px 10px;border-radius:6px;font-size:12px}
+.menu button:hover{background:#f0f1f3}
+.menu .mh{font-size:11px;color:var(--ink3);padding:4px 10px}
+.menu.emo{display:grid;grid-template-columns:repeat(6,1fr);min-width:0;width:200px}
+.menu.emo button{text-align:center;font-size:16px;padding:4px}
+/* context */
+.ctx{width:356px;flex:none;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;border-bottom:1px solid var(--line);padding:0 8px;flex:none}
+.tabs button{border:0;background:none;padding:10px 10px 8px;font-size:13px;color:var(--ink2);border-bottom:2px solid transparent}
+.tabs button.on{color:var(--ink);font-weight:600;border-color:var(--brand)}
+.cbody{flex:1;overflow:auto;padding:12px}
+.sec{border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;margin-bottom:10px}
+.sec>h4{font-size:12px;color:var(--ink2);font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.sec>h4 .sp{flex:1}
+details.sec>summary{font-size:12px;color:var(--ink2);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;list-style:none}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary:after{content:"▸";margin-left:auto;color:var(--ink3)}
+details.sec[open]>summary:after{content:"▾"}
+details.sec[open]>summary{margin-bottom:8px}
+.kv{display:grid;grid-template-columns:86px 1fr;gap:4px 8px;font-size:12px}
+.kv dt{color:var(--ink3)}.kv dd{margin:0;word-break:break-word}
+.ohead{display:flex;gap:10px;align-items:flex-start}
+.gico{width:42px;height:42px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:800;flex:none;text-align:center;line-height:1.1}
+.gico.Coins{background:linear-gradient(135deg,#b7791f,#ecc94b)}
+.gico.Accounts{background:linear-gradient(135deg,#2b4c7e,#5a8dee)}
+.gico.Items{background:linear-gradient(135deg,#7b2d8e,#c06ad6)}
+.gico.Boosting{background:linear-gradient(135deg,#9b2c2c,#f56565)}
+.ohead .t{font-weight:600}
+.ohead .s{font-size:12px;color:var(--ink2)}
+.price{font-weight:700;font-size:15px;margin-left:auto;white-space:nowrap}
+.bar{height:6px;border-radius:3px;background:#e9ebee;overflow:hidden;margin:6px 0 4px}
+.bar i{display:block;height:100%;background:var(--brand)}
+.bar.red i{background:var(--warn)}
+.rowl{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line2);font-size:12px;width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.rowl:first-of-type{border-top:0}
+button.rowl:hover{background:#f7f8f9}
+.rowl .g{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rowl .dim{color:var(--ink3);flex:none}
+.acts2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.stat div{background:#f7f8f9;border-radius:7px;padding:6px 4px;text-align:center}
+.stat b{display:block;font-size:14px}
+.stat span{font-size:11px;color:var(--ink3)}
+.ph{display:flex;gap:10px;align-items:center}
+.ph .n{font-weight:700;font-size:14px}
+.guide{font-size:12px;color:var(--ink2);padding-left:16px;margin:0}
+.guide li{margin:2px 0}
+.tl{font-size:12px;border-left:2px solid var(--line);margin-left:4px;padding-left:12px}
+.tl div{position:relative;padding:3px 0}
+.tl div:before{content:"";position:absolute;left:-17px;top:9px;width:8px;height:8px;border-radius:50%;background:#c3c8d0}
+.tl time{color:var(--ink3);margin-right:6px;font-variant-numeric:tabular-nums}
+.priv{font-size:11px;color:var(--ink3);text-align:center;padding:4px 0 10px}
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(15,18,24,.45);z-index:50;display:grid;place-items:center}
+.modal{background:#fff;border-radius:14px;width:520px;max-width:92vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal.wide{width:720px}
+.mh1{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;font-weight:700;font-size:15px}
+.mh1 button{margin-left:auto;border:0;background:none;font-size:18px;color:var(--ink3)}
+.mb{padding:16px 18px;overflow:auto}
+.mf{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.fld{margin-bottom:12px}
+.fld>label{display:block;font-size:12px;color:var(--ink2);font-weight:600;margin-bottom:4px}
+.fld input[type=text],.fld input[type=number],.fld select,.fld textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 9px;outline:0;background:#fff}
+.fld textarea{height:70px;resize:vertical}
+.fld .help{font-size:11px;color:var(--ink3);margin-top:3px}
+.fld .opt{display:flex;gap:6px;align-items:flex-start;font-size:12px;font-weight:400;color:var(--ink);margin:3px 0}
+.drawer-ov{position:fixed;inset:0;background:rgba(15,18,24,.35);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:560px;max-width:94vw;background:#fff;z-index:41;display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(0,0,0,.18)}
+.drawer.wide{width:860px}
+.drawer .msgs{background:#f7f8f9}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#12161c;color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:60;display:grid;place-items:center;color:#fff}
+.lightbox .pic{width:min(720px,80vw);height:min(440px,60vh);border-radius:12px;background:linear-gradient(135deg,#31445c,#6f89a8);display:grid;place-items:center;font-size:16px;background-size:contain;background-repeat:no-repeat;background-position:center}
+table.t{border-collapse:collapse;width:100%;font-size:12px}
+table.t th,table.t td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+table.t th{background:#f7f8f9;font-weight:600}
+.doc h3{font-size:14px;margin:18px 0 6px}.doc h3:first-child{margin-top:0}
+.doc p,.doc li{color:#333a45;font-size:13px;line-height:1.7}
+.doc ul{padding-left:18px;margin:4px 0}
+.y{color:var(--brand);font-weight:700}.nn{color:var(--danger);font-weight:700}
+mark{background:#ffe066;border-radius:2px}
+.stars button{border:0;background:none;font-size:22px;color:#d1d5db;padding:0 2px}
+.stars button.on{color:#f5b301}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#c3c8d0}
+.dot.on{background:#22c55e}
+
+@media(max-width:1440px){.nav{width:172px}.list{width:292px}.ctx{width:324px}.q{padding:7px 6px;font-size:12.5px}}
+
+</style></head><body>
+<div class="app" id="app"></div><div id="ov"></div><div id="toast" class="toast" hidden></div><input type="file" id="file" hidden>
+<script>
+function seed(){
+const NOW=Date.now(),ago=m=>NOW-m*60000,day=d=>NOW-d*864e5;
+let mid=0;
+const M=(from,text,minAgo,x={})=>Object.assign({id:'m'+(++mid),from,text,t:ago(minAgo),kind:'text',vis:'public'},x);
+const SYS=(text,minAgo,x={})=>M('sys',text,minAgo,Object.assign({kind:'sys'},x));
+const NOTE=(from,text,minAgo,x={})=>M(from,text,minAgo,Object.assign({kind:'note',vis:'internal',scope:'all'},x));
+const U={
+ b1:{id:'b1',role:'buyer',name:'Alex_Raider',no:'U-10293847',country:'🇺🇸 美国',lang:'English',email:'a***r@gmail.com',phone:'+1 ••• ••• 4471',joined:'2023-03-14',level:'VIP 2',risk:'低',online:true,
+  stats:{orders:47,spent:'$3,180',refunds:1,disputes:1},
+  hist:[{type:'退款',id:'RF-22871',text:'Lost Ark Gold 部分未交付，部分退款 $12.00',t:day(96),result:'已完成'},{type:'纠纷',id:'DS-10452',text:'交付超时 · 买家胜诉',t:day(96),result:'已结案'}],
+  notes:[{by:'a2',t:day(40),text:'老客户，沟通理性，凭证提供及时。'}]},
+ b2:{id:'b2',role:'buyer',name:'Lucía_M',no:'U-11840032',country:'🇪🇸 西班牙',lang:'Español',email:'l***a@hotmail.es',phone:'+34 ••• •• 82',joined:'2025-08-02',level:'普通',risk:'低',online:true,stats:{orders:6,spent:'$214',refunds:0,disputes:0},hist:[],notes:[]},
+ b3:{id:'b3',role:'buyer',name:'Kenji_T',no:'U-10077123',country:'🇯🇵 日本',lang:'日本語 / English',email:'k***t@yahoo.co.jp',phone:'+81 •• •••• 3310',joined:'2022-11-20',level:'VIP 1',risk:'低',online:false,stats:{orders:23,spent:'$940',refunds:0,disputes:0},hist:[],notes:[]},
+ b4:{id:'b4',role:'buyer',name:'NoobSlayer99',no:'U-12011876',country:'🇧🇷 巴西',lang:'Português / English',email:'n***9@outlook.com',phone:'+55 •• ••••• 0098',joined:'2026-09-28',level:'普通',risk:'高',online:true,stats:{orders:5,spent:'$402',refunds:2,disputes:3},
+  hist:[{type:'纠纷',id:'DS-11830',text:'OSRS Gold 声称未收到 · 卖家举证成功',t:day(21),result:'买家败诉'},{type:'退款',id:'RF-24410',text:'WoW Gold 全额退款 $64.00',t:day(4),result:'已完成'},{type:'风控',id:'RK-0931',text:'信用卡拒付 1 次（已撤销）',t:day(30),result:'已标记'}],
+  notes:[{by:'a3',t:day(20),text:'多次在交付后发起争议，处理时务必要求双方提供完整凭证。'}]},
+ b5:{id:'b5',role:'buyer',name:'Hannah_W',no:'U-11500764',country:'🇩🇪 德国',lang:'Deutsch / English',email:'h***w@web.de',phone:'+49 ••• •••• 615',joined:'2025-01-11',level:'普通',risk:'低',online:true,stats:{orders:9,spent:'$388',refunds:0,disputes:0},hist:[],notes:[]},
+ s1:{id:'s1',role:'seller',name:'GoldVault',store:'GoldVault Store',no:'S-200418',country:'🇨🇳 中国',lang:'中文 / English',email:'g***t@163.com',joined:'2021-06-01',level:'Lv.5 金牌卖家',storeStatus:'正常营业',rating:'98.7%',sold:'12,840',deposit:2000,online:true,cats:'Coins · Items',
+  bal:{avail:3412.6,frozen:89.5,pending:1250},kpi:{complete:'99.1%',avg:'18 分钟',dispute:'0.6%',late7:2},
+  wd:[{id:'W-88213',amount:1250,method:'Payoneer',status:'审核中',t:ago(2900)},{id:'W-87102',amount:2000,method:'Payoneer',status:'已到账',t:day(9)},{id:'W-86015',amount:1800,method:'USDT',status:'已到账',t:day(17)}],
+  pen:[{id:'P-2981',type:'交付超时警告',desc:'单周超时 3 单，警告 1 次',t:day(58),status:'已生效'}],
+  listings:[{id:'L-4410',title:'WoW Classic Gold · Whitemane',status:'在售'},{id:'L-4412',title:'EA FC 26 Coins · PS5',status:'在售'},{id:'L-4430',title:'OSRS Gold',status:'在售'}],
+  hist:[{type:'违规',id:'P-2981',text:'交付超时警告',t:day(58),result:'已生效'}],notes:[{by:'a4',t:day(58),text:'头部卖家，库存波动时容易超时，注意跟进。'}]},
+ s2:{id:'s2',role:'seller',name:'AccZone',store:'AccZone 账号专营',no:'S-203377',country:'🇻🇳 越南',lang:'English',email:'a***e@gmail.com',joined:'2024-02-19',level:'Lv.3',storeStatus:'限制提现',rating:'94.2%',sold:'1,206',deposit:500,online:false,cats:'Accounts',
+  bal:{avail:820,frozen:245,pending:0},kpi:{complete:'96.4%',avg:'42 分钟',dispute:'2.8%',late7:0},
+  wd:[{id:'W-88001',amount:400,method:'USDT',status:'已驳回',t:day(3)}],
+  pen:[{id:'P-3307',type:'账号找回 · 扣除保证金',desc:'订单 IGV20261102077 账号被找回，扣保证金 $180，限制提现 14 天',t:day(6),status:'申诉中'},{id:'P-3120',type:'描述不符警告',desc:'账号英雄数量与描述不符',t:day(33),status:'已生效'}],
+  listings:[{id:'L-5102',title:'Genshin Impact AR58 账号',status:'在售'},{id:'L-5107',title:'Valorant Immortal 账号',status:'在售'}],
+  hist:[{type:'违规',id:'P-3307',text:'账号找回 · 扣保证金 $180',t:day(6),result:'申诉中'},{type:'违规',id:'P-3120',text:'描述不符警告',t:day(33),result:'已生效'},{type:'纠纷',id:'DS-12001',text:'账号找回纠纷 · 卖家败诉',t:day(8),result:'已结案'}],notes:[{by:'a3',t:day(6),text:'近 30 天 1 起找回纠纷，账号类订单需重点关注质保期。'}]},
+ s3:{id:'s3',role:'seller',name:'BoostKings',store:'BoostKings 代练工作室',no:'S-201905',country:'🇵🇱 波兰',lang:'English',email:'b***s@proton.me',joined:'2022-09-07',level:'Lv.4',storeStatus:'正常营业',rating:'97.1%',sold:'3,455',deposit:1000,online:true,cats:'Gameboosting',
+  bal:{avail:1640,frozen:120,pending:0},kpi:{complete:'97.8%',avg:'2.1 天',dispute:'1.4%',late7:1},wd:[{id:'W-87990',amount:900,method:'Wise',status:'已到账',t:day(5)}],pen:[],
+  listings:[{id:'L-3301',title:'LoL Rank Boost',status:'在售'}],hist:[],notes:[]},
+ s4:{id:'s4',role:'seller',name:'PixelTrader',store:'PixelTrader',no:'S-209912',country:'🇹🇷 土耳其',lang:'English / Türkçe',email:'p***r@gmail.com',joined:'2026-10-30',level:'Lv.2 新卖家',storeStatus:'正常营业',rating:'100%',sold:'38',deposit:200,online:true,cats:'Items · Coins',
+  bal:{avail:96,frozen:0,pending:0},kpi:{complete:'100%',avg:'11 分钟',dispute:'0%',late7:0},wd:[],pen:[],
+  listings:[{id:'L-5521',title:'Diablo IV Gold · Season 11 · 10B',status:'审核驳回'},{id:'L-5498',title:'Diablo IV · Harlequin Crest (Shako)',status:'在售'}],hist:[],notes:[]},
+ a1:{id:'a1',role:'agent',name:'Mia Chen',team:'订单纠纷组',online:true},
+ a2:{id:'a2',role:'agent',name:'Leo Wang',team:'资金与提现组',online:true},
+ a3:{id:'a3',role:'agent',name:'Sara Kim',team:'账号安全 · 风控',online:true},
+ a4:{id:'a4',role:'agent',name:'Tom Liu',team:'客服主管',online:false,lead:true}
+};
+const O={
+ o1:{key:'o1',id:'IGV20261124001',buyer:'b1',seller:'s1',cat:'Coins',game:'WoW Classic',title:'WoW Classic Gold · 5,000 G',spec:'Whitemane · Horde',amount:89.5,createdAt:ago(185),paidAt:ago(183),st:'dispute',
+  pay:{method:'Visa •••• 4421',txn:'TXN-8F2A••••31',fee:2.69,escrow:'托管中'},
+  delivery:{title:'游戏币交付',status:'部分交付',promised:'30 分钟内',deadline:ago(153),deliveredAt:null,note:'已交付 2,000 G，剩余 3,000 G 卖家称补货中',fields:[['服务器','Whitemane'],['阵营','Horde'],['收货角色','Raiderx'],['交付方式','Face to Face 当面交易']],prog:{done:2000,total:5000,unit:'G'}},
+  proofs:[{by:'s1',name:'trade_2000g.png',type:'image',t:ago(140)}],dispute:{status:'平台介入中',type:'交付超时',openedAt:ago(47)},refund:null},
+ o2:{key:'o2',id:'IGV20261122017',buyer:'b1',seller:'s2',cat:'Accounts',game:'Genshin Impact',title:'Genshin Impact AR58 账号',spec:'Asia · 12×5★ 角色 · 可改绑邮箱',amount:245,createdAt:day(2)-36e5,paidAt:day(2)-35e5,st:'done',
+  pay:{method:'PayPal a***r@gmail.com',txn:'PP-61K0••••9X',fee:7.35,escrow:'托管中（质保期）'},
+  delivery:{title:'账号交付',status:'已交付',promised:'2 小时内',deadline:day(2),deliveredAt:day(2)-30e5,note:'账号、密码、绑定邮箱已通过站内加密信息发送',fields:[['交付内容','账号 + 密码 + 邮箱'],['原始邮箱','已移交（卖家声明）'],['质保期','7 天找回担保 · 剩 5 天'],['买家改密','已完成 · '+new Date(day(2)).toLocaleDateString('zh-CN')]]},
+  proofs:[{by:'s2',name:'account_handover.png',type:'image',t:day(2)-30e5}],dispute:null,refund:null},
+ o3:{key:'o3',id:'IGV20261124008',buyer:'b2',seller:'s1',cat:'Coins',game:'EA SPORTS FC 26',title:'EA FC 26 Coins · 2,000K',spec:'PS5 · Comfort Trade',amount:38,createdAt:ago(52),paidAt:ago(50),st:'delivering',
+  pay:{method:'Mastercard •••• 9017',txn:'TXN-3C71••••08',fee:1.14,escrow:'托管中'},
+  delivery:{title:'游戏币交付',status:'交付中',promised:'1–3 小时',deadline:ago(-130),deliveredAt:null,note:'Comfort Trade：卖家登录买家账号转币',fields:[['平台','PS5'],['交付方式','Comfort Trade'],['备份码','买家已提供 3 组'],['风险提示','转币期间请勿登录']],prog:{done:800,total:2000,unit:'K'}},
+  proofs:[],dispute:null,refund:null},
+ o4:{key:'o4',id:'IGV20261122031',buyer:'b4',seller:'s3',cat:'Boosting',game:'League of Legends',title:'LoL 段位代练 · Gold IV → Platinum I',spec:'EUW · Piloted（代登）',amount:120,createdAt:day(2)-72e5,paidAt:day(2)-71e5,st:'dispute',
+  pay:{method:'Visa •••• 2208',txn:'TXN-A90D••••55',fee:3.6,escrow:'已冻结'},
+  delivery:{title:'代练进度',status:'进行中 · 有争议',promised:'3 天内完成',deadline:ago(-1300),deliveredAt:null,note:'当前 Gold I 42LP；买家称 2 天仅打 3 局',fields:[['起始段位','Gold IV 0LP'],['目标段位','Platinum I'],['当前段位','Gold I 42LP'],['代练师','BK-Viper'],['上号方式','Piloted · 离线模式']],prog:{done:60,total:100,unit:'%'}},
+  proofs:[{by:'b4',name:'match_history.png',type:'image',t:ago(190)}],dispute:{status:'平台介入中',type:'代练进度争议',openedAt:ago(200)},refund:null},
+ o5:{key:'o5',id:'IGV20261121005',buyer:'b3',seller:'s4',cat:'Items',game:'Diablo IV',title:'Diablo IV · Harlequin Crest (Shako)',spec:'Season 11 · Softcore',amount:25,createdAt:day(3),paidAt:day(3),st:'done',
+  pay:{method:'Apple Pay',txn:'TXN-71BE••••20',fee:.75,escrow:'已结算'},
+  delivery:{title:'道具交付',status:'已交付 · 买家已确认',promised:'20 分钟内',deadline:day(3),deliveredAt:day(3)+9e5,note:'游戏内交易完成',fields:[['道具','Harlequin Crest ×1'],['交付方式','游戏内交易'],['收货角色','KenjiBarb']]},
+  proofs:[{by:'s4',name:'trade_done.png',type:'image',t:day(3)+9e5}],dispute:null,refund:null},
+ o6:{key:'o6',id:'IGV20261124012',buyer:'b5',seller:'s2',cat:'Accounts',game:'Valorant',title:'Valorant Immortal 账号',spec:'EU · 42 皮肤',amount:60,createdAt:ago(26),paidAt:ago(24),st:'pending',
+  pay:{method:'Visa •••• 7730',txn:'TXN-55D2••••14',fee:1.8,escrow:'托管中'},
+  delivery:{title:'账号交付',status:'待交付',promised:'2 小时内',deadline:ago(-96),deliveredAt:null,note:'卖家尚未发送账号信息',fields:[['交付内容','账号 + 密码 + 邮箱'],['质保期','7 天找回担保']]},
+  proofs:[],dispute:null,refund:null},
+ o7:{key:'o7',id:'IGV20261115044',buyer:'b1',seller:'s3',cat:'Boosting',game:'League of Legends',title:'LoL 定级赛代练 · 10 场',spec:'NA · Piloted',amount:55,createdAt:day(9),paidAt:day(9),st:'done',
+  pay:{method:'Visa •••• 4421',txn:'TXN-1D0A••••77',fee:1.65,escrow:'已结算'},
+  delivery:{title:'代练进度',status:'已完成',promised:'2 天内完成',deadline:day(7),deliveredAt:day(8),note:'8 胜 2 负',fields:[['结果','8W 2L · Platinum II'],['代练师','BK-Nova']],prog:{done:100,total:100,unit:'%'}},proofs:[],dispute:null,refund:null},
+ o8:{key:'o8',id:'IGV20261120009',buyer:'b4',seller:'s1',cat:'Coins',game:'WoW Classic',title:'WoW Classic Gold · 3,000 G',spec:'Faerlina · Alliance',amount:64,createdAt:day(4)-36e5,paidAt:day(4)-36e5,st:'refunded',
+  pay:{method:'Visa •••• 2208',txn:'TXN-0E3F••••62',fee:1.92,escrow:'已退款'},
+  delivery:{title:'游戏币交付',status:'未交付',promised:'30 分钟内',deadline:day(4),deliveredAt:null,note:'卖家该服务器缺货',fields:[['服务器','Faerlina'],['阵营','Alliance'],['交付方式','Mail 邮寄']],prog:{done:0,total:3000,unit:'G'}},
+  proofs:[],dispute:{status:'已结案',type:'未交付',openedAt:day(4)},refund:{status:'已退款',amount:64,t:day(4)+72e5,by:'a1'}},
+ o9:{key:'o9',id:'IGV20261124015',buyer:'b3',seller:'s1',cat:'Coins',game:'Old School RuneScape',title:'OSRS Gold · 100M',spec:'World 301 · Grand Exchange',amount:21,createdAt:ago(40),paidAt:ago(39),st:'delivered',
+  pay:{method:'Apple Pay',txn:'TXN-9B4C••••03',fee:.63,escrow:'托管中'},
+  delivery:{title:'游戏币交付',status:'已交付 · 待买家确认',promised:'15 分钟内',deadline:ago(24),deliveredAt:ago(28),note:'World 301 GE 当面交易完成',fields:[['世界','World 301'],['收货角色','Kenji_T'],['交付方式','Face to Face']],prog:{done:100,total:100,unit:'M'}},
+  proofs:[{by:'s1',name:'osrs_trade_100m.png',type:'image',t:ago(28)}],dispute:null,refund:null}
+};
+const P={p1:{id:'p1',seller:'s4',cat:'Items',game:'Diablo IV',title:'Diablo IV · Harlequin Crest (Shako)',price:25},p2:{id:'p2',seller:'s1',cat:'Coins',game:'WoW Classic',title:'WoW Classic Gold · Whitemane（每 1,000G）',price:17.9},p3:{id:'p3',seller:'s2',cat:'Accounts',game:'Valorant',title:'Valorant Immortal 账号 · EU',price:60},p4:{id:'p4',seller:'s3',cat:'Boosting',game:'League of Legends',title:'LoL Rank Boost · 任意段位',price:30}};
+const mb=(uid,role,minAgo)=>({uid,role,joinedAt:ago(minAgo)});
+const base=x=>Object.assign({status:'open',waiting:null,priority:'normal',assignee:null,tags:[],dueAt:null,nextStep:'',msgs:[],audit:[],read:{},risk:[],reports:[],linked:[],origin:'订单详情页'},x);
+const convs=[
+ base({id:'g1',type:'group',orderId:'o1',topic:'交付超时',upgradedFrom:'bs',stage:1,priority:'high',assignee:'a1',waiting:'support',dueAt:ago(-3),tags:['交付超时','VIP'],nextStep:'等卖家补货结果；到期未交付则对剩余 3,000G 部分退款',
+  members:[mb('b1','buyer',172),mb('s1','seller',172),mb('a1','agent',45),mb('a3','agent',26)],
+  msgs:[
+   SYS('买家从「订单详情页」发起会话，已关联订单',172),
+   M('sys','',172,{kind:'order'}),
+   M('b1','Hi, I just paid for 5,000G on Whitemane Horde. My character is Raiderx. When can you deliver?',170),
+   M('s1','Hello! Thanks for your order. Our trader will meet you in Orgrimmar in 10–20 mins. Please stay online.',168),
+   M('s1','2,000G sent via trade. The remaining 3,000G is restocking, please wait a moment.',140,{att:{type:'image',name:'trade_2000g.png',size:'412 KB',proof:true}}),
+   M('b1','It\'s been over an hour. Seller hasn\'t delivered the rest of my coins yet.',70),
+   M('s1','The delivery is in progress. Please wait.',65),
+   M('b1','I\'ve waited 2 hours and the listing said 30 minutes. I want iGV support to step in.',48),
+   SYS('买家申请客服介入 · 问题类型：交付超时',47),
+   M('sys','平台客服已介入 · 会话升级为订单三方群组',45,{kind:'divider',sub:'以上为买卖双方的原始沟通，已完整保留，无需重复描述问题'}),
+   SYS('Mia Chen 接入并成为负责人',45,{vis:'internal'}),
+   M('a1','Hi both, this is iGV Support. I\'ve reviewed the order and the chat above — no need to repeat anything. The order shows 2,000 / 5,000G delivered and the promised 30-minute window has passed. I\'ll coordinate from here.',44),
+   NOTE('a1','卖家 GoldVault 近 7 天有 2 单交付超时，Whitemane 库存疑似不足。若 2h 内无法补齐，按部分退款处理：未交付 3,000G ≈ $53.70。',43),
+   M('a1','请在 2 小时内完成剩余 3,000 G 的交付并上传交易截图；若库存不足，请直接说明，平台将按未交付部分退款。',42,{kind:'directive',dir:{to:'seller',req:'proof',dueAt:ago(-78),st:{seller:'pending'}}}),
+   M('s1','Sorry for the delay — our Whitemane stock ran out. Restock is arriving within 1 hour, we will deliver right after.',30),
+   SYS('Mia Chen 邀请 Sara Kim（账号安全 · 风控）加入内部协作',26,{vis:'internal'}),
+   NOTE('a3','@Mia 该卖家同服务器另有 3 单在排队，补货大概率不够分。建议先冻结此单货款，到期直接走部分退款。',25,{scope:'team'}),
+   M('b1','OK. If it\'s not delivered within the hour I\'d like a refund for the missing part.',12)
+  ],
+  audit:[{t:ago(172),by:'b1',text:'从订单详情页创建会话'},{t:ago(47),by:'b1',text:'申请客服介入：交付超时'},{t:ago(45),by:'a1',text:'接入会话，升级为三方群组'},{t:ago(42),by:'a1',text:'向卖家发送处理要求（2 小时）'},{t:ago(26),by:'a1',text:'邀请 Sara Kim 内部协作'}],
+  read:{b1:ago(12),s1:ago(29),a1:ago(20),a3:ago(25)}}),
+ base({id:'c2',type:'bp',orderId:'o2',topic:'账号被找回',priority:'urgent',assignee:'a1',waiting:'support',dueAt:ago(6),tags:['账号找回'],nextStep:'核实登录记录 → 拉卖家进三方群组对质',origin:'订单详情页',
+  members:[mb('b1','buyer',21),mb('a1','agent',20)],
+  msgs:[
+   SYS('买家从「订单详情页」联系平台客服，已关联订单',21),M('sys','',21,{kind:'order'}),
+   M('b1','The Genshin account I bought 2 days ago — the password was changed this morning and the bound email is no longer mine. I think the seller recovered it.',21),
+   M('b1','Here is the login failure and the email-change notice I received.',20,{att:{type:'image',name:'email_changed_notice.png',size:'268 KB',proof:true}}),
+   SYS('系统自动分配给 Mia Chen（订单纠纷组）',20,{vis:'internal'}),
+   NOTE('sysbot','风控提示：卖家 AccZone 近 30 天已有 1 起账号找回纠纷（P-3307，申诉中）。本单仍在 7 天质保期内，货款托管中。',20),
+   M('b1','Hello? This is urgent, I spent $245 on it.',9)
+  ],
+  audit:[{t:ago(21),by:'b1',text:'从订单详情页创建会话'},{t:ago(20),by:'sysbot',text:'自动分配给 Mia Chen'}],read:{b1:ago(9),a1:ago(19)}}),
+ base({id:'g2',type:'group',orderId:'o4',topic:'代练进度争议',stage:1,priority:'high',assignee:'a1',waiting:'seller',tags:['恶意买家?'],nextStep:'卖家提交对局记录后比对买家截图',linked:['c4'],origin:'客服创建',
+  members:[mb('b4','buyer',200),mb('s3','seller',200),mb('a1','agent',200)],
+  msgs:[
+   SYS('平台客服创建了订单协调群组，买家与卖家已加入',200),M('sys','',200,{kind:'order'}),
+   M('a1','大家好，这里是 iGV 平台客服。本群用于协调订单的代练进度争议。请围绕本订单沟通，不要交换站外联系方式；平台将依据双方凭证作出处理。',199,{kind:'rules'}),
+   M('a1','Buyer reports only 3 games were played in 2 days. Summary shared from the buyer\'s ticket with consent.',198),
+   M('b4','2 days and only 3 games!! And you lost one. I want a full refund.',195,{att:{type:'image',name:'match_history.png',size:'530 KB',proof:true}}),
+   NOTE('a1','买家 NoobSlayer99 风险等级高：5 单 3 起纠纷。先以卖家对局记录为准，不要直接承诺全额退款。',194),
+   M('a1','请提交本订单的完整对局记录截图（含时间、胜负、LP 变化），并说明预计完成时间。',192,{kind:'directive',dir:{to:'seller',req:'proof',dueAt:ago(72),st:{seller:'pending'}}}),
+   M('b4','still no answer from the booster??',60)
+  ],
+  audit:[{t:ago(200),by:'a1',text:'由买家会话 c4 创建三方群组'},{t:ago(192),by:'a1',text:'向卖家发送处理要求（2 小时）'},{t:ago(190),by:'a1',text:'冻结订单货款'}],read:{b4:ago(60),s3:ago(198),a1:ago(55)}}),
+ base({id:'c4',type:'bp',orderId:'o4',topic:'代练进度投诉',assignee:'a1',waiting:'internal',nextStep:'在三方群组中跟进',linked:['g2'],origin:'帮助中心',
+  members:[mb('b4','buyer',215),mb('a1','agent',212)],
+  msgs:[SYS('买家从「帮助中心」联系平台客服',215),M('b4','your booster is scamming me. 2 days only 3 games',214),M('a1','Sorry to hear that. I\'ll bring the seller into an order group so both sides can share records in one place.',205),
+   SYS('平台已就订单建立三方协调群组，后续处理请在群组中进行',200,{link:'g2'})],
+  audit:[{t:ago(215),by:'b4',text:'从帮助中心创建会话'},{t:ago(200),by:'a1',text:'升级为三方群组 g2'}],read:{b4:ago(200),a1:ago(200)}}),
+ base({id:'c6',type:'bp',orderId:'o6',topic:'重复扣款',waiting:'support',dueAt:ago(-11),origin:'订单详情页',
+  members:[mb('b5','buyer',4)],
+  msgs:[SYS('买家从「订单详情页」联系平台客服，已关联订单',4),M('sys','',4,{kind:'order'}),M('b5','Hi, my card seems to be charged twice for this order (2 × $60). Can you check?',4,{att:{type:'image',name:'bank_statement.png',size:'190 KB'}}),SYS('已进入人工队列，预计 5 分钟内响应',4)],
+  audit:[{t:ago(4),by:'b5',text:'从订单详情页创建会话'}],read:{b5:ago(4)}}),
+ base({id:'c7',type:'sp',topic:'提现未到账',ref:{kind:'withdraw',id:'W-88213'},assignee:'a2',waiting:'internal',nextStep:'等财务复核 Payoneer 通道，11-25 12:00 前回复卖家',tags:['提现'],origin:'卖家中心 · 资金页',
+  members:[mb('s1','seller',300),mb('a2','agent',290)],
+  msgs:[SYS('卖家从「卖家中心 · 资金页」联系平台客服，已关联提现记录 W-88213',300),M('s1','你好，我 48 小时前申请的 $1,250 提现还在审核中，平时 24 小时内就到了，麻烦帮忙看下。',300),M('a2','您好，已看到提现单 W-88213。目前 Payoneer 通道有批量复核，我已提交财务加急，最迟明天中午前给您答复。',285),NOTE('a2','财务工单 FIN-7731 已提。该卖家有 1 单（IGV…001）纠纷中，冻结 $89.5 不影响本次提现。',284),M('s1','好的，谢谢。',280)],
+  audit:[{t:ago(300),by:'s1',text:'从资金页创建会话'},{t:ago(290),by:'a2',text:'领取会话'},{t:ago(284),by:'a2',text:'状态改为：等待内部'}],read:{s1:ago(280),a2:ago(280),a1:ago(280)}}),
+ base({id:'c8',type:'sp',topic:'商品审核被驳回',ref:{kind:'listing',id:'L-5521'},waiting:'support',dueAt:ago(-4),origin:'卖家中心 · 商品管理',
+  members:[mb('s4','seller',11)],
+  msgs:[SYS('卖家从「卖家中心 · 商品管理」联系平台客服，已关联商品 L-5521',11),M('s4','Hi, my listing "Diablo IV Gold · Season 11 · 10B" was rejected. The reason only says "price abnormal". What should I change?',11),SYS('已进入人工队列，预计 15 分钟内响应',11)],
+  audit:[{t:ago(11),by:'s4',text:'从商品管理创建会话'}],read:{s4:ago(11)}}),
+ base({id:'c9',type:'sp',topic:'处罚申诉',ref:{kind:'penalty',id:'P-3307'},assignee:'a1',waiting:'seller',nextStep:'卖家补充原始邮箱移交证明后复核',tags:['申诉'],origin:'卖家中心 · 违规记录',
+  members:[mb('s2','seller',1500),mb('a1','agent',1480)],
+  msgs:[SYS('卖家从「卖家中心 · 违规记录」联系平台客服，已关联处罚 P-3307',1500),M('s2','I want to appeal penalty P-3307. I did not recover that account, the buyer shared it with someone else.',1500),M('a1','Understood. To review the appeal we need proof that the original email was fully handed over (email provider change log).',1480),M('a1','请在 48 小时内提交原始邮箱移交记录截图。',1479,{kind:'directive',dir:{to:'seller',req:'proof',dueAt:ago(-1400),st:{seller:'pending'}}})],
+  audit:[{t:ago(1500),by:'s2',text:'从违规记录创建会话'},{t:ago(1480),by:'a1',text:'领取会话'}],read:{s2:ago(1470),a1:ago(1479)}}),
+ base({id:'c10',type:'sp',topic:'反馈买家恶意退款',orderId:'o8',status:'resolved',assignee:'a1',origin:'订单详情页',
+  members:[mb('s1','seller',5700),mb('a1','agent',5690)],
+  msgs:[SYS('卖家从「订单详情页」联系平台客服，已关联订单',5700),M('s1','这个买家下单 5 分钟就要求退款，还威胁给差评，我们确实缺货但他态度很差。',5700),M('a1','收到。订单已按未交付全额退款，不计入您的纠纷率；买家行为已记录。',5690),SYS('客服已将会话标记为已解决',5689)],
+  resolution:{verdict:'已解决',text:'未交付全额退款，不计入卖家纠纷率',by:'a1',t:ago(5689)},
+  audit:[{t:ago(5700),by:'s1',text:'创建会话'},{t:ago(5689),by:'a1',text:'标记已解决'}],read:{s1:ago(5600),a1:ago(5600)}}),
+ base({id:'g3',type:'group',orderId:'o8',topic:'未交付',stage:4,status:'closed',assignee:'a1',origin:'客服创建',
+  members:[mb('b4','buyer',5760),mb('s1','seller',5760),mb('a1','agent',5760)],
+  msgs:[SYS('平台客服创建了订单协调群组，买家与卖家已加入',5760),M('sys','',5760,{kind:'order'}),M('b4','no gold after 40 minutes. refund now',5758),M('s1','Sorry, Faerlina Alliance is out of stock today. We agree to refund.',5750),
+   M('a1','',5745,{kind:'resolution'}),SYS('卖家已确认处理结论',5744),SYS('买家已确认处理结论',5743),SYS('群组已结束并归档 · 结束原因：已按结论执行 · 历史记录永久保留',5740)],
+  resolution:{verdict:'全额退款',text:'卖家缺货无法交付，双方同意全额退款 $64.00，原路退回。',fault:'卖家',owner:'a1',due:'已完成',need:true,confirm:{buyer:'ok',seller:'ok'},by:'a1',t:ago(5745),reason:'已按结论执行',closedBy:'a1',closedAt:ago(5740)},
+  audit:[{t:ago(5760),by:'a1',text:'创建三方群组'},{t:ago(5745),by:'a1',text:'发布处理结论：全额退款'},{t:ago(5740),by:'a1',text:'结束并归档群组'}],read:{b4:ago(5700),s1:ago(5700),a1:ago(5700)}}),
+ base({id:'c3',type:'bs',orderId:'o3',topic:'订单沟通',
+  members:[mb('b2','buyer',49),mb('s1','seller',49)],
+  msgs:[SYS('买家从「订单详情页」发起会话，已关联订单',49),M('sys','',49,{kind:'order'}),
+   M('b2','Hola, ya envié los códigos de respaldo. ¿Cuánto tardará la entrega?',48,{tr:'你好，我已经发送了备份码。交付需要多久？'}),
+   M('s1','Hi! We are transferring now, 800K done. Please do not log in for the next 60 minutes.',40,{tr:'¡Hola! Estamos transfiriendo ahora, 800K listos. Por favor no inicies sesión durante los próximos 60 minutos.'}),
+   M('b2','Perfecto, gracias. Avísame cuando termine.',38,{tr:'好的，谢谢。完成后请告诉我。'})],
+  audit:[{t:ago(49),by:'b2',text:'从订单详情页创建会话'}],read:{b2:ago(38),s1:ago(39)}}),
+ base({id:'c12',type:'bs',orderId:'o9',topic:'订单沟通',
+  risk:[{t:ago(30),by:'s1',text:'卖家尝试发送站外联系方式（Discord），已拦截'}],reports:[{t:ago(22),by:'b3',reason:'引导站外交易',text:'卖家让我加 Discord 以后直接找他买'}],
+  members:[mb('b3','buyer',38),mb('s1','seller',38)],
+  msgs:[SYS('买家从「订单详情页」发起会话，已关联订单',38),M('sys','',38,{kind:'order'}),M('b3','Hi, I\'m at the GE in world 301.',37),M('s1','Trading now.',30),M('s1','100M traded, please confirm the order. Next time you can find me cheaper outside, ask me how :)',28,{att:{type:'image',name:'osrs_trade_100m.png',size:'301 KB',proof:true},flag:'疑似引导站外交易'}),
+   M('b3','Received, thanks. I\'d rather stay on iGV though.',25),SYS('买家举报了该会话：引导站外交易',22,{only:['buyer']})],
+  audit:[{t:ago(38),by:'b3',text:'从订单详情页创建会话'},{t:ago(30),by:'sysbot',text:'拦截卖家消息：站外联系方式'},{t:ago(22),by:'b3',text:'举报：引导站外交易'}],read:{b3:ago(22),s1:ago(27)}}),
+ base({id:'c11',type:'bs',productId:'p1',topic:'售前咨询',origin:'商品详情页',
+  members:[mb('b1','buyer',95),mb('s4','seller',95)],
+  msgs:[SYS('买家从「商品详情页」发起咨询',95),M('b1','Hi, is the Shako still in stock for Season 11 softcore? Can you deliver tonight?',95),M('s4','Yes, 3 in stock. Delivery takes about 10 minutes after payment, I\'m online for the next 6 hours.',90),M('b1','Great, what\'s the item power?',88)],
+  audit:[{t:ago(95),by:'b1',text:'从商品详情页创建会话'}],read:{b1:ago(88),s4:ago(90)}}),
+ base({id:'c5',type:'bs',orderId:'o5',topic:'订单沟通',status:'closed',
+  members:[mb('b3','buyer',4330),mb('s4','seller',4330)],
+  msgs:[SYS('买家从「订单详情页」发起会话，已关联订单',4330),M('sys','',4330,{kind:'order'}),M('b3','Character name is KenjiBarb, I\'m in Kyovashad.',4328),M('s4','Invite sent. Traded! Enjoy.',4318,{att:{type:'image',name:'trade_done.png',size:'220 KB',proof:true}}),M('b3','Got it, thank you!',4316),SYS('订单已完成，会话已归档',4300)],
+  audit:[{t:ago(4330),by:'b3',text:'创建会话'},{t:ago(4300),by:'sysbot',text:'订单完成，自动归档'}],read:{b3:ago(4300),s4:ago(4300)}})
+];
+U.sysbot={id:'sysbot',role:'agent',name:'系统 / 风控',team:'自动',bot:true};
+return {U,O,P,convs,mid:()=>'m'+(++mid)};
+}
+
+const Y='<span class="y">可见</span>',N='<span class="nn">不可见</span>',OK='<span class="y">✓</span>',NO='<span class="nn">✕</span>';
+const DOCS={
+design:`
+<h3>1. 整体定位</h3>
+<p>这不是"带聊天窗口的后台"，而是一个<b>以订单为上下文、以待办为入口的统一会话中心</b>。买家、卖家、平台客服用的是同一套会话数据，只是各自看到不同的信息切面和操作权限。</p>
+<h3>2. 信息架构：为什么是「一个会话模型 + 四种类型」</h3>
+<ul>
+<li><b>统一会话模型</b>：每个会话 = 参与者 + 关联业务对象（订单 / 商品 / 提现 / 处罚 / 商品审核）+ 消息流 + 处理状态 + 审计日志。四种沟通模式只是 <code>type</code> 不同（买卖直聊 / 买家咨询 / 卖家咨询 / 三方群组），列表、消息、搜索、历史、权限全部复用。以后新增模式（如 卖家↔卖家、平台↔代练师）不需要再建一套系统。</li>
+<li><b>客服端四栏</b>：队列（我该做什么）→ 会话列表（先做哪个）→ 沟通区（怎么说）→ 业务信息（凭什么判断）。从左到右就是客服处理一个问题的顺序。</li>
+<li><b>队列按"球在谁手里"划分</b>，而不是按渠道划分：需我处理 / 未分配 / 已超时 / 等待买家 / 等待卖家 / 等待内部。客服不用翻聊天记录找待办；"等待"类队列也能防止会话沉底被遗忘。</li>
+<li><b>处理条</b>（会话标题下方）固定回答三个问题：<b>谁负责、等谁、下一步是什么</b>。"下一步"是一行可编辑文字，换班或转交时接手人一眼能接上。</li>
+<li><b>右侧业务区按对象分 Tab</b>（订单 / 买家 / 卖家 / 处理记录），核心信息直接展示，历史与低频信息折叠，深度详情进抽屉，避免堆砌。订单卡按品类变化：游戏币显示已交付数量和收货角色，账号显示质保期与改绑状态，代练显示段位进度，并附对应的处理指引。</li>
+</ul>
+<h3>3. 三个视角的主要区别</h3>
+<table class="t"><tr><th style="width:90px"></th><th>买家</th><th>卖家</th><th>平台客服</th></tr>
+<tr><td>列表组织</td><td>按"我在和谁说"：卖家 / 平台客服 / 订单协调</td><td>按"我要不要回"：待回复 / 等待买家 / 等待平台 / 已结束</td><td>按"球在谁手里" + 专项队列</td></tr>
+<tr><td>右侧信息</td><td>订单摘要、交付进度、卖家公开信息、平台处理进度</td><td>订单摘要、交付所需买家信息（脱敏）、履约操作</td><td>完整订单、买卖家画像、资金、处罚、历史、审计</td></tr>
+<tr><td>关键动作</td><td>申请客服介入、提交凭证、确认收货、举报、评价</td><td>提交交付信息、补充凭证、标记解决、邀请客服介入</td><td>接入、分配 / 转交、内部备注、处理要求、退款 / 冻结、结案</td></tr>
+<tr><td>看不到</td><td>卖家后台数据、买家以外的隐私、任何内部内容</td><td>买家邮箱 / 手机 / 支付方式、任何内部内容</td><td>—（按授权；内部讨论仅负责人与协作成员）</td></tr></table>
+<h3>4. 四种沟通模式如何协同</h3>
+<ul>
+<li><b>买卖直聊 → 三方群组（原地升级）</b>：买家或卖家点"申请客服介入"，或客服在风险巡检中主动介入，<b>同一个会话直接变成群组</b>，之前的记录全部保留，谁都不用重复描述。会话里插入一条明显的"平台已介入"分隔线。</li>
+<li><b>买家 / 卖家咨询 → 三方群组（新建并关联）</b>：一对一咨询里有用户隐私和客服判断，不能直接把另一方拉进来。因此客服升级时<b>新建群组</b>，用"问题摘要"向双方说明，两个会话互相关联，客服可一键跳转。</li>
+<li><b>同一订单只允许一个进行中的群组</b>：重复升级会直接打开已有群组，避免信息分散、重复处理。</li>
+<li>所有会话都挂在订单上：在订单卡里能看到"本订单的其他会话"，任何一段沟通都能顺着订单找到。</li>
+</ul>
+<h3>5. 三方群组的核心交互与权限</h3>
+<ul>
+<li><b>客服是主持人而不是第三个聊天者</b>：有三种发言方式——公开回复、处理要求（指定对象 + 时限 + 需提交的东西，自动倒计时、逾期进入超时队列、对方完成后自动回到"待客服"）、内部备注。</li>
+<li><b>防误发</b>：内部备注的输入区整体变为黄色斜纹，按钮文案变为"保存内部备注"；公开发送时明确列出"发送给：买家 X、卖家 Y"；群组内公开消息若含"风控 / 保证金 / 内部"等词会被拦下二次确认；客服可随时"预览买家 / 卖家所见"。</li>
+<li><b>两级内部可见性</b>：内部备注（全体客服可见）与内部讨论（仅负责人、协作成员、主管可见）。切换到 Leo Wang 身份查看群组即可看到被锁定的内部讨论占位。</li>
+<li><b>对外只有一个"iGV 客服"</b>：转交、换班、邀请内部同事，买卖家侧都无感知，不会看到客服姓名和内部成员。</li>
+<li><b>闭环</b>：处理阶段（受理→取证→裁定→执行→结案）对三方可见；结案时发布结论卡片（结论、责任方、后续责任人、期限），买卖双方确认或提出异议；归档后只读、记录永久保留，可重新开启。</li>
+<li><b>成员管理</b>：外部参与者只能是该订单的买家和卖家；移出 / 重新邀请都有系统消息和审计记录；被移出者只能看到移出前的记录；新建群组的成员看不到加入前的内容。</li>
+</ul>
+<h3>6. 相比旧版 Demo 的主要优化</h3>
+<p style="background:var(--warn-bg);padding:8px 10px;border-radius:8px">说明：本次只收到了需求文档与字段功能表，<b>旧版 Demo 文件未随消息上传</b>，因此下面是针对"按沟通模式分别建聊天窗口"这类常见旧架构的改进点，未与旧版逐页对照。补发旧版后可以再做一轮逐项比对。</p>
+<ul>
+<li>从"按聊天对象找会话"改为"按待办状态找会话"，并加入 SLA 倒计时与逾期队列。</li>
+<li>四种模式合并为统一会话体系，一对一可升级为群组，不丢上下文。</li>
+<li>公开消息 / 处理要求 / 内部备注 / 内部讨论 / 系统消息五类在视觉与操作上完全分开。</li>
+<li>订单、用户、资金、处罚、历史会话全部在右侧就地查看，订单操作（冻结、延时、退款）不离开会话。</li>
+<li>品类化：游戏币 / 账号 / 道具 / 代练各有对应的交付字段、默认问题类型、快捷回复与处理指引。</li>
+</ul>
+<h3>7. 字段表之外补充的功能及业务价值</h3>
+<ul>
+<li><b>处理要求卡片</b>：把"请在 2 小时内提交截图"从一句聊天变成可跟踪的任务，解决"等谁、等到什么时候"的问题。</li>
+<li><b>预览对方视角</b>：发敏感内容前自查，降低内部信息泄露风险。</li>
+<li><b>下一步字段 + 强制交接备注</b>：减少换班断层。</li>
+<li><b>风险巡检队列</b>：平台不默认旁听买卖直聊，只有被拦截 / 被举报的会话才进入队列。</li>
+<li><b>用户备注</b>：跨会话沉淀对某个买家 / 卖家的处理经验。</li>
+</ul>`,
+perm:`
+<h3>消息可见范围</h3>
+<table class="t"><tr><th>消息类型</th><th>买家</th><th>卖家</th><th>平台客服</th><th>Demo 中的表现</th></tr>
+<tr><td>买家公开消息</td><td>${Y}</td><td>${Y}</td><td>${Y}</td><td>蓝色标识</td></tr>
+<tr><td>卖家公开消息</td><td>${Y}</td><td>${Y}</td><td>${Y}</td><td>紫色标识</td></tr>
+<tr><td>平台公开消息 / 处理要求 / 处理结论</td><td>${Y}</td><td>${Y}</td><td>${Y}</td><td>绿色气泡 / 带倒计时卡片 / 结论卡片；对外署名"iGV 客服"</td></tr>
+<tr><td>公开系统通知（加入、移出、阶段、退款）</td><td>${Y}</td><td>${Y}</td><td>${Y}</td><td>灰色居中</td></tr>
+<tr><td>客服内部备注</td><td>${N}</td><td>${N}</td><td>${Y}</td><td>黄色斜纹块 + 🔒</td></tr>
+<tr><td>客服内部讨论</td><td>${N}</td><td>${N}</td><td>仅负责人、协作成员、主管</td><td>其他客服看到"1 条内部讨论"锁定占位</td></tr>
+<tr><td>内部系统记录（分配、转交、协作）</td><td>${N}</td><td>${N}</td><td>${Y}</td><td>黄色虚线居中</td></tr>
+<tr><td>风控提示、举报内容、审计日志</td><td>${N}（举报人可见自己的举报回执）</td><td>${N}</td><td>${Y}</td><td>处理记录 Tab</td></tr>
+<tr><td>被平台屏蔽的消息</td><td>显示"已被屏蔽"</td><td>显示"已被屏蔽"</td><td>可见原文（划线）</td><td>消息悬停 → 屏蔽</td></tr>
+<tr><td>一对一咨询升级前的内容</td><td colspan="2">仅原会话当事人可见，不带入群组</td><td>${Y}</td><td>新成员看到"加入前的记录不可见"</td></tr>
+<tr><td>买卖直聊升级前的内容</td><td>${Y}</td><td>${Y}</td><td>${Y}（介入后）</td><td>原地升级，分隔线以上完整保留</td></tr></table>
+<h3>操作权限</h3>
+<table class="t"><tr><th>操作</th><th>买家</th><th>卖家</th><th>平台客服</th></tr>
+<tr><td>发送文字 / 图片 / 视频 / 文件 / 凭证</td><td>${OK}</td><td>${OK}</td><td>${OK}</td></tr>
+<tr><td>撤回自己的消息</td><td>2 分钟内</td><td>2 分钟内</td><td>2 分钟内；备注可随时删除</td></tr>
+<tr><td>屏蔽他人违规消息</td><td>${NO}</td><td>${NO}</td><td>${OK}（留审计）</td></tr>
+<tr><td>申请平台介入（买卖直聊 → 群组）</td><td>${OK} 需已有订单</td><td>${OK} 需已有订单</td><td>${OK} 主动介入</td></tr>
+<tr><td>从一对一咨询创建三方群组</td><td>${NO}</td><td>${NO}</td><td>${OK}</td></tr>
+<tr><td>邀请 / 移出外部参与者</td><td>${NO}</td><td>${NO}</td><td>${OK} 仅限订单买卖双方</td></tr>
+<tr><td>邀请内部客服、转交、分配</td><td>${NO}</td><td>${NO}</td><td>${OK}</td></tr>
+<tr><td>发送处理要求、修改阶段 / 等待方 / 优先级</td><td>${NO}</td><td>${NO}</td><td>${OK}</td></tr>
+<tr><td>冻结货款、延长时限、退款</td><td>${NO}</td><td>${NO}</td><td>${OK}</td></tr>
+<tr><td>提交交付信息</td><td>${NO}</td><td>${OK}</td><td>${NO}</td></tr>
+<tr><td>确认收货、评价服务</td><td>${OK}</td><td>评价服务</td><td>${NO}</td></tr>
+<tr><td>确认 / 异议处理结论</td><td>${OK}</td><td>${OK}</td><td>发布</td></tr>
+<tr><td>结束会话</td><td>与平台的咨询</td><td>与平台的咨询</td><td>全部（需填结论 / 原因）</td></tr>
+<tr><td>重新开启</td><td>申请</td><td>申请</td><td>${OK}</td></tr>
+<tr><td>举报 / 屏蔽 / 免打扰</td><td>${OK}</td><td>${OK}</td><td>—</td></tr>
+<tr><td>切换关联订单</td><td>${NO}</td><td>${NO}</td><td>${OK}（群组除外，群组与订单绑定）</td></tr></table>`,
+cover:(()=>{const D='<span class="y">已实现</span>',H='<span style="color:var(--warn);font-weight:700">简化</span>',X='<span class="nn">未放入</span>';
+const rows=[
+['共通（三张表第 2–15 行）','会话入口',D,'「发起沟通 / 新建会话」模拟订单详情、商品详情、帮助中心、卖家中心入口；会话头部显示来源。用户主页入口合并到客服端"主动联系该用户"。'],
+['','会话标题 / 对象',D,'昵称、头像、角色色标；买卖家侧客服统一显示"iGV 客服"。'],
+['','关联业务信息',D,'订单号、商品、品类、订单状态；卖家咨询还可关联提现 / 处罚 / 商品。按角色过滤字段。'],
+['','会话列表',D,'最近消息、时间、未读数、状态；客服端另有优先级、SLA、负责人。'],
+['','文本消息',D,'文字、表情、Shift+Enter 换行。'],
+['','图片 / 文件',H,'可真实选择本地文件（图片可预览，按 10/100/20MB 校验）或发送示例附件；下载未做。'],
+['','消息状态',H,'发送中 → 已送达 → 已读 / 未读（群组内分别显示买家、卖家、客服）；"发送失败"未模拟。'],
+['','消息操作',D,'引用、复制、撤回（本人 2 分钟内）、客服屏蔽违规消息、删除自己的备注。规则见权限矩阵。'],
+['','翻译',H,'预置译文的消息可切换原文 / 译文，可开启自动翻译（见 Lucía_M 的西语会话）；输入内容翻译未做，需接翻译服务。'],
+['','敏感内容提示',D,'买卖家发送站外联系方式会被拦截并记入风险事件（试着发 "add my discord"）；客服公开消息含内部词会二次确认。'],
+['','历史记录',D,'完整时间线，归档后仍可查看；附件可回看。'],
+['','搜索',H,'列表按订单号 / 用户名 / 关键词搜索，会话内搜索并高亮；按时间筛选未做。'],
+['','通知',H,'未读角标、全局与单会话免打扰开关；声音与浏览器推送未做。'],
+['','举报 / 屏蔽',H,'举报已实现并进入客服风险队列；屏蔽为开关示意（字段表标注规则待定）。'],
+['买家视角','买家信息',D,'昵称、头像；买家 ID 对卖家仅显示尾号。'],
+['','订单摘要',D,'订单号、商品、金额、下单时间、状态、售后 / 争议状态。'],
+['','卖家信息',D,'店铺名、头像、等级、好评率、成交量（仅公开信息）。'],
+['','交付信息',D,'交付状态、进度、时间、说明，按品类变化。'],
+['','申请客服介入',D,'买卖会话内发起，选择问题类型并描述，原地升级为群组。'],
+['','提交凭证',D,'凭证消息同步归档到订单的"交付 / 问题凭证"。'],
+['','结束 / 评价会话',D,'与平台的咨询可主动结束；结束后五星评价。'],
+['','隐私保护',D,'邮箱、手机、支付信息脱敏；买家看不到卖家资金、保证金、处罚。'],
+['卖家视角','卖家信息',D,'昵称、店铺、等级、信誉；客服端另有保证金、资金、提现、处罚。'],
+['','订单摘要 / 买家信息',D,'仅展示履约所需信息（收货角色、服务器等），支付方式隐藏。'],
+['','订单操作入口',D,'查看订单、提交交付信息（更新数量与状态）。'],
+['','补充材料',D,'图片 / 文件 / 交付凭证。'],
+['','问题处理选项',D,'标记已解决、无法解决 → 邀请客服介入。'],
+['','会话状态（工作台）',D,'待回复 / 等待买家 / 等待平台 / 已结束 + 未读数。'],
+['','隐私保护',D,'最小必要原则，见上。'],
+['客服 · 三方会话','发起入口',D,'买家 / 卖家单聊、买卖直聊、订单详情抽屉、新建会话均可发起。争议详情页合并进订单抽屉。'],
+['','参与人选择',D,'由订单自动带出买家与卖家；可移出 / 重新邀请；可添加内部协作。'],
+['','会话名称 / 标识',D,'问题类型 + 订单号 + "三方"标识。'],
+['','参与人列表',D,'昵称、角色、加入时间、已读位置 / 移出状态。'],
+['','订单上下文',D,'群内订单卡 + 右侧完整订单。'],
+['','消息可见范围',D,'公开 / 内部备注 / 内部讨论三级，见权限矩阵。'],
+['','历史记录范围',D,'原地升级保留全部；新建群组不带入一对一内容；被移出者只读至移出时刻；转交后完整保留。'],
+['','身份标识',D,'每条消息带昵称 + 角色标签 + 颜色。'],
+['','加入 / 退出通知',D,'外部成员变动为公开系统消息；内部成员变动仅内部可见。均入审计。'],
+['','主持与控场',D,'邀请 / 移出、规则说明、处理要求、阶段、结束。'],
+['','转接与交接',D,'强制交接备注；对外始终是一个"iGV 客服"（对应表中第 26 行的要求）。'],
+['','结论与责任',D,'结论卡片：结论、说明、责任方、后续责任人、期限、双方确认状态。'],
+['','会话结束',D,'结束原因、结束人、时间；可重新开启并记录原因。'],
+['','敏感信息控制',D,'内部备注、风控、其他订单、个人资料对外屏蔽；可预览对方视角核对。'],
+['','完整审计日志',D,'创建、成员变更、分配转交、状态、订单操作、屏蔽、结案，带操作人与时间。'],
+['需求文档补充项','客服转交 / 分配 / 备注 / 跟进 / 关闭',D,'处理条 + 转交弹窗 + 结案弹窗。'],
+['','会话标记及优先级',D,'标签、四级优先级。'],
+['','订单关联与切换',D,'未关联可关联；一对一可切换；群组锁定。'],
+['','用户及订单历史',D,'历史订单、历史会话（抽屉只读查看）、纠纷 / 退款 / 违规、客服处理记录。'],
+['','真实后端能力',X,'实时推送、多端同步、文件存储、权限服务、翻译、风控模型均为前端模拟；数据刷新后重置。'],
+['','报表 / 质检 / 排班 / 自动分配规则',X,'属于管理后台，不在本次"沟通与处理"范围内，建议二期。'],
+['','移动端适配',X,'本次以 PC 桌面端为主。']];
+return`<p>对照《IM 字段及功能整理表》三个 Sheet（买家视角 22 项、卖家视角 22 项、客服视角 29 项）。三张表前 14 项相同，合并为"共通"。<b>没有删除任何字段</b>；"简化"表示交互已体现但未接真实能力。</p>
+<table class="t"><tr><th style="width:120px">来源</th><th style="width:150px">功能 / 字段</th><th style="width:56px">状态</th><th>Demo 中的位置与调整说明</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</table>
+<h3>合并 / 调整的字段</h3><ul><li>"会话状态"在客服端拆成两维：会话状态（进行中 / 已解决 / 已关闭）+ 等待方（客服 / 买家 / 卖家 / 双方 / 内部），这样才能回答"现在等谁"。</li><li>"用户主页入口""争议详情入口"在 Demo 中并入订单抽屉与用户资料抽屉。</li><li>买家 ID、邮箱、手机对不同角色展示不同粒度（完整 / 尾号 / 脱敏 / 隐藏）。</li><li>支付信息：买家看自己的支付方式；卖家只看"货款托管"状态；客服看流水号（部分掩码）与手续费。</li></ul>`})()
+};
+
+'use strict';
+let DB=seed();
+const S={viewer:{role:'agent',uid:'a1'},cid:'g1',queue:'todo',tf:'all',q:'',tab:null,mode:'public',preview:null,replyTo:null,msearch:null,autoTr:false,draft:{},trOn:{},warn:null,noteScope:'all',dir:{to:'seller',req:'proof',due:120},sec:{},modal:null,drawer:null,light:null,bottom:true,blocked:{},dnd:{},newTab:'order',newQ:'',n:0};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const usr=id=>DB.U[id],ord=k=>DB.O[k],C=id=>DB.convs.find(c=>c.id===id);
+const me=()=>S.viewer.uid,role=()=>S.viewer.role,cur=()=>C(S.cid);
+const AGENTS=['a1','a2','a3','a4'];
+const RL={buyer:'买家',seller:'卖家',agent:'客服',both:'买卖双方',support:'客服',internal:'内部'};
+const TYPE={bs:['买卖直聊','bs'],bp:['买家咨询','buyer'],sp:['卖家咨询','seller'],group:['三方群组','group']};
+const ST={pending:['待交付','amber'],delivering:['交付中','amber'],delivered:['已交付·待确认','green'],done:['已完成','green'],refunded:['已退款',''],dispute:['纠纷中','red']};
+const PRI={urgent:['紧急','red'],high:['高','amber'],normal:['普通',''],low:['低','']};
+const STAGES=['受理','取证','协商 / 裁定','执行','结案'];
+const ISSUES=['交付超时','未交付','游戏币交付异常','商品与描述不符','账号找回 / 恢复','代练进度争议','其他售后问题'];
+const TAGS=['交付超时','账号找回','退款','提现','申诉','VIP','恶意买家?','需回访'];
+const SENS=/(discord|whats\s?app|telegram|wechat|微信|skype|line\s?id|paypal\.me|[\w.]+@[\w-]+\.\w{2,}|\+?\d[\d\s-]{9,})/i;
+const LEAK=/(风控|内部|风险等级|risk score|保证金|别告诉|不要承诺)/i;
+const GL={Coins:'COINS',Accounts:'ACCT',Items:'ITEMS',Boosting:'BOOST'};
+const pad=n=>String(n).padStart(2,'0');
+function fmt(ts){const d=new Date(ts),n=new Date();const hm=pad(d.getHours())+':'+pad(d.getMinutes());return d.toDateString()===n.toDateString()?hm:(d.getMonth()+1)+'-'+pad(d.getDate())+' '+hm}
+function dur(ms){const m=Math.max(1,Math.round(Math.abs(ms)/6e4));if(m<60)return m+' 分钟';if(m<1440)return Math.floor(m/60)+' 小时'+(m%60?' '+m%60+' 分':'');return Math.round(m/1440)+' 天'}
+function rel(ts){const d=Date.now()-ts;return d<6e4?'刚刚':d<864e5?dur(d)+'前':fmt(ts)}
+const money=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function av(uid,vr,cls=''){const u=usr(uid);if(!u)return'';if(u.role==='agent'&&vr!=='agent')return`<span class="av agent ${cls}">iGV</span>`;return`<span class="av ${u.role} ${cls}">${esc(u.bot?'⚙':u.name.replace(/[^A-Za-z一-龥]/g,'').slice(0,2).toUpperCase())}</span>`}
+function uname(uid,vr){const u=usr(uid);if(!u)return'系统';if(u.role==='agent'&&vr!=='agent')return'iGV 客服';return u.name}
+const tg=(t,cls='')=>`<span class="tg ${cls}">${esc(t)}</span>`;
+const buyerId=c=>(c.members.find(m=>m.role==='buyer')||{}).uid||(c.orderId&&ord(c.orderId).buyer)||null;
+const sellerId=c=>(c.members.find(m=>m.role==='seller')||{}).uid||(c.orderId&&ord(c.orderId).seller)||(c.productId&&DB.P[c.productId].seller)||null;
+const isOpen=c=>c.status==='open';
+const member=(c,uid)=>c.members.find(m=>m.uid===uid);
+const canTeam=(c,uid)=>c.assignee===uid||!!member(c,uid)||!!usr(uid).lead;
+function refLabel(r){return r?({withdraw:'提现记录',listing:'商品',penalty:'处罚记录'}[r.kind]+' '+r.id):''}
+function convTitle(c,vr){const b=buyerId(c),s=sellerId(c);
+ if(vr==='agent'){if(c.type==='group')return c.topic+' · 订单群组';if(c.type==='bp')return usr(b).name+' · '+c.topic;if(c.type==='sp')return usr(s).name+' · '+c.topic;return usr(b).name+' ⇄ '+usr(s).name}
+ if(c.type==='group')return'订单协调 · '+c.topic;if(c.type==='bs')return vr==='buyer'?usr(s).store:usr(b).name;return'iGV 客服 · '+c.topic}
+function convSub(c){if(c.orderId){const o=ord(c.orderId);return'#'+o.id+' · '+o.title}if(c.productId)return'商品咨询 · '+DB.P[c.productId].title;if(c.ref)return refLabel(c.ref);return'未关联订单'}
+function vis(c,m,vr,uid){if(vr==='agent')return true;if(m.vis==='internal')return false;if(m.only&&!m.only.includes(vr))return false;const mbr=member(c,uid);if(!mbr)return false;if(m.t<mbr.joinedAt)return false;if(mbr.removedAt&&m.t>mbr.removedAt)return false;return true}
+function brief(c,m,vr){if(m.recalled)return'撤回了一条消息';if(m.kind==='note')return'🔒 备注：'+m.text;if(m.kind==='directive')return'📋 处理要求：'+m.text;if(m.kind==='resolution')return'⚖️ 处理结论：'+(c.resolution?c.resolution.verdict:'');if(m.kind==='divider')return m.text;if(m.att&&!m.text)return'['+({image:'图片',video:'视频',file:'文件'}[m.att.type])+'] '+m.att.name;if(m.kind==='sys')return m.text;return(m.from!=='sys'?uname(m.from,vr)+'：':'')+m.text}
+function lastMsg(c,vr,uid){for(let i=c.msgs.length-1;i>=0;i--){const m=c.msgs[i];if(m.kind!=='order'&&vis(c,m,vr,uid)&&!(m.kind==='note'&&m.scope==='team'&&!canTeam(c,uid)))return m}return null}
+function unread(c,uid,vr){if(vr==='agent'&&c.assignee&&c.assignee!==uid&&!member(c,uid))return 0;if(vr==='agent'&&c.type==='bs')return 0;const r=c.read[uid]||0;return c.msgs.filter(m=>m.t>r&&m.from!==uid&&m.kind!=='order'&&vis(c,m,vr,uid)).length}
+const pendingDirs=(c,r)=>c.msgs.filter(m=>m.kind==='directive'&&m.dir.st[r]==='pending');
+const allPending=c=>c.msgs.filter(m=>m.kind==='directive'&&Object.values(m.dir.st).includes('pending'));
+function isOverdue(c){if(!isOpen(c))return false;if(c.waiting==='support'&&c.dueAt&&c.dueAt<Date.now())return true;return allPending(c).some(m=>m.dir.dueAt<Date.now())}
+function slaChip(c){if(!isOpen(c))return'';let h='';if(c.waiting==='support'&&c.dueAt){const d=c.dueAt-Date.now();h+=d<0?tg('响应超时 '+dur(d),'red'):tg('剩 '+dur(d)+' 需回复',d<3e5?'amber':'line')}const od=allPending(c).filter(m=>m.dir.dueAt<Date.now());if(od.length)h+=tg('要求逾期','red');return h}
+function waitChip(c){if(c.status==='closed')return tg('已关闭 · 归档');if(c.status==='resolved')return tg('已解决','green');const w=c.waiting;if(c.type==='bs')return c.risk.length||c.reports.length?tg('风险待核查','red'):tg('买卖沟通中','line');if(!c.assignee&&c.type!=='bs')return tg('待接入','red');return w==='support'?tg('待客服回复','agent'):w==='buyer'?tg('等待买家','buyer'):w==='seller'?tg('等待卖家','seller'):w==='both'?tg('等待双方'):w==='internal'?tg('等待内部','note'):tg('进行中','line')}
+function extStatus(c,vr,uid){if(c.status!=='open')return'done';if(pendingDirs(c,vr).length)return'todo';if(c.type==='bs'){const l=[...c.msgs].reverse().find(m=>m.kind==='text');return l&&l.from===uid?'other':'todo'}const w=c.waiting;if(w===vr||w==='both')return'todo';if(!w||w==='support'||w==='internal')return'plat';return'other'}
+function extChip(c,vr,uid){const s=extStatus(c,vr,uid);if(s==='done')return c.status==='resolved'?tg('已解决','green'):tg('已结束');if(s==='todo')return tg('待你回复','amber');if(s==='plat')return tg('等待平台','agent');return tg(vr==='buyer'?'等待卖家':'等待买家','line')}
+function typeTag(c,vr){if(vr==='agent')return tg(TYPE[c.type][0],TYPE[c.type][1]);if(c.type==='group')return tg('三方','group');if(c.type==='bs')return vr==='buyer'?tg('卖家','seller'):tg('买家','buyer');return tg('平台','agent')}
+/* ---------- queues ---------- */
+const QUEUES=[['h','我的工作'],
+ ['todo','需我处理',c=>isOpen(c)&&c.assignee===me()&&c.waiting==='support','warm'],
+ ['unassigned','未分配 · 待接入',c=>isOpen(c)&&!c.assignee&&c.type!=='bs','hot'],
+ ['overdue','已超时 / 逾期',c=>c.type!=='bs'&&isOverdue(c),'hot'],
+ ['h','等待中'],
+ ['wb','等待买家',c=>isOpen(c)&&c.type!=='bs'&&c.assignee&&(c.waiting==='buyer'||c.waiting==='both')],
+ ['ws','等待卖家',c=>isOpen(c)&&c.type!=='bs'&&c.assignee&&(c.waiting==='seller'||c.waiting==='both')],
+ ['wi','等待内部处理',c=>isOpen(c)&&c.type!=='bs'&&c.waiting==='internal'],
+ ['h','专项'],
+ ['group','订单纠纷 · 三方群组',c=>c.type==='group'&&c.status!=='closed'],
+ ['risk','买卖直聊 · 风险巡检',c=>c.type==='bs'&&(c.risk.length||c.reports.length)>0,'hot'],
+ ['h','归档'],
+ ['resolved','已解决',c=>c.status==='resolved'&&c.type!=='bs'],
+ ['closed','已关闭',c=>c.status==='closed'&&c.type!=='bs'],
+ ['all','全部会话',c=>c.type!=='bs'||c.risk.length||c.reports.length]];
+function listFor(){const vr=role(),uid=me();let l;
+ if(vr==='agent'){if(S.q){const q=S.q.toLowerCase();l=DB.convs.filter(c=>{const o=c.orderId&&ord(c.orderId);const hay=[convTitle(c,vr),convSub(c),o&&o.id,usr(buyerId(c)||'')?.name,usr(sellerId(c)||'')?.name,c.tags.join(' '),...c.msgs.map(m=>m.text)].join(' ').toLowerCase();return hay.includes(q)})}
+  else{l=DB.convs.filter(QUEUES.find(q=>q[0]===S.queue)[2])}
+  if(S.tf!=='all')l=l.filter(c=>c.type===S.tf)}
+ else{l=DB.convs.filter(c=>member(c,uid));
+  if(S.q){const q=S.q.toLowerCase();l=l.filter(c=>[convTitle(c,vr),convSub(c),...c.msgs.filter(m=>vis(c,m,vr,uid)).map(m=>m.text)].join(' ').toLowerCase().includes(q))}
+  if(S.tf!=='all'){l=vr==='buyer'?l.filter(c=>({seller:'bs',plat:'bp',group:'group'}[S.tf])===c.type):l.filter(c=>extStatus(c,vr,uid)===S.tf)}}
+ const lt=c=>{const m=lastMsg(c,vr,uid);return m?m.t:0};
+ return l.sort((a,b)=>vr==='agent'&&S.queue==='todo'&&!S.q?(a.dueAt||9e15)-(b.dueAt||9e15):lt(b)-lt(a))}
+/* ---------- top / nav / list ---------- */
+function renderTop(){const vr=role();const ids=Object.values(DB.U).filter(u=>u.role===vr&&!u.bot);
+ return`<div class="logo"><i>iGV</i>${vr==='agent'?'客服工作台 <small>Support Hub</small>':'iGV.com <small>消息中心 · '+RL[vr]+'端</small>'}</div>
+ <div class="demo-switch">DEMO 视角<div class="seg">${['agent','buyer','seller'].map(r=>`<button class="${vr===r?'on':''}" data-a="role" data-v="${r}">${r==='agent'?'平台客服':RL[r]}</button>`).join('')}</div>
+ <select data-c="identity" title="切换身份">${ids.map(u=>`<option value="${u.id}" ${u.id===me()?'selected':''}>${esc(u.name)}${u.team?' · '+u.team:''}${u.store?' · '+esc(u.store):''}</option>`).join('')}</select></div>
+ <span class="sp"></span>
+ <button class="tbtn pri" data-a="newConv">＋ ${vr==='agent'?'新建会话':'发起沟通'}</button>
+ <button class="tbtn" data-a="docs" data-v="design">设计说明</button><button class="tbtn" data-a="docs" data-v="cover">字段覆盖</button><button class="tbtn" data-a="docs" data-v="perm">权限矩阵</button>
+ <button class="tbtn" data-a="reset" title="恢复初始模拟数据">重置</button>
+ <span class="me">${av(me(),'agent')}<span>${esc(usr(me()).name)}</span></span>`}
+function renderNav(){return QUEUES.map(q=>{if(q[0]==='h')return`<h5>${q[1]}</h5>`;const n=DB.convs.filter(q[2]).length;return`<button class="q ${S.queue===q[0]&&!S.q?'on':''}" data-a="queue" data-v="${q[0]}"><span class="d"></span>${q[1]}<span class="n ${n&&q[3]?q[3]:''}">${n}</span></button>`}).join('')}
+function renderListH(){const vr=role();let chips;
+ if(vr==='agent')chips=[['all','全部'],['group','三方'],['bp','买家'],['sp','卖家'],['bs','买卖']];
+ else if(vr==='buyer')chips=[['all','全部'],['seller','卖家'],['plat','平台客服'],['group','订单协调']];
+ else chips=[['all','全部'],['todo','待回复'],['other','等待买家'],['plat','等待平台'],['done','已结束']];
+ const ttl=vr==='agent'?(S.q?'搜索结果':QUEUES.find(q=>q[0]===S.queue)[1]):'我的消息';
+ return`<div class="row"><h3>${ttl}</h3>${vr!=='agent'?`<button class="btn sm ghost" data-a="dndAll">${S.dnd.all?'🔕 免打扰中':'🔔 通知开'}</button>`:''}</div>
+ <input class="search" id="lq" data-i="lq" placeholder="搜索 订单号 / 用户名 / 消息关键词" value="${esc(S.q)}">
+ <div class="chips">${chips.map(c=>`<button class="chipb ${S.tf===c[0]?'on':''}" data-a="tf" data-v="${c[0]}">${c[1]}</button>`).join('')}</div>`}
+function renderItems(){const vr=role(),uid=me(),l=listFor();if(!l.length)return`<div class="empty">这里没有会话<br><small>${vr==='agent'?'换一个队列或清空搜索试试':'点击右上角「发起沟通」'}</small></div>`;
+ return l.map(c=>{const m=lastMsg(c,vr,uid),n=unread(c,uid,vr);const a=c.assignee&&usr(c.assignee);
+  return`<button class="it ${c.id===S.cid?'on':''} ${n?'unread':''}" data-a="open" data-id="${c.id}">
+  <div class="r1">${typeTag(c,vr)}<span class="ttl">${esc(convTitle(c,vr))}</span><span class="tm">${m?rel(m.t):''}</span></div>
+  <div class="sub">${vr==='agent'&&c.type==='group'?esc(usr(buyerId(c)).name+' ⇄ '+usr(sellerId(c)).name)+' · ':''}${esc(convSub(c))}</div>
+  <div class="last">${m?esc(brief(c,m,vr)):''}</div>
+  <div class="r4">${vr==='agent'?waitChip(c)+(c.priority==='urgent'||c.priority==='high'?tg('优先级 '+PRI[c.priority][0],PRI[c.priority][1]):'')+slaChip(c)+(c.type!=='bs'?(a?`<span class="tg line">${av(a.id,'agent','s')} ${esc(a.name)}</span>`:tg('未分配','line')):''):extChip(c,vr,uid)+(c.orderId?tg(ST[ord(c.orderId).st][0],ST[ord(c.orderId).st][1]):'')}
+  ${n?`<span class="badge">${n}</span>`:''}</div></button>`}).join('')}
+/* ---------- messages ---------- */
+function hl(t){let h=esc(t);if(S.msearch){const q=esc(S.msearch).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');if(q)h=h.replace(new RegExp(q,'gi'),x=>`<mark>${x}</mark>`)}return h}
+function orderMini(c,vr){if(!c.orderId)return'';const o=ord(c.orderId);return`<div class="card order"><div class="ohead"><span class="gico ${o.cat}">${GL[o.cat]}</span><div style="min-width:0"><div class="t">${esc(o.title)}</div><div class="s">#${o.id} · ${esc(o.spec)}</div></div><span class="price">${money(o.amount)}</span></div><div class="cf">${tg(ST[o.st][0],ST[o.st][1])}<span>交付：${esc(o.delivery.status)}</span><span style="flex:1"></span><button class="btn sm" data-a="orderDrawer" data-id="${o.key}">查看订单</button></div></div>`}
+function attHtml(a){return`<button class="att ${a.type}" data-a="light" data-n="${esc(a.name)}" data-u="${esc(a.url||'')}" data-t="${a.type}"><span class="th" ${a.url&&a.type==='image'?`style="background-image:url(${esc(a.url)})"`:''}>${a.url&&a.type==='image'?'':{image:'IMG',video:'▶',file:'FILE'}[a.type]}</span><span><div class="nm">${esc(a.name)}</div><div class="sz">${esc(a.size||'')}${a.proof?' · 交付/问题凭证':''}</div></span></button>`}
+function receipt(c,m,vr,uid){if(m.state==='sending')return'发送中…';if(m.kind==='note')return'';const rd=u=>(c.read[u]||0)>=m.t;const ext=c.members.filter(x=>x.role!=='agent'&&x.uid!==uid&&!x.removedAt);const agRead=c.members.some(x=>x.role==='agent'&&rd(x.uid));
+ const parts=ext.map(x=>RL[x.role]+(rd(x.uid)?'已读':'未读'));if(vr!=='agent'&&c.type!=='bs')parts.push(agRead?'客服已读':'客服未读');return parts.length?'已送达 · '+parts.join(' · '):'已送达'}
+function dirCard(c,m,vr,uid,ro){const d=m.dir,over=d.dueAt<Date.now(),pend=Object.values(d.st).includes('pending');const mine=vr!=='agent'&&d.st[vr]==='pending';
+ return`<div class="card dir ${pend&&over?'over':''}" id="${m.id}"><h4>📋 平台处理要求 ${tg('对象：'+RL[d.to],d.to==='both'?'':d.to)} ${Object.entries(d.st).map(([r,s])=>tg(RL[r]+(s==='done'?' 已完成':' 待处理'),s==='done'?'green':over?'red':'amber')).join(' ')}</h4>
+ <div style="margin-top:6px;white-space:pre-wrap">${hl(m.text)}</div>
+ <div class="cf"><span>${uname(m.from,vr)} · ${fmt(m.t)}</span><span>截止 ${fmt(d.dueAt)}${pend?(over?' · <b style="color:var(--danger)">已逾期 '+dur(d.dueAt-Date.now())+'</b>':' · 剩 '+dur(d.dueAt-Date.now())):''}</span><span style="flex:1"></span>
+ ${ro?'':mine?`<button class="btn pri sm" data-a="dirDone" data-id="${m.id}">${d.req==='proof'?'上传凭证并提交':d.req==='confirm'?'确认':'标记已回复'}</button>`:vr==='agent'&&pend?`<button class="btn sm" data-a="dirNudge" data-id="${m.id}">催办</button><button class="btn sm" data-a="dirClose" data-id="${m.id}">标记完成</button>`:''}</div></div>`}
+function resCard(c,m,vr,uid,ro){const r=c.resolution;if(!r)return'';const cf=r.confirm||{};const can=!ro&&vr!=='agent'&&r.need&&cf[vr]==null&&c.status!=='closed';
+ return`<div class="card res" id="${m.id}"><h4>⚖️ 平台处理结论 ${tg(r.verdict,'group')}</h4><div style="margin-top:6px;white-space:pre-wrap">${esc(r.text)}</div>
+ <dl class="kv">${r.fault?`<dt>责任方</dt><dd>${esc(r.fault)}</dd>`:''}${r.owner?`<dt>后续责任人</dt><dd>${esc(vr==='agent'?(usr(r.owner)?usr(r.owner).name:r.owner):(usr(r.owner)?'iGV 客服':r.owner))}</dd>`:''}${r.due?`<dt>完成期限</dt><dd>${esc(r.due)}</dd>`:''}</dl>
+ <div class="cf"><span>${uname(r.by,vr)} · ${fmt(r.t)}</span>${r.need?['buyer','seller'].map(x=>tg(RL[x]+(cf[x]==='ok'?' 已确认':cf[x]==='no'?' 有异议':' 待确认'),cf[x]==='ok'?'green':cf[x]==='no'?'red':'amber')).join(''):''}<span style="flex:1"></span>
+ ${can?`<button class="btn sm danger" data-a="resConfirm" data-v="no">有异议</button><button class="btn pri sm" data-a="resConfirm" data-v="ok">确认结论</button>`:''}</div></div>`}
+function msgHtml(c,m,vr,uid,ro){
+ if(m.kind==='order')return orderMini(c,vr);
+ if(m.kind==='divider')return`<div><div class="divider">🛡 ${esc(m.text)}</div><div class="sys" style="margin-top:-10px"><span>${esc(m.sub||'')}</span></div></div>`;
+ if(m.kind==='sys')return`<div class="sys ${m.vis==='internal'?'int':''}"><span>${m.vis==='internal'?'🔒 ':''}${hl(m.text)}${m.link?` <button class="lnk" data-a="open" data-id="${m.link}">前往群组 →</button>`:''} · ${fmt(m.t)}</span></div>`;
+ if(m.kind==='note'){if(m.scope==='team'&&!canTeam(c,uid))return`<div class="note locked">🔒 1 条内部讨论 · 仅本会话负责人与协作成员可见（${fmt(m.t)}）</div>`;
+  return`<div class="note" id="${m.id}"><div class="nh">🔒 ${m.scope==='team'?'内部讨论 · 仅协作成员可见':'内部备注 · 全体客服可见'} <span style="font-weight:400">— ${esc(usr(m.from).name)} · ${fmt(m.t)} · 买家/卖家不可见</span></div><div class="nb">${hl(m.text)}</div>${!ro&&m.from===uid?`<div class="ops"><button data-a="msgDel" data-id="${m.id}">删除</button></div>`:''}</div>`}
+ if(m.kind==='directive')return dirCard(c,m,vr,uid,ro);
+ if(m.kind==='resolution')return resCard(c,m,vr,uid,ro);
+ const u=usr(m.from),mine=m.from===uid&&!S.preview,cls=u.role;
+ const rTag=u.role==='agent'?(vr==='agent'?tg(u.team||'客服','agent'):tg('平台','agent')):tg(RL[u.role],u.role);
+ let body;
+ if(m.recalled)body=`<div class="bub gone">${mine?'你':esc(uname(m.from,vr))}撤回了一条消息</div>`;
+ else if(m.hidden&&vr!=='agent')body=`<div class="bub gone">该消息因违反平台规则已被屏蔽</div>`;
+ else{const q=m.re&&c.msgs.find(x=>x.id===m.re);const showTr=m.tr&&(S.autoTr||S.trOn[m.id]);
+  body=(!m.text&&m.att&&!q?'':`<div class="bub ${m.hidden?'hid':''}">${q?`<div class="quote">↩ ${esc(uname(q.from,vr))}：${esc(q.text||(q.att?q.att.name:''))}</div>`:''}${m.kind==='rules'?'<b>📌 群组规则与处理流程</b>\n':''}${hl(m.text)}${showTr?`<div class="tr">🌐 ${esc(m.tr)}</div>`:''}</div>`)+(m.att?attHtml(m.att):'')}
+ const canRecall=mine&&!m.recalled&&Date.now()-m.t<12e4;
+ const ops=ro||m.recalled?'':`<div class="ops"><button data-a="msgReply" data-id="${m.id}">引用</button><button data-a="msgCopy" data-id="${m.id}">复制</button>${m.tr?`<button data-a="msgTr" data-id="${m.id}">${S.trOn[m.id]?'原文':'翻译'}</button>`:''}${canRecall?`<button data-a="msgRecall" data-id="${m.id}">撤回</button>`:''}${vr==='agent'&&u.role!=='agent'?`<button data-a="msgHide" data-id="${m.id}">${m.hidden?'恢复':'屏蔽'}</button>`:''}</div>`;
+ return`<div class="m ${cls} ${mine?'mine':''}" id="${m.id}">${av(m.from,vr)}<div class="bd"><div class="meta"><b>${esc(uname(m.from,vr))}</b>${rTag}<span>${fmt(m.t)}</span>${m.flag&&vr==='agent'?tg('⚠ '+m.flag,'red'):''}${m.hidden&&vr==='agent'?tg('已对外屏蔽','red'):''}</div>${body}${mine&&!m.recalled?`<div class="foot">${receipt(c,m,vr,uid)}</div>`:''}</div>${ops}</div>`}
+function msgsHtml(c,vr,uid,ro){let l=c.msgs.filter(m=>vis(c,m,vr,uid));if(S.msearch&&!ro){const q=S.msearch.toLowerCase();l=l.filter(m=>(m.text||'').toLowerCase().includes(q)||(m.att&&m.att.name.toLowerCase().includes(q)))}
+ const mbr=member(c,uid);let pre='';if(vr!=='agent'&&mbr&&c.msgs.some(m=>m.t<mbr.joinedAt&&m.vis==='public'))pre=`<div class="sys"><span>你于 ${fmt(mbr.joinedAt)} 加入，加入前的记录不可见</span></div>`;
+ return pre+(l.map(m=>msgHtml(c,m,vr,uid,ro)).join('')||'<div class="empty">没有匹配的消息</div>')}
+/* ---------- chat ---------- */
+function partTags(c,vr){return c.members.filter(m=>!m.removedAt).filter(m=>vr==='agent'||m.role!=='agent').map(m=>{const u=usr(m.uid);return`<span class="tg ${u.role}">${u.role==='agent'?(m.uid===c.assignee?'负责 ':'协作 '):RL[u.role]+' '}${esc(u.name)}</span>`}).join('')+(vr!=='agent'&&c.members.some(m=>m.role==='agent')?tg('平台 iGV 客服','agent'):'')}
+function renderChat(){const c=cur(),real=role(),vr=S.preview||real,uid=S.preview?(S.preview==='buyer'?buyerId(c):sellerId(c)):me();
+ if(!c)return`<div class="empty" style="margin:auto">选择左侧会话开始处理</div>`;
+ const o=c.orderId&&ord(c.orderId),ro=!!S.preview;let h='';
+ /* header */
+ const menu=real==='agent'?`<details class="pop"><summary class="btn">⋯</summary><div class="menu down"><button data-a="members">👥 参与者管理</button><button data-a="invite">＋ 邀请内部客服协作</button><button data-a="toggleTr">🌐 ${S.autoTr?'关闭':'开启'}自动翻译</button><button data-a="orderDrawer" data-id="${o?o.key:''}" ${o?'':'disabled'}>📦 查看完整订单</button><button data-a="docs" data-v="perm">🔐 权限矩阵</button></div></details>`
+  :`<details class="pop"><summary class="btn">⋯</summary><div class="menu down"><button data-a="members">👥 参与者</button><button data-a="toggleTr">🌐 ${S.autoTr?'关闭':'开启'}自动翻译</button><button data-a="dnd">${S.dnd[c.id]?'🔔 取消免打扰':'🔕 消息免打扰'}</button>${c.type==='bs'?`<button data-a="block">${S.blocked[c.id]?'解除屏蔽':'🚫 屏蔽对方'}</button>`:''}<button data-a="report">⚠ 举报</button>${c.type!=='bs'&&c.type!=='group'&&c.status==='open'?'<button data-a="extClose">✓ 问题已解决，结束会话</button>':''}</div></details>`;
+ let acts='';
+ if(real==='agent'){const canUp=c.type!=='group'&&c.status!=='closed';
+  acts=`<label class="btn" style="padding:3px 6px">👁 <select style="border:0;background:none;font-size:12px" data-c="preview"><option value="">客服视角</option>${member(c,buyerId(c))?`<option value="buyer" ${S.preview==='buyer'?'selected':''}>预览买家所见</option>`:''}${member(c,sellerId(c))?`<option value="seller" ${S.preview==='seller'?'selected':''}>预览卖家所见</option>`:''}</select></label>
+  <button class="btn" data-a="msearch">🔍</button>
+  ${canUp?`<button class="btn dark" data-a="upgrade">⬆ 升级三方群组</button>`:''}
+  ${!c.assignee&&c.type!=='bs'&&isOpen(c)?`<button class="btn pri" data-a="pickUp">接入处理</button>`:c.type!=='bs'?`<button class="btn" data-a="transfer">转交</button>`:''}
+  ${c.type==='bs'?'':c.status==='open'?`<button class="btn" data-a="closeDlg">${c.type==='group'?'结案':'解决 / 关闭'}</button>`:c.status==='resolved'?`<button class="btn" data-a="archive">归档</button><button class="btn" data-a="reopenDlg">重新开启</button>`:`<button class="btn" data-a="reopenDlg">重新开启</button>`}${menu}`}
+ else{acts=`<button class="btn" data-a="msearch">🔍</button>${c.type==='bs'&&c.status==='open'?`<button class="btn dark" data-a="reqSupport" ${c.orderId?'':'disabled title="售前咨询未关联订单，如遇违规请使用举报"'}>🛡 申请客服介入</button>`:''}${menu}`}
+ h+=`<div class="ch"><div class="r1">${typeTag(c,vr)}<h2 style="flex:1;min-width:0">${esc(convTitle(c,vr))}</h2><div class="acts">${acts}</div></div><div class="who">${partTags(c,vr)}${o?`<button class="lnk" data-a="orderDrawer" data-id="${o.key}">#${o.id}</button>`:c.ref&&vr!=='buyer'?tg(refLabel(c.ref),'line'):''}${vr==='agent'?tg('来源：'+c.origin,'line'):''}</div>`;
+ if(real==='agent'&&c.type!=='bs'&&!S.preview){h+=`<div class="hbar">
+  <label>负责人 <select data-c="setAssignee"><option value="">未分配</option>${AGENTS.map(a=>`<option value="${a}" ${c.assignee===a?'selected':''}>${esc(usr(a).name)}</option>`).join('')}</select></label>
+  <label>优先级 <select data-c="setPriority">${Object.keys(PRI).map(p=>`<option value="${p}" ${c.priority===p?'selected':''}>${PRI[p][0]}</option>`).join('')}</select></label>
+  <label>等待 <select data-c="setWaiting" ${isOpen(c)?'':'disabled'}>${[['support','客服（我方）'],['buyer','买家'],['seller','卖家'],['both','买卖双方'],['internal','内部处理']].filter(x=>c.type==='group'||!((c.type==='bp'&&(x[0]==='seller'||x[0]==='both'))||(c.type==='sp'&&(x[0]==='buyer'||x[0]==='both')))).map(x=>`<option value="${x[0]}" ${c.waiting===x[0]?'selected':''}>${x[1]}</option>`).join('')}</select></label>
+  ${slaChip(c)}
+  ${c.type==='group'?`<label>阶段 <select data-c="setStage">${STAGES.map((s,i)=>`<option value="${i}" ${c.stage===i?'selected':''}>${i+1}. ${s}</option>`).join('')}</select></label>`:''}
+  <span>${c.tags.map(t=>`<span class="tg x amber" data-a="rmTag" data-v="${esc(t)}" title="点击移除">${esc(t)} ×</span>`).join(' ')} <select data-c="addTag" style="width:78px"><option value="">＋ 标签</option>${TAGS.filter(t=>!c.tags.includes(t)).map(t=>`<option>${esc(t)}</option>`).join('')}</select></span>
+  <div class="next"><b style="white-space:nowrap">下一步</b><input data-c="setNext" value="${esc(c.nextStep)}" placeholder="写下下一步动作，换班的人一眼就能接手"></div></div>`}
+ h+=`</div>`;
+ /* strips */
+ if(S.preview)h+=`<div class="strip prev">👁 正在预览「${RL[vr]} ${esc(usr(uid).name)}」所见内容：内部备注、内部讨论、风控信息与客服姓名均已隐藏<span class="sp"></span><button class="btn sm" data-a="exitPreview">退出预览</button></div>`;
+ if(vr!=='agent'&&c.type==='group'){h+=`<div class="strip info"><div class="stages">${STAGES.map((s,i)=>`<span class="${i<c.stage?'done':i===c.stage?'cur':''}">${s}</span>`).join('')}</div><span>${c.status==='closed'?'本群组已结束，记录永久保留':c.status==='resolved'?'平台已发布处理结论，等待买卖双方确认':!c.assignee?'已提交平台，等待客服接入':({support:'平台处理中',internal:'平台内部核查中',buyer:'等待买家回复',seller:'等待卖家回复',both:'等待买卖双方回复'}[c.waiting]||'平台处理中')}</span></div>`}
+ if(vr!=='agent')pendingDirs(c,vr).forEach(m=>{const od=m.dir.dueAt<Date.now();h+=`<div class="strip ${od?'red':'task'}">⏳ 平台要求你${od?'（已逾期）':'在 '+fmt(m.dir.dueAt)+' 前'}处理：${esc(m.text.slice(0,46))}…<span class="sp"></span><button class="btn sm" data-a="jump" data-id="${m.id}">查看</button></div>`});
+ if(real==='agent'&&c.type==='bs'&&!S.preview)h+=`<div class="strip ${c.risk.length||c.reports.length?'red':'info'}">${c.risk.length||c.reports.length?'⚠ 风险巡检：'+esc([...c.risk.map(r=>r.text),...c.reports.map(r=>'举报：'+r.reason)].join('；')):'这是买卖双方的直接沟通，平台未加入。'}<span class="sp"></span>你当前为只读，公开发言需先介入</div>`;
+ if(real==='agent'&&c.linked.length&&!S.preview)h+=`<div class="strip info">🔗 关联会话：${c.linked.map(id=>{const x=C(id);return`<button class="lnk" data-a="open" data-id="${id}">${esc(TYPE[x.type][0]+' · '+convTitle(x,'agent'))}</button>`}).join('、')}</div>`;
+ if(S.msearch!==null)h+=`<div class="msearch">🔍<input id="ms" data-i="ms" placeholder="在本会话中搜索消息、附件名" value="${esc(S.msearch)}"><span id="mscount" style="font-size:12px;color:var(--ink3)"></span><button class="btn sm" data-a="msearchOff">关闭</button></div>`;
+ h+=`<div class="msgs" id="msgs">${msgsHtml(c,vr,uid,ro)}</div>`;
+ h+=renderComposer(c,real,vr,uid);return h}
+function renderComposer(c,real,vr,uid){
+ if(S.preview)return`<div class="closedbar">预览模式下不可发送消息<span class="sp"></span><button class="btn" data-a="exitPreview">退出预览</button></div>`;
+ const mbr=member(c,uid);
+ if(real!=='agent'&&mbr&&mbr.removedAt)return`<div class="closedbar">你已被平台移出该群组，可查看移出前的历史记录</div>`;
+ if(c.status==='closed'){const r=c.resolution;return`<div class="closedbar"><div>🗄 会话已结束并归档，历史记录完整保留${r&&r.reason?` · 结束原因：${esc(r.reason)}`:''}${real!=='agent'&&c.type!=='bs'?rateHtml(c):''}</div><span class="sp"></span><button class="btn" data-a="${real==='agent'?'reopenDlg':'extReopen'}">${real==='agent'?'重新开启':c.type==='bs'?'重新联系':'问题未解决，申请重新开启'}</button></div>`}
+ const warn=S.warn?`<div class="warnbox">${S.warn.html}</div>`:'';
+ const reply=S.replyTo?(()=>{const q=c.msgs.find(m=>m.id===S.replyTo);return q?`<div class="replying">↩ 引用 ${esc(uname(q.from,real))}：${esc((q.text||'').slice(0,60))}<span style="flex:1"></span><button class="ib" data-a="replyOff">×</button></div>`:''})():'';
+ const tools=`<details class="pop"><summary class="ib">📎 附件</summary><div class="menu"><div class="mh">图片 ≤10MB · 视频 ≤100MB · 文件 ≤20MB</div><button data-a="pickFile">从电脑上传…</button><button data-a="attach" data-v="image">发送示例截图</button><button data-a="attach" data-v="video">发送示例录屏</button><button data-a="attach" data-v="file">发送示例文件</button><button data-a="attach" data-v="proof">发送交付 / 问题凭证</button></div></details>
+ <details class="pop"><summary class="ib">😊</summary><div class="menu emo">${['👍','🙏','😊','😅','✅','❌','⏳','💰','🎮','🔒','📸','❤️'].map(e=>`<button data-a="emoji" data-v="${e}">${e}</button>`).join('')}</div></details>`;
+ const d=esc(S.draft[c.id]||'');
+ if(real!=='agent'){return`<div class="comp">${warn}${reply}${c.status==='resolved'?'<div class="aud">本会话已标记解决，继续回复将自动重新开启</div>':''}<textarea id="ta" data-i="ta" placeholder="输入消息… Enter 发送，Shift+Enter 换行。请勿交换站外联系方式">${d}</textarea><div class="cbar">${tools}<span class="sp"></span><span class="hint">${c.type==='group'?'群组内买家、卖家、平台均可见':c.type==='bs'?'仅你与对方可见 · 平台可在纠纷时调阅':'仅你与平台客服可见'}</span><button class="btn pri" data-a="send">发送</button></div></div>`}
+ /* agent */
+ const bs=c.type==='bs';let mode=bs?'note':S.mode;
+ const ext=c.members.filter(m=>m.role!=='agent'&&!m.removedAt).map(m=>`<span class="tg ${m.role}">${RL[m.role]} ${esc(usr(m.uid).name)}</span>`).join(' ');
+ const modes=bs?`<div class="modes"><button class="on notem">🔒 内部备注</button><span style="flex:1"></span><button class="btn dark sm" data-a="upgrade">🛡 以平台身份介入（升级为三方群组）</button></div>`
+  :`<div class="modes"><button class="${mode==='public'?'on':''}" data-a="mode" data-v="public">💬 公开回复</button><button class="${mode==='directive'?'on dirm':''}" data-a="mode" data-v="directive">📋 处理要求</button><button class="${mode==='note'?'on notem':''}" data-a="mode" data-v="note">🔒 内部备注</button><span style="flex:1"></span>
+  <details class="pop"><summary class="ib">⚡ 快捷回复</summary><div class="menu" style="left:auto;right:0;min-width:340px">${QUICK(c).map(q=>`<button data-a="quick" data-v="${esc(q)}">${esc(q)}</button>`).join('')}</div></details></div>`;
+ let aud,ph,btn;
+ if(mode==='note'){aud=`<div class="aud" style="color:var(--note-ink);font-weight:600">🔒 仅内部可见，买家和卖家永远看不到 <select class="sel" data-c="noteScope"><option value="all" ${S.noteScope==='all'?'selected':''}>内部备注 · 全体客服可见</option><option value="team" ${S.noteScope==='team'?'selected':''}>内部讨论 · 仅负责人与协作成员</option></select></div>`;ph='写给同事的备注：判断依据、风控信息、交接说明…';btn=`<button class="btn warn" data-a="send">保存内部备注</button>`}
+ else if(mode==='directive'){const tos=c.type==='group'?[['seller','卖家'],['buyer','买家'],['both','买卖双方']]:c.type==='bp'?[['buyer','买家']]:[['seller','卖家']];if(!tos.some(t=>t[0]===S.dir.to))S.dir.to=tos[0][0];
+  aud=`<div class="aud">📋 要求 <select class="sel" data-c="dirTo">${tos.map(t=>`<option value="${t[0]}" ${S.dir.to===t[0]?'selected':''}>${t[1]}</option>`).join('')}</select> 在 <select class="sel" data-c="dirDue">${[[30,'30 分钟'],[120,'2 小时'],[1440,'24 小时'],[2880,'48 小时']].map(t=>`<option value="${t[0]}" ${S.dir.due==t[0]?'selected':''}>${t[1]}</option>`).join('')}</select> 内 <select class="sel" data-c="dirReq">${[['proof','提交凭证'],['confirm','确认'],['reply','回复说明']].map(t=>`<option value="${t[0]}" ${S.dir.req===t[0]?'selected':''}>${t[1]}</option>`).join('')}</select><span>· 公开可见，带倒计时并自动跟踪完成状态</span></div>`;ph='写明需要对方做什么、提交什么…';btn=`<button class="btn dark" data-a="send">发送处理要求</button>`}
+ else{aud=`<div class="aud">💬 公开发送给：${ext||'—'}${c.type==='group'?' <b style="color:var(--danger)">（群内所有外部成员可见）</b>':''}<span style="color:var(--ink3)">· 对外署名统一为「iGV 客服」</span></div>`;ph='回复用户… Enter 发送，Shift+Enter 换行';btn=`<button class="btn pri" data-a="send">${c.type==='group'?'公开发送给买卖双方':'发送给'+(c.type==='bp'?'买家':'卖家')}</button>`}
+ return`<div class="comp ${mode==='note'?'note-mode':''}">${modes}${warn}${reply}${aud}<textarea id="ta" data-i="ta" placeholder="${ph}">${d}</textarea><div class="cbar">${mode==='note'?'':tools}<span class="sp"></span>${btn}</div></div>`}
+function QUICK(c){const o=c.orderId&&ord(c.orderId);const base=['Hi, this is iGV Support. I\'ve reviewed your order and the chat history — no need to repeat anything.','Thanks for the evidence. We are verifying it and will update you here shortly.','Your funds are held safely in iGV escrow until this is resolved.'];
+ if(o&&o.cat==='Coins')base.push('Please upload the in-game trade screenshot showing character name, amount and time.');
+ if(o&&o.cat==='Accounts')base.push('For account safety, please do not change any bound information until we finish the review.');
+ if(o&&o.cat==='Boosting')base.push('Please share the full match history for this order, including time and LP changes.');return base}
+function rateHtml(c){return`<span class="stars" style="margin-left:12px">服务评价 ${[1,2,3,4,5].map(i=>`<button class="${(c.rating||0)>=i?'on':''}" data-a="rate" data-v="${i}">★</button>`).join('')}</span>`}
+
+/* ---------- context panel ---------- */
+const sec=(k,title,body,def)=>`<details class="sec" data-k="${k}" ${(S.sec[k]??def)?'open':''}><summary>${title}</summary>${body}</details>`;
+const kv=rows=>`<dl class="kv">${rows.filter(Boolean).map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')}</dl>`;
+const GUIDE={Coins:['核对已交付数量与交易截图（角色名 / 数量 / 时间）','超出承诺时限：可延长一次或按未交付部分退款','警惕"已交付"但买家未收到：要求卖家提供完整交易录屏'],Accounts:['确认是否在质保期内、买家是否已改密改绑','找回 / 恢复：冻结货款 → 要求卖家举证原始邮箱移交','责任成立：全额退款并从保证金扣罚，记入违规'],Items:['核对道具名称、数量、属性与商品描述','要求双方提供游戏内交易记录截图','描述不符：协商补差价或退货退款'],Boosting:['比对起始 / 当前 / 目标段位与对局记录','进度滞后：要求代练师给出完成时间，可按进度比例结算','账号异常（封号 / 掉分）：冻结货款并转风控']};
+function orderPanel(o,c,vr){const d=o.delivery,late=!d.deliveredAt&&d.deadline<Date.now()&&o.st!=='refunded';const ag=vr==='agent';
+ let h=`<div class="sec"><div class="ohead"><span class="gico ${o.cat}">${GL[o.cat]}</span><div style="min-width:0"><div class="t">${esc(o.title)}</div><div class="s">${esc(o.game)} · ${esc(o.spec)}</div></div><span class="price">${money(o.amount)}</span></div>
+ <div class="acts2" style="margin:8px 0">${tg(ST[o.st][0],ST[o.st][1])}${tg(o.cat==='Boosting'?'Gameboosting':o.cat==='Coins'?'Coins / Game Gold':'Game '+o.cat,'line')}${o.dispute?tg('纠纷：'+o.dispute.status,o.dispute.status==='已结案'?'':'red'):''}${o.refund?tg(o.refund.status+' '+money(o.refund.amount),'amber'):''}</div>
+ ${kv([['订单编号',`#${o.id} <button class="lnk" data-a="copy" data-v="${o.id}">复制</button>`],ag&&['买家',`<button class="lnk" data-a="userDrawer" data-id="${o.buyer}">${esc(usr(o.buyer).name)}</button>`],vr==='seller'&&['买家',esc(usr(o.buyer).name)+' · ID 尾号 '+usr(o.buyer).no.slice(-4)],vr!=='seller'&&['卖家',ag?`<button class="lnk" data-a="userDrawer" data-id="${o.seller}">${esc(usr(o.seller).name)}</button>`:esc(usr(o.seller).store)],['下单时间',fmt(o.createdAt)],['支付时间',fmt(o.paidAt)],vr!=='seller'&&['支付方式',esc(o.pay.method)],ag&&['支付流水',esc(o.pay.txn)],ag&&['平台手续费',money(o.pay.fee)],vr==='seller'?['货款状态',esc(o.pay.escrow)+'（平台托管）']:ag&&['货款状态',`<b>${esc(o.pay.escrow)}</b>`]])}</div>`;
+ h+=`<div class="sec"><h4>${esc(d.title)} ${tg(d.status,late?'red':'')}</h4>${d.prog?`<div class="bar ${late?'red':''}"><i style="width:${Math.round(d.prog.done/d.prog.total*100)}%"></i></div><div style="font-size:12px;margin-bottom:6px"><b>${d.prog.done.toLocaleString()}</b> / ${d.prog.total.toLocaleString()} ${d.prog.unit}</div>`:''}
+ ${kv([...d.fields.map(f=>[f[0],esc(f[1])]),['承诺时效',esc(d.promised)],['交付时间',d.deliveredAt?fmt(d.deliveredAt):late?`<b style="color:var(--danger)">已超时 ${dur(Date.now()-d.deadline)}</b>`:'截止 '+fmt(d.deadline)],['交付说明',esc(d.note)]])}
+ ${o.proofs.length?`<div style="margin-top:8px;font-size:12px;color:var(--ink3)">交付 / 问题凭证（${o.proofs.length}）</div>${o.proofs.map(p=>attHtml({type:p.type,name:p.name,size:RL[usr(p.by).role]+'上传 · '+fmt(p.t),url:p.url})).join('')}`:''}</div>`;
+ if(o.dispute||o.refund)h+=`<div class="sec"><h4>售后 / 纠纷</h4>${kv([o.dispute&&['纠纷类型',esc(o.dispute.type)],o.dispute&&['纠纷状态',esc(o.dispute.status)],o.dispute&&['发起时间',fmt(o.dispute.openedAt)],o.refund&&['退款状态',esc(o.refund.status)],o.refund&&['退款金额',money(o.refund.amount)],o.refund&&['退款时间',fmt(o.refund.t)]])}</div>`;
+ if(ag){h+=`<div class="sec"><h4>订单操作 <span class="sp"></span><span style="font-weight:400;color:var(--ink3)">不离开会话直接处理</span></h4><div class="acts2"><button class="btn sm" data-a="freeze" data-id="${o.key}">${o.pay.escrow==='已冻结'?'解除冻结':'冻结货款'}</button><button class="btn sm" data-a="extend" data-id="${o.key}">延长交付时限</button><button class="btn sm danger" data-a="refundDlg" data-id="${o.key}">发起退款</button><button class="btn sm" data-a="orderDrawer" data-id="${o.key}">完整订单 →</button></div></div>`;
+  h+=sec('guide','💡 '+({Coins:'游戏币',Accounts:'账号',Items:'道具',Boosting:'代练'}[o.cat])+'类订单处理指引',`<ol class="guide">${GUIDE[o.cat].map(g=>`<li>${g}</li>`).join('')}</ol>`,false);
+  const rel2=DB.convs.filter(x=>x.orderId===o.key&&(!c||x.id!==c.id));
+  h+=sec('relc','🔗 本订单的其他会话（'+rel2.length+'）',rel2.map(x=>`<button class="rowl" data-a="histConv" data-id="${x.id}">${tg(TYPE[x.type][0],TYPE[x.type][1])}<span class="g">${esc(convTitle(x,'agent'))}</span>${waitChip(x)}</button>`).join('')||'<div class="priv">无</div>',true);
+  if(c&&c.type!=='group'){const b=buyerId(c),s=sellerId(c);const os=Object.values(DB.O).filter(x=>x.key!==o.key&&((c.type!=='sp'&&x.buyer===b)||(c.type!=='bp'&&x.seller===s)));h+=`<div class="sec"><h4>切换关联订单</h4><select class="sel" style="max-width:100%;width:100%" data-c="linkOrder"><option value="">当前：#${o.id}</option>${os.map(x=>`<option value="${x.key}">#${x.id} · ${esc(x.title)}</option>`).join('')}</select></div>`}
+  else if(c)h+=`<div class="priv">🔒 三方群组与订单绑定，不可切换订单</div>`}
+ else if(vr==='buyer'){const s=usr(o.seller);h+=`<div class="sec"><h4>卖家</h4><div class="ph">${av(s.id,vr,'l')}<div><div class="n">${esc(s.store)}</div><div style="font-size:12px;color:var(--ink2)">${esc(s.level)} · 好评 ${s.rating} · 成交 ${s.sold}</div></div></div></div>`}
+ else{const b=usr(o.buyer);h+=`<div class="sec"><h4>买家</h4><div class="ph">${av(b.id,vr,'l')}<div><div class="n">${esc(b.name)}</div><div style="font-size:12px;color:var(--ink2)">ID 尾号 ${b.no.slice(-4)} · ${esc(b.lang)}</div></div></div></div>`}
+ return h}
+function histBlock(u){const os=Object.values(DB.O).filter(o=>o[u.role]===u.id),cs=DB.convs.filter(c=>member(c,u.id)&&c.id!==S.cid);
+ return sec('ho'+u.role,'历史订单（'+os.length+'）',os.map(o=>`<button class="rowl" data-a="orderDrawer" data-id="${o.key}"><span class="g">${esc(o.title)}</span>${tg(ST[o.st][0],ST[o.st][1])}<span class="dim">${money(o.amount)}</span></button>`).join('')||'<div class="priv">无</div>',true)
+ +sec('hc'+u.role,'历史会话（'+cs.length+'）',cs.map(c=>`<button class="rowl" data-a="histConv" data-id="${c.id}">${tg(TYPE[c.type][0],TYPE[c.type][1])}<span class="g">${esc(c.topic)} · ${esc(convSub(c))}</span>${waitChip(c)}</button>`).join('')||'<div class="priv">无</div>',false)
+ +sec('hh'+u.role,'纠纷 / 退款 / 违规（'+u.hist.length+'）',u.hist.map(x=>`<div class="rowl">${tg(x.type,x.type==='退款'?'amber':'red')}<span class="g" title="${esc(x.text)}">${esc(x.text)}</span><span class="dim">${esc(x.result)} · ${fmt(x.t)}</span></div>`).join('')||'<div class="priv">无记录</div>',u.hist.length>0)
+ +sec('hn'+u.role,'客服处理记录 / 用户备注（'+u.notes.length+'）',u.notes.map(n=>`<div class="rowl"><span class="g" style="white-space:normal">${esc(n.text)}</span><span class="dim">${esc(usr(n.by).name)} · ${fmt(n.t)}</span></div>`).join('')+`<div style="display:flex;gap:6px;margin-top:6px"><input class="search" style="margin:0" id="un_${u.id}" placeholder="添加跨会话可见的用户备注"><button class="btn sm" data-a="userNote" data-id="${u.id}">添加</button></div>`,true)}
+function buyerPanel(u,inConv){const riskCls=u.risk==='高'?'red':u.risk==='中'?'amber':'green';
+ return`<div class="sec"><div class="ph">${av(u.id,'agent','l')}<div style="flex:1"><div class="n">${esc(u.name)} ${tg('买家','buyer')}</div><div style="font-size:12px;color:var(--ink2)"><span class="dot ${u.online?'on':''}"></span> ${u.online?'在线':'离线'} · ${esc(u.level)}${inConv?'':' · '+tg('未在本会话中','line')}</div></div>${tg('风险 '+u.risk,riskCls)}</div>
+ <div class="stat"><div><b>${u.stats.orders}</b><span>订单</span></div><div><b>${u.stats.spent}</b><span>消费</span></div><div><b>${u.stats.refunds}</b><span>退款</span></div><div><b style="${u.stats.disputes>1?'color:var(--danger)':''}">${u.stats.disputes}</b><span>纠纷</span></div></div>
+ <div style="margin-top:8px">${kv([['买家 ID',u.no],['地区 / 语言',esc(u.country+' · '+u.lang)],['邮箱',esc(u.email)+' '+tg('脱敏','line')],['手机',esc(u.phone)],['注册时间',u.joined]])}</div>
+ <div class="acts2"><button class="btn sm" data-a="contactUser" data-id="${u.id}">主动联系该买家</button></div></div>`+histBlock(u)}
+function sellerPanel(u,inConv){const stCls=u.storeStatus==='正常营业'?'green':'red';
+ return`<div class="sec"><div class="ph">${av(u.id,'agent','l')}<div style="flex:1"><div class="n">${esc(u.name)} ${tg('卖家','seller')}</div><div style="font-size:12px;color:var(--ink2)"><span class="dot ${u.online?'on':''}"></span> ${esc(u.store)} · ${esc(u.level)}${inConv?'':' · '+tg('未在本会话中','line')}</div></div>${tg(u.storeStatus,stCls)}</div>
+ <div class="stat"><div><b>${u.kpi.complete}</b><span>完成率</span></div><div><b>${u.kpi.avg}</b><span>平均交付</span></div><div><b>${u.kpi.dispute}</b><span>纠纷率</span></div><div><b style="${u.kpi.late7?'color:var(--danger)':''}">${u.kpi.late7}</b><span>7天超时</span></div></div>
+ <div style="margin-top:8px">${kv([['卖家 ID',u.no],['主营类目',esc(u.cats)],['好评 / 成交',u.rating+' · '+u.sold+' 单'],['地区 / 语言',esc(u.country+' · '+u.lang)],['邮箱',esc(u.email)+' '+tg('脱敏','line')],['入驻时间',u.joined]])}</div>
+ <div class="acts2"><button class="btn sm" data-a="contactUser" data-id="${u.id}">主动联系该卖家</button></div></div>
+ <div class="sec"><h4>资金与保证金</h4><div class="stat"><div><b>${money(u.deposit).replace('.00','')}</b><span>保证金</span></div><div><b>${money(u.bal.avail).replace(/\.\d+/,'')}</b><span>可提现</span></div><div><b>${money(u.bal.frozen).replace(/\.\d+/,'')}</b><span>冻结</span></div><div><b>${money(u.bal.pending).replace(/\.\d+/,'')}</b><span>提现中</span></div></div>
+ ${u.wd.map(w=>`<div class="rowl">${tg(w.status,w.status==='已到账'?'green':w.status==='审核中'?'amber':'red')}<span class="g">${w.id} · ${money(w.amount)} · ${w.method}</span><span class="dim">${fmt(w.t)}</span></div>`).join('')||'<div class="priv">暂无提现记录</div>'}</div>
+ ${sec('pen','违规处罚记录（'+u.pen.length+'）',u.pen.map(p=>`<div class="rowl">${tg(p.status,p.status==='申诉中'?'amber':'red')}<span class="g" style="white-space:normal"><b>${p.id} ${esc(p.type)}</b><br>${esc(p.desc)}</span></div>`).join('')||'<div class="priv">无处罚记录</div>',u.pen.length>0)}
+ ${sec('lst','在架 / 审核商品（'+u.listings.length+'）',u.listings.map(l=>`<div class="rowl">${tg(l.status,l.status==='在售'?'green':'red')}<span class="g">${l.id} · ${esc(l.title)}</span></div>`).join(''),false)}`+histBlock(u)}
+function recordPanel(c){const dirs=c.msgs.filter(m=>m.kind==='directive');const r=c.resolution;
+ return`<div class="sec"><h4>当前处理状态</h4>${kv([['负责人',c.assignee?esc(usr(c.assignee).name+' · '+usr(c.assignee).team):'<b style="color:var(--danger)">未分配</b>'],['内部协作',c.members.filter(m=>m.role==='agent'&&m.uid!==c.assignee).map(m=>esc(usr(m.uid).name)).join('、')||'—'],['当前状态',waitChip(c)],c.type==='group'&&['处理阶段',STAGES[c.stage]],['下一步',esc(c.nextStep||'—')],['会话来源',esc(c.origin)],c.rating&&['用户评价','★'.repeat(c.rating)]])}</div>
+ <div class="sec"><h4>处理要求跟踪（${dirs.length}）</h4>${dirs.map(m=>{const od=m.dir.dueAt<Date.now(),p=Object.values(m.dir.st).includes('pending');return`<button class="rowl" data-a="jump" data-id="${m.id}">${tg(p?(od?'逾期':'进行中'):'已完成',p?(od?'red':'amber'):'green')}<span class="g">${RL[m.dir.to]}：${esc(m.text)}</span><span class="dim">${fmt(m.dir.dueAt)}</span></button>`}).join('')||'<div class="priv">尚未发出处理要求</div>'}</div>
+ ${r?`<div class="sec"><h4>处理结论</h4>${kv([['结论',esc(r.verdict)],['说明',esc(r.text)],r.fault&&['责任方',esc(r.fault)],r.owner&&['后续责任人',esc(usr(r.owner)?usr(r.owner).name:r.owner)],r.due&&['完成期限',esc(r.due)],r.need&&['双方确认',['buyer','seller'].map(x=>RL[x]+'：'+({ok:'已确认',no:'有异议'}[(r.confirm||{})[x]]||'待确认')).join(' · ')],r.reason&&['结束原因',esc(r.reason)],r.closedBy&&['结束人 / 时间',esc(usr(r.closedBy).name)+' · '+fmt(r.closedAt)]])}</div>`:''}
+ ${c.risk.length||c.reports.length?`<div class="sec"><h4>风险事件与举报</h4>${c.risk.map(x=>`<div class="rowl">${tg('风控','red')}<span class="g" style="white-space:normal">${esc(x.text)}</span><span class="dim">${fmt(x.t)}</span></div>`).join('')}${c.reports.map(x=>`<div class="rowl">${tg('举报','amber')}<span class="g" style="white-space:normal">${esc(usr(x.by).name)}：${esc(x.reason)}${x.text?' — '+esc(x.text):''}</span><span class="dim">${fmt(x.t)}</span></div>`).join('')}</div>`:''}
+ <div class="sec"><h4>审计日志 <span class="sp"></span><span style="font-weight:400;color:var(--ink3)">仅内部</span></h4><div class="tl">${[...c.audit].reverse().map(a=>`<div><time>${fmt(a.t)}</time><b>${esc(usr(a.by)?usr(a.by).name:a.by)}</b> ${esc(a.text)}</div>`).join('')}</div></div>`}
+function refCard(c){if(!c.ref)return'';const s=usr(sellerId(c)),r=c.ref;let b='';
+ if(r.kind==='withdraw'){const w=s.wd.find(x=>x.id===r.id);b=kv([['提现单号',w.id],['金额',money(w.amount)],['渠道',w.method],['状态',tg(w.status,'amber')],['申请时间',fmt(w.t)+'（'+rel(w.t)+'）']])}
+ if(r.kind==='penalty'){const p=s.pen.find(x=>x.id===r.id);b=kv([['处罚单号',p.id],['类型',esc(p.type)],['说明',esc(p.desc)],['状态',tg(p.status,'amber')]])}
+ if(r.kind==='listing'){const l=s.listings.find(x=>x.id===r.id);b=kv([['商品编号',l.id],['标题',esc(l.title)],['状态',tg(l.status,'red')],['驳回原因','价格异常：低于同类目均价 70%']])}
+ return`<div class="sec" style="border-color:var(--brand)"><h4>📎 本次咨询关联：${refLabel(r)}</h4>${b}</div>`}
+function renderCtx(){const c=cur(),vr=role(),uid=me();if(!c)return'';const o=c.orderId&&ord(c.orderId);
+ if(vr==='agent'){const b=buyerId(c),s=sellerId(c);const tabs=[['order','订单'],b&&['buyer','买家'],s&&['seller','卖家'],['record','处理记录']].filter(Boolean);
+  let t=S.tab;if(!t||!tabs.some(x=>x[0]===t))t=o?'order':c.type==='sp'?'seller':c.type==='bp'?'buyer':'order';S.tab=t;let body='';
+  if(t==='order'){if(o)body=orderPanel(o,c,'agent');else{const os=Object.values(DB.O).filter(x=>x.buyer===b||x.seller===s);body=(c.productId?`<div class="sec"><h4>咨询商品</h4><b>${esc(DB.P[c.productId].title)}</b><div style="font-size:12px;color:var(--ink2)">${money(DB.P[c.productId].price)} · 尚未下单</div></div>`:'')+refCard(c)+`<div class="sec"><h4>关联订单</h4><div style="font-size:12px;color:var(--ink2);margin-bottom:6px">本会话尚未关联订单。关联后可在此直接查看交付与售后信息。</div><select class="sel" style="width:100%;max-width:100%" data-c="linkOrder"><option value="">选择该用户的订单…</option>${os.map(x=>`<option value="${x.key}">#${x.id} · ${esc(x.title)}</option>`).join('')}</select></div>`}}
+  if(t==='buyer')body=buyerPanel(usr(b),!!member(c,b));
+  if(t==='seller')body=refCard(c)+sellerPanel(usr(s),!!member(c,s));
+  if(t==='record')body=recordPanel(c);
+  return`<div class="tabs">${tabs.map(x=>`<button class="${t===x[0]?'on':''}" data-a="tab" data-v="${x[0]}">${x[1]}</button>`).join('')}</div><div class="cbody" id="cbody">${body}</div>`}
+ let body='';
+ if(o){body+=orderPanel(o,c,vr);
+  if(vr==='buyer')body+=`<div class="sec"><h4>我可以做什么</h4><div class="acts2">${o.st==='delivered'?`<button class="btn sm pri" data-a="confirmRecv" data-id="${o.key}">确认收货</button>`:''}<button class="btn sm" data-a="attach" data-v="proof">提交凭证</button>${c.type==='bs'&&isOpen(c)?'<button class="btn sm" data-a="reqSupport">申请客服介入</button>':''}<button class="btn sm" data-a="report">举报</button></div></div>`;
+  else body+=`<div class="sec"><h4>履约处理</h4><div class="acts2">${['pending','delivering','dispute'].includes(o.st)?`<button class="btn sm pri" data-a="deliverDlg" data-id="${o.key}">提交交付信息</button>`:''}<button class="btn sm" data-a="attach" data-v="proof">补充交付凭证</button>${c.type==='bs'&&isOpen(c)?'<button class="btn sm" data-a="markSolved">标记问题已解决</button><button class="btn sm" data-a="reqSupport">无法解决 · 邀请客服介入</button>':''}</div></div>`}
+ else if(c.productId){const p=DB.P[c.productId];body+=`<div class="sec"><h4>咨询商品</h4><div class="ohead"><span class="gico ${p.cat}">${GL[p.cat]}</span><div><div class="t">${esc(p.title)}</div><div class="s">${esc(p.game)} · ${esc(usr(p.seller).store)}</div></div><span class="price">${money(p.price)}</span></div><div class="priv" style="padding-top:10px">下单后本会话将自动关联订单</div></div>`}
+ else{body+=(vr==='seller'?refCard(c):'')+`<div class="sec"><h4>本次咨询</h4>${kv([['问题类型',esc(c.topic)],['发起入口',esc(c.origin)],['状态',extChip(c,vr,uid)]])}</div>`}
+ if(c.type!=='bs'){const ds=c.msgs.filter(m=>m.kind==='directive'&&m.dir.st[vr]);body+=`<div class="sec"><h4>平台处理进度</h4>${kv([['当前状态',extChip(c,vr,uid)],c.type==='group'&&['处理阶段',STAGES[c.stage]],['客服',c.assignee?'iGV 客服（已接入）':'排队中']])}${ds.map(m=>`<button class="rowl" data-a="jump" data-id="${m.id}">${tg(m.dir.st[vr]==='done'?'已完成':'待你处理',m.dir.st[vr]==='done'?'green':'amber')}<span class="g">${esc(m.text)}</span></button>`).join('')}</div>`}
+ body+=`<div class="priv">🔒 ${vr==='buyer'?'你的邮箱、手机与支付信息不会展示给卖家':'仅展示处理订单所需的买家信息，支付信息已隐藏'}</div>`;
+ return`<div class="tabs"><button class="on">${o?'订单信息':'会话信息'}</button></div><div class="cbody" id="cbody">${body}</div>`}
+/* ---------- overlays ---------- */
+function renderOv(){let h='';
+ if(S.drawer)h+=`<div class="drawer-ov" data-a="closeDrawer"></div><div class="drawer ${S.drawer.wide?'wide':''}"><div class="mh1">${S.drawer.title}<button data-a="closeDrawer">×</button></div>${S.drawer.raw?S.drawer.body():`<div class="mb" style="flex:1">${S.drawer.body()}</div>`}</div>`;
+ if(S.modal)h+=`<div class="ov" data-a="ovClose"><div class="modal ${S.modal.wide?'wide':''}"><div class="mh1">${S.modal.title}<button data-a="closeModal">×</button></div><div class="mb" id="mbody">${S.modal.body()}</div>${S.modal.foot?`<div class="mf">${S.modal.foot}</div>`:''}</div></div>`;
+ if(S.light)h+=`<div class="lightbox" data-a="closeLight"><div style="text-align:center"><div class="pic" ${S.light.u?`style="background-image:url(${esc(S.light.u)})"`:''}>${S.light.u?'':({image:'🖼 图片预览（示例）',video:'▶ 视频预览（示例）',file:'📄 文件预览（示例）'}[S.light.t])}</div><p style="margin-top:12px">${esc(S.light.n)} · 点击任意处关闭</p></div></div>`;
+ $('#ov').innerHTML=h}
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
+function render(){const vr=role();const ms=$('#msgs'),cb=$('#cbody'),it=$('#items');const sc=ms?ms.scrollTop:0,sc2=cb?cb.scrollTop:0,sc3=it?it.scrollTop:0;
+ const c=cur();if(c&&!S.preview){c.read[me()]=Date.now()}
+ $('#app').innerHTML=`<div class="top">${renderTop()}</div><div class="main">${vr==='agent'?`<div class="nav">${renderNav()}</div>`:''}<div class="list"><div class="list-h" id="listH">${renderListH()}</div><div class="items" id="items">${renderItems()}</div></div><div class="chat" id="chat">${renderChat()}</div><div class="ctx">${renderCtx()}</div></div>`;
+ const m2=$('#msgs');if(m2)m2.scrollTop=S.bottom?m2.scrollHeight:sc;S.bottom=false;if($('#cbody'))$('#cbody').scrollTop=S.ctxTop?0:sc2;S.ctxTop=false;if($('#items'))$('#items').scrollTop=sc3;renderOv()}
+/* ---------- mutations ---------- */
+const log=(c,text,by)=>c.audit.push({t:Date.now(),by:by||me(),text});
+function push(c,m){m=Object.assign({id:DB.mid(),from:me(),t:Date.now(),kind:'text',vis:'public',text:''},m);c.msgs.push(m);return m}
+const sys=(c,text,x={})=>push(c,Object.assign({from:'sys',kind:'sys',text},x));
+function ensureAgent(c){const uid=me();if(!c.assignee){c.assignee=uid;if(!member(c,uid))c.members.push({uid,role:'agent',joinedAt:Date.now()});sys(c,usr(uid).name+' 接入并成为负责人',{vis:'internal'});log(c,'接入会话');if(c.type==='group'&&c.stage===0)c.stage=1}else if(!member(c,uid)){c.members.push({uid,role:'agent',joinedAt:Date.now()});sys(c,usr(uid).name+' 加入内部协作',{vis:'internal'});log(c,'加入协作')}}
+function mkConv(x){const c=Object.assign({id:'n'+(++S.n),status:'open',waiting:null,priority:'normal',assignee:null,tags:[],dueAt:null,nextStep:'',msgs:[],audit:[],read:{},risk:[],reports:[],linked:[],origin:'订单详情页',members:[]},x);DB.convs.unshift(c);return c}
+function go(id){S.ctxTop=S.cid!==id;S.cid=id;S.mode='public';S.preview=null;S.replyTo=null;S.msearch=null;S.warn=null;S.tab=null;S.bottom=true;if(role()==='agent'&&!listFor().some(c=>c.id===id)){S.q='';S.tf='all';S.queue='all'}else if(role()!=='agent'){S.q='';S.tf='all'}render()}
+function doSend(force){const c=cur(),vr=role(),ta=$('#ta');const text=(ta?ta.value:'').trim();if(!text)return toast('请输入内容');
+ let mode=vr==='agent'?(c.type==='bs'?'note':S.mode):'public';
+ if(vr!=='agent'&&SENS.test(text)){c.risk.push({t:Date.now(),by:me(),text:RL[vr]+'尝试发送站外联系方式，已拦截'});log(c,'消息被拦截：疑似站外联系方式','sysbot');S.warn={html:'🚫 <b>消息未发送</b>：检测到疑似站外联系方式或站外交易引导。为保障资金安全，请在 iGV 站内沟通与交易；该行为已记录。'};return render()}
+ if(vr==='agent'&&mode==='public'&&!force&&LEAK.test(text)){S.warn={html:'⚠ 这条<b>公开消息</b>似乎包含内部信息（风控 / 保证金 / 内部判断等），买家和卖家都会看到。 <button class="btn sm warn" data-a="toNote">改为内部备注</button> <button class="btn sm" data-a="sendForce">仍然公开发送</button>'};return render()}
+ S.warn=null;let m;
+ if(mode==='note'){m=push(c,{kind:'note',vis:'internal',scope:S.noteScope,text});log(c,S.noteScope==='team'?'添加内部讨论':'添加内部备注')}
+ else if(mode==='directive'){ensureAgent(c);const to=S.dir.to,st={};(to==='both'?['buyer','seller']:[to]).forEach(r=>st[r]='pending');m=push(c,{kind:'directive',text,dir:{to,req:S.dir.req,dueAt:Date.now()+S.dir.due*6e4,st}});c.waiting=to;c.dueAt=null;log(c,'向'+RL[to]+'发送处理要求（'+dur(S.dir.due*6e4)+'）');S.mode='public'}
+ else{if(vr==='agent')ensureAgent(c);m=push(c,{text,re:S.replyTo,state:'sending'});afterPublic(c,vr)}
+ S.draft[c.id]='';S.replyTo=null;S.bottom=true;render();const t2=$('#ta');if(t2)t2.focus();
+ if(m.state)setTimeout(()=>{delete m.state;if(S.cid===c.id){S.bottom=true;render();const t3=$('#ta');if(t3)t3.focus()}},450)}
+function afterPublic(c,vr){if(c.type==='bs')return;if(vr==='agent'){if(c.waiting==='support'||!c.waiting){c.waiting=c.type==='bp'?'buyer':c.type==='sp'?'seller':'both'}c.dueAt=null}
+ else{if(c.status==='resolved'){c.status='open';sys(c,'用户继续回复，会话已自动重新开启');log(c,'用户回复，自动重新开启')}if(c.waiting!=='support'||!c.dueAt||c.dueAt<Date.now()-36e5){c.dueAt=Date.now()+15*6e4}c.waiting='support'}}
+function sendAtt(att,text){const c=cur(),vr=role();if(c.status==='closed')return toast('会话已结束');if(vr==='agent'&&c.type==='bs')return toast('只读会话，介入后才能发送附件');if(vr==='agent')ensureAgent(c);
+ push(c,{text:text||'',att});if(att.proof&&c.orderId)ord(c.orderId).proofs.push({by:me(),name:att.name,type:att.type,t:Date.now(),url:att.url});afterPublic(c,vr);S.bottom=true;render()}
+/* ---------- actions ---------- */
+const A={
+ role(d){S.viewer.role=d.v;S.viewer.uid=Object.values(DB.U).find(u=>u.role===d.v).id;S.q='';S.tf='all';S.queue='todo';S.preview=null;S.mode='public';S.warn=null;S.msearch=null;const l=listFor();S.cid=l[0]?l[0].id:(S.queue='all',listFor()[0]||{}).id;S.tab=null;S.bottom=true;render()},
+ identity(d){S.viewer.uid=d.v;S.q='';S.tf='all';S.preview=null;const l=listFor();S.cid=l[0]?l[0].id:null;if(!S.cid&&role()==='agent'){S.queue='all';S.cid=(listFor()[0]||{}).id}S.tab=null;S.bottom=true;render()},
+ queue(d){S.queue=d.v;S.q='';S.tf='all';const l=listFor();if(l.length&&!l.some(c=>c.id===S.cid)){S.cid=l[0].id;S.tab=null;S.mode='public';S.preview=null;S.bottom=true}render()},
+ tf(d){S.tf=d.v;render()},
+ open(d){go(d.id)},
+ tab(d){S.tab=d.v;S.ctxTop=true;render()},
+ mode(d){S.mode=d.v;S.warn=null;render();$('#ta')&&$('#ta').focus()},
+ noteScope(d){S.noteScope=d.v},dirTo(d){S.dir.to=d.v},dirDue(d){S.dir.due=+d.v},dirReq(d){S.dir.req=d.v},
+ send(){doSend()},sendForce(){doSend(true)},toNote(){S.mode='note';S.warn=null;doSend()},
+ emoji(d){const c=cur();S.draft[c.id]=(S.draft[c.id]||'')+d.v;render();$('#ta').focus()},
+ quick(d){S.draft[cur().id]=d.v;render();$('#ta').focus()},
+ attach(d){const hm=fmt(Date.now()).replace(':','');const a={image:{type:'image',name:'screenshot_'+hm+'.png',size:'356 KB'},video:{type:'video',name:'screen_record_'+hm+'.mp4',size:'18.4 MB'},file:{type:'file',name:'chat_export_'+hm+'.pdf',size:'96 KB'},proof:{type:'image',name:'proof_'+hm+'.png',size:'402 KB',proof:true}}[d.v];sendAtt(a,d.v==='proof'?'':'');toast(d.v==='proof'?'凭证已发送并归档到订单':'附件已发送')},
+ pickFile(){$('#file').click()},
+ light(d){S.light={n:d.n,u:d.u,t:d.t};renderOv()},closeLight(){S.light=null;renderOv()},
+ msgReply(d){S.replyTo=d.id;render();$('#ta')&&$('#ta').focus()},replyOff(){S.replyTo=null;render()},
+ msgCopy(d){const m=cur().msgs.find(x=>x.id===d.id);navigator.clipboard&&navigator.clipboard.writeText(m.text).catch(()=>{});toast('已复制')},
+ copy(d){navigator.clipboard&&navigator.clipboard.writeText(d.v).catch(()=>{});toast('已复制 '+d.v)},
+ msgTr(d){S.trOn[d.id]=!S.trOn[d.id];render()},toggleTr(){S.autoTr=!S.autoTr;toast(S.autoTr?'已开启自动翻译（保留原文）':'已关闭自动翻译');render()},
+ msgRecall(d){const c=cur(),m=c.msgs.find(x=>x.id===d.id);m.recalled=true;log(c,'撤回一条消息');render()},
+ msgDel(d){const c=cur();c.msgs=c.msgs.filter(x=>x.id!==d.id);log(c,'删除一条内部备注');render()},
+ msgHide(d){const c=cur(),m=c.msgs.find(x=>x.id===d.id);m.hidden=!m.hidden;log(c,(m.hidden?'屏蔽':'恢复')+'了 '+usr(m.from).name+' 的一条消息');toast(m.hidden?'已对买卖双方屏蔽该消息（内部仍可查看原文）':'已恢复');render()},
+ msearch(){S.msearch=S.msearch===null?'':null;render();$('#ms')&&$('#ms').focus()},msearchOff(){S.msearch=null;render()},
+ jump(d){if(S.msearch!==null){S.msearch=null;render()}const e=document.getElementById(d.id);if(e){e.scrollIntoView({block:'center',behavior:'smooth'});e.style.outline='2px solid var(--brand)';setTimeout(()=>e.style.outline='',1600)}},
+ preview(d){S.preview=d.v||null;S.bottom=true;render()},exitPreview(){S.preview=null;render()},
+ setAssignee(d){const c=cur();if(!d.v){c.assignee=null;sys(c,'会话已退回未分配队列',{vis:'internal'});log(c,'取消分配')}else if(d.v===me()&&!c.assignee){ensureAgent(c)}else{return A.transfer({to:d.v})}render()},
+ setPriority(d){const c=cur();c.priority=d.v;log(c,'优先级改为：'+PRI[d.v][0]);render()},
+ setWaiting(d){const c=cur();c.waiting=d.v;c.dueAt=d.v==='support'?Date.now()+15*6e4:null;log(c,'状态改为：等待'+RL[d.v]);render()},
+ setStage(d){const c=cur();c.stage=+d.v;sys(c,'处理进度更新：'+STAGES[c.stage]);log(c,'阶段改为：'+STAGES[c.stage]);render()},
+ setNext(d){const c=cur();c.nextStep=d.v;log(c,'更新下一步：'+d.v);toast('下一步已更新')},
+ addTag(d){if(d.v){cur().tags.push(d.v);render()}},rmTag(d){const c=cur();c.tags=c.tags.filter(t=>t!==d.v);render()},
+ pickUp(){const c=cur();ensureAgent(c);if(c.type==='group')sys(c,'平台客服已接入，将在本群组中协调处理');toast('已接入，你现在是负责人');render()},
+ transfer(d){const c=cur();const pre=d&&d.to;S.modal={title:'转交会话',body:()=>`<div class="fld"><label>转交给</label><select id="f_to">${AGENTS.filter(a=>a!==c.assignee).map(a=>`<option value="${a}" ${a===pre?'selected':''}>${esc(usr(a).name)} · ${usr(a).team} · ${usr(a).online?'在线':'离线'} · 手上 ${DB.convs.filter(x=>x.assignee===a&&isOpen(x)).length} 个会话</option>`).join('')}</select></div><div class="fld"><label>交接备注（必填，仅内部可见）</label><textarea id="f_note" placeholder="当前进展、已做判断、下一步、需要注意的风险…">${esc(c.nextStep?'下一步：'+c.nextStep:'')}</textarea><div class="help">接手人可看到完整历史（含所有内部备注）。买家 / 卖家侧始终只看到「iGV 客服」，不会感知换人。</div></div><div class="fld"><label class="opt"><input type="checkbox" id="f_keep" checked> 保留我为内部协作成员</label></div>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn pri" data-a="doTransfer">确认转交</button>`};render()},
+ doTransfer(){const c=cur(),to=$('#f_to').value,note=$('#f_note').value.trim(),keep=$('#f_keep').checked;if(!note)return toast('请填写交接备注');const from=c.assignee;if(!member(c,to))c.members.push({uid:to,role:'agent',joinedAt:Date.now()});if(from&&!keep)c.members=c.members.filter(m=>m.uid!==from);c.assignee=to;push(c,{kind:'note',vis:'internal',scope:'all',text:'【交接】'+(from?usr(from).name:'未分配')+' → '+usr(to).name+'\n'+note});log(c,'转交给 '+usr(to).name);S.modal=null;toast('已转交给 '+usr(to).name+'，对外无感知');S.bottom=true;render()},
+ invite(){const c=cur();if(c.type==='bs')return toast('请先介入会话');const cand=AGENTS.filter(a=>!member(c,a));S.modal={title:'邀请内部客服协作',body:()=>cand.length?`<div class="fld"><label>选择同事</label><select id="f_to">${cand.map(a=>`<option value="${a}">${esc(usr(a).name)} · ${usr(a).team}</option>`).join('')}</select></div><div class="fld"><label>协作说明（内部）</label><textarea id="f_note" placeholder="需要对方帮忙看什么？"></textarea><div class="help">内部协作成员<b>不会</b>出现在买家 / 卖家看到的参与者列表里；其公开发言对外统一显示为「iGV 客服」。</div></div>`:'<div class="empty">所有客服都已在本会话中</div>',foot:cand.length?`<button class="btn" data-a="closeModal">取消</button><button class="btn pri" data-a="doInvite">邀请</button>`:''};render()},
+ doInvite(){const c=cur(),to=$('#f_to').value,note=$('#f_note').value.trim();ensureAgent(c);c.members.push({uid:to,role:'agent',joinedAt:Date.now()});sys(c,usr(me()).name+' 邀请 '+usr(to).name+'（'+usr(to).team+'）加入内部协作',{vis:'internal'});if(note)push(c,{kind:'note',vis:'internal',scope:'team',text:'@'+usr(to).name.split(' ')[0]+' '+note});log(c,'邀请 '+usr(to).name+' 内部协作');S.modal=null;S.bottom=true;render()},
+ members(){const c=cur(),vr=role();S.modal={title:'参与者',body:()=>{const ext=c.members.filter(m=>m.role!=='agent'),ints=c.members.filter(m=>m.role==='agent');const miss=vr==='agent'&&c.type==='group'?['buyer','seller'].filter(r=>!ext.some(m=>m.role===r)):[];
+  return`<div class="sec"><h4>外部交易参与者 <span class="sp"></span>${c.type==='group'?'<span style="font-weight:400;color:var(--ink3)">仅限本订单的买家与卖家</span>':''}</h4>${ext.map(m=>{const u=usr(m.uid);return`<div class="rowl">${av(u.id,vr)}<span class="g"><b>${esc(u.name)}</b> ${tg(RL[u.role],u.role)} ${m.removedAt?tg('已移出','red'):''}<br><span style="color:var(--ink3)">加入 ${fmt(m.joinedAt)} · ${m.removedAt?'移出 '+fmt(m.removedAt):(c.read[u.id]?'已读至 '+fmt(c.read[u.id]):'尚未阅读')}</span></span>${vr==='agent'&&c.type==='group'&&c.status==='open'?(m.removedAt?`<button class="btn sm" data-a="reInvite" data-id="${u.id}">重新邀请</button>`:`<button class="btn sm danger" data-a="removeMember" data-id="${u.id}">移出</button>`):''}</div>`}).join('')}</div>
+  <div class="sec"><h4>平台</h4>${vr==='agent'?ints.map(m=>{const u=usr(m.uid);return`<div class="rowl">${av(u.id,'agent')}<span class="g"><b>${esc(u.name)}</b> ${tg(m.uid===c.assignee?'负责人':'内部协作','agent')} ${tg('内部 · 对外不可见姓名','note')}<br><span style="color:var(--ink3)">${u.team} · 加入 ${fmt(m.joinedAt)}</span></span>${m.uid!==c.assignee?`<button class="btn sm" data-a="removeAgent" data-id="${u.id}">移除</button>`:''}</div>`}).join('')||'<div class="priv">尚无客服接入</div>':`<div class="rowl">${av('a1','buyer')}<span class="g"><b>iGV 客服</b> ${tg('平台','agent')}<br><span style="color:var(--ink3)">${ints.length?'已接入 · 官方客服不会向你索要密码或引导站外交易':'排队中'}</span></span></div>`}</div>
+  ${vr==='agent'?`<div class="acts2"><button class="btn sm" data-a="invite">＋ 邀请内部客服</button></div>`:''}`}};render()},
+ removeMember(d){const c=cur(),m=member(c,d.id);m.removedAt=Date.now();sys(c,RL[m.role]+' '+usr(d.id).name+' 已被平台移出群组');log(c,'移出 '+usr(d.id).name);render()},
+ reInvite(d){const c=cur(),m=member(c,d.id);delete m.removedAt;sys(c,RL[m.role]+' '+usr(d.id).name+' 已被重新邀请加入群组');log(c,'重新邀请 '+usr(d.id).name);render()},
+ removeAgent(d){const c=cur();c.members=c.members.filter(m=>m.uid!==d.id);sys(c,usr(d.id).name+' 已退出内部协作',{vis:'internal'});log(c,'移除协作成员 '+usr(d.id).name);render()},
+ /* upgrade */
+ upgrade(){const c=cur(),b=buyerId(c),s=sellerId(c);const os=c.orderId?[ord(c.orderId)]:Object.values(DB.O).filter(o=>(c.type!=='sp'&&o.buyer===b)||(c.type!=='bp'&&o.seller===s)||(c.type==='bs'&&o.buyer===b&&o.seller===s));
+  S.upKey=null;const lastExt=c.msgs.find(m=>m.kind==='text'&&m.text&&m.from!=='sys'&&usr(m.from).role!=='agent');const defIssue=o=>o?({Coins:'游戏币交付异常',Accounts:'账号找回 / 恢复',Boosting:'代练进度争议',Items:'商品与描述不符'}[o.cat]):ISSUES[0];
+  S.modal={title:'升级为订单三方群组',wide:true,body:()=>{if(!os.length)return'<div class="empty">该用户没有可关联的订单。三方群组必须绑定一笔具体订单。</div>';const o0=(S.upKey&&ord(S.upKey))||os[0];return`
+  <div class="fld"><label>关联订单（必选，群组与订单绑定）</label><select id="f_order" data-c="upOrder" ${c.orderId?'disabled':''}>${os.map(o=>`<option value="${o.key}" ${o.key===o0.key?'selected':''}>#${o.id} · ${esc(o.title)} · ${esc(usr(o.buyer).name)} ⇄ ${esc(usr(o.seller).name)}</option>`).join('')}</select></div>
+  <div class="fld"><label>问题类型（将作为群组名称的一部分）</label><select id="f_issue">${ISSUES.map(i=>`<option ${i===(c.type==='bs'||c.type==='bp'?(c.topic&&ISSUES.includes(c.topic)?c.topic:defIssue(o0)):defIssue(o0))?'selected':''}>${i}</option>`).join('')}</select></div>
+  <div class="fld"><label>参与者</label><div class="acts2" style="margin:0">${tg('买家 '+usr(o0.buyer).name,'buyer')}${tg('卖家 '+usr(o0.seller).name,'seller')}${tg('平台 iGV 客服（你为负责人）','agent')}</div><div class="help">参与者由订单自动带出，只能是该订单的买家与卖家，避免拉错人。</div></div>
+  <div class="fld"><label>历史记录范围</label><div class="sec" style="margin:0;background:#f7f8f9">${c.type==='bs'?'✅ <b>原地升级</b>：买卖双方此前的全部沟通保留在同一会话里，客服接入后直接往下聊，<b>双方无需重复描述问题</b>。':`🔒 <b>新建群组并与当前会话互相关联</b>：当前是你与${c.type==='bp'?'买家':'卖家'}的一对一会话，其中内容（含对方隐私与你的备注）<b>不会</b>公开给另一方。请用下面的「问题摘要」向双方说明情况。`}</div></div>
+  ${c.type==='bs'?'':`<div class="fld"><label>问题摘要（公开发送到群组）</label><textarea id="f_sum">${esc(lastExt?(c.type==='bp'?'Buyer reports: ':'Seller reports: ')+lastExt.text:'')}</textarea></div>`}
+  <div class="fld"><label class="opt"><input type="checkbox" id="f_rules" checked> 发送群组规则与处理流程说明（围绕本订单沟通、不交换站外联系方式、以凭证为准）</label><label class="opt"><input type="checkbox" id="f_freeze" ${o0.pay.escrow==='托管中'||o0.pay.escrow.startsWith('托管')?'checked':''}> 同时冻结该订单货款，直至结案</label></div>`},
+  foot:os.length?`<button class="btn" data-a="closeModal">取消</button><button class="btn dark" data-a="doUpgrade">创建 / 升级群组</button>`:`<button class="btn" data-a="closeModal">知道了</button>`};render()},
+ doUpgrade(){const c=cur(),key=$('#f_order').value,o=ord(key),issue=$('#f_issue').value,rules=$('#f_rules').checked,frz=$('#f_freeze').checked,sum=$('#f_sum')?$('#f_sum').value.trim():'';const now=Date.now();
+  const RULES='大家好，这里是 iGV 平台客服。本群用于协调订单 #'+o.id+' 的「'+issue+'」问题。\n1. 请只围绕本订单沟通，不要交换站外联系方式；\n2. 平台以双方提交的凭证为准，请按要求在时限内提供；\n3. 处理结论会在本群公布，双方确认后执行。';
+  let g;
+  if(c.type==='bs'){g=c;g.type='group';g.upgradedFrom='bs';g.orderId=key;g.topic=issue;g.stage=1;g.priority=g.priority==='normal'?'high':g.priority;g.assignee=me();g.members.push({uid:me(),role:'agent',joinedAt:now});push(g,{from:'sys',kind:'divider',text:'平台客服已介入 · 会话升级为订单三方群组',sub:'以上为买卖双方的原始沟通，已完整保留，无需重复描述问题'});sys(g,usr(me()).name+' 接入并成为负责人',{vis:'internal'});log(g,'以平台身份介入，升级为三方群组')}
+  else{const ex=DB.convs.find(x=>x.type==='group'&&x.orderId===key&&x.status!=='closed');if(ex){if(!c.linked.includes(ex.id))c.linked.push(ex.id);if(!ex.linked.includes(c.id))ex.linked.push(c.id);S.modal=null;toast('该订单已有进行中的三方群组，已为你打开（避免重复建群）');return go(ex.id)}
+   g=mkConv({type:'group',orderId:key,topic:issue,stage:1,priority:'high',assignee:me(),origin:'由'+TYPE[c.type][0]+'升级',linked:[c.id],members:[{uid:o.buyer,role:'buyer',joinedAt:now},{uid:o.seller,role:'seller',joinedAt:now},{uid:me(),role:'agent',joinedAt:now}]});
+   sys(g,'平台客服创建了订单协调群组，买家与卖家已加入');push(g,{from:'sys',kind:'order'});log(g,'由会话「'+convTitle(c,'agent')+'」创建三方群组');
+   c.orderId=c.orderId||key;c.linked.push(g.id);ensureAgent(c);sys(c,'平台已就订单 #'+o.id+' 建立三方协调群组，后续处理请在群组中进行',{link:g.id});c.waiting='internal';c.dueAt=null;c.nextStep='在三方群组中跟进';log(c,'升级为三方群组')}
+  if(rules)push(g,{kind:'rules',text:RULES});if(sum)push(g,{text:sum});
+  if(frz&&o.pay.escrow!=='已冻结'){o.pay.escrow='已冻结';sys(g,'订单货款已冻结，结案前不会结算给卖家',{vis:'public'});log(g,'冻结订单货款')}
+  o.st=o.st==='refunded'?o.st:'dispute';o.dispute=o.dispute&&o.dispute.status!=='已结案'?o.dispute:{status:'平台介入中',type:issue,openedAt:now};
+  g.waiting='both';g.dueAt=null;g.nextStep=g.nextStep||'收集双方凭证';S.modal=null;S.queue='group';toast('三方群组已就绪');go(g.id)},
+ reqSupport(){const c=cur(),vr=role();if(!c.orderId)return toast('售前咨询未关联订单，如遇违规请使用举报');const o=ord(c.orderId);S.modal={title:vr==='buyer'?'申请平台客服介入':'邀请平台客服介入',body:()=>`<div class="sec" style="background:#f7f8f9">客服将<b>直接加入当前会话</b>并看到你们此前的全部沟通，你不需要重新描述一遍。<br>订单 #${o.id} · ${esc(o.title)}</div><div class="fld"><label>问题类型</label><select id="f_issue">${ISSUES.map(i=>`<option ${i===({Coins:'交付超时',Accounts:'账号找回 / 恢复',Boosting:'代练进度争议',Items:'商品与描述不符'}[o.cat])?'selected':''}>${i}</option>`).join('')}</select></div><div class="fld"><label>补充说明</label><textarea id="f_desc" placeholder="${vr==='buyer'?'希望平台如何处理？（如：继续交付 / 部分退款 / 全额退款）':'说明交付情况与你的处理意见'}"></textarea></div><div class="fld"><label class="opt"><input type="checkbox" id="f_proof" checked> 附上一张凭证截图（示例）</label></div>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn dark" data-a="doReqSupport">提交申请</button>`};render()},
+ doReqSupport(){const c=cur(),vr=role(),issue=$('#f_issue').value,desc=$('#f_desc').value.trim(),o=ord(c.orderId);
+  sys(c,RL[vr]+'申请客服介入 · 问题类型：'+issue);if(desc)push(c,{text:desc});if($('#f_proof').checked){const a={type:'image',name:'proof_'+fmt(Date.now()).replace(':','')+'.png',size:'388 KB',proof:true};push(c,{att:a});o.proofs.push({by:me(),name:a.name,type:'image',t:Date.now()})}
+  c.type='group';c.upgradedFrom='bs';c.topic=issue;c.stage=0;c.priority='high';c.waiting='support';c.dueAt=Date.now()+10*6e4;c.assignee=null;push(c,{from:'sys',kind:'divider',text:RL[vr]+'已申请平台介入 · 会话升级为订单三方群组',sub:'以上沟通记录已完整保留，客服接入后将直接在本会话中协调'});
+  o.st='dispute';o.dispute={status:'待平台接入',type:issue,openedAt:Date.now()};log(c,'申请客服介入：'+issue);S.modal=null;S.bottom=true;toast('已提交，客服预计 10 分钟内接入');render()},
+ markSolved(){const c=cur();sys(c,'卖家标记：问题已解决');log(c,'卖家标记已解决');S.bottom=true;render()},
+ /* close / reopen */
+ closeDlg(){const c=cur(),g=c.type==='group',o=c.orderId&&ord(c.orderId);S.modal={title:g?'结案：发布处理结论':'解决 / 关闭会话',wide:g,body:()=>g?`
+  <div class="fld"><label>处理结论</label><select id="f_verdict">${['继续交付','部分退款','全额退款','双方和解','驳回买家诉求'].map(v=>`<option ${v==='部分退款'&&o.delivery.prog&&o.delivery.prog.done>0&&o.delivery.prog.done<o.delivery.prog.total?'selected':''}>${v}</option>`).join('')}</select></div>
+  <div class="fld"><label>结论说明（公开，将以结论卡片发送到群组）</label><textarea id="f_text" placeholder="依据、金额、执行方式…">${o&&o.delivery.prog&&o.cat==='Coins'?'已交付 '+o.delivery.prog.done.toLocaleString()+' / '+o.delivery.prog.total.toLocaleString()+' '+o.delivery.prog.unit+'，未交付部分按比例退款 '+money(o.amount*(1-o.delivery.prog.done/o.delivery.prog.total))+'，原路退回。':''}</textarea></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><div class="fld"><label>责任方</label><select id="f_fault"><option>卖家</option><option>买家</option><option>无责 / 双方</option></select></div><div class="fld"><label>后续责任人</label><select id="f_owner">${AGENTS.map(a=>`<option value="${a}" ${a===me()?'selected':''}>${usr(a).name}</option>`).join('')}<option value="卖家">卖家</option></select></div><div class="fld"><label>完成期限</label><select id="f_due"><option>24 小时内</option><option>立即执行</option><option>3 个工作日内</option></select></div></div>
+  <div class="fld"><label>结束原因（内部审计）</label><select id="f_reason"><option>已按结论执行</option><option>双方达成一致</option><option>一方超时未响应</option><option>重复 / 无效纠纷</option></select></div>
+  <div class="fld"><label class="opt"><input type="radio" name="f_how" value="confirm" checked> 发布结论，等待买卖双方确认（状态：已解决，可在确认后归档）</label><label class="opt"><input type="radio" name="f_how" value="close"> 发布结论并立即结束、归档群组（历史记录永久保留）</label></div>`
+  :`<div class="fld"><label>处理结果</label><select id="f_verdict"><option>已解决</option><option>已转三方群组处理</option><option>用户未回复</option><option>无需处理 / 重复咨询</option></select></div><div class="fld"><label>处理小结（内部，进入用户的客服处理记录）</label><textarea id="f_text"></textarea></div><div class="fld"><label class="opt"><input type="radio" name="f_how" value="confirm" checked> 标记为已解决（用户再次回复会自动重新开启）</label><label class="opt"><input type="radio" name="f_how" value="close"> 关闭并归档</label></div>`,
+  foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn dark" data-a="doClose">确认</button>`};render()},
+ doClose(){const c=cur(),g=c.type==='group',how=document.querySelector('[name=f_how]:checked').value,verdict=$('#f_verdict').value,text=$('#f_text').value.trim();if(g&&!text)return toast('请填写结论说明');const now=Date.now();ensureAgent(c);
+  c.resolution={verdict,text,by:me(),t:now};
+  if(g){Object.assign(c.resolution,{fault:$('#f_fault').value,owner:$('#f_owner').value,due:$('#f_due').value,reason:$('#f_reason').value,need:how==='confirm',confirm:{}});push(c,{kind:'resolution'});c.stage=how==='close'?4:3;const o=ord(c.orderId);
+   if(verdict.includes('退款')){const amt=verdict==='全额退款'?o.amount:(o.delivery.prog?+(o.amount*(1-o.delivery.prog.done/o.delivery.prog.total)).toFixed(2):o.amount/2);o.refund={status:'退款处理中',amount:amt,t:now,by:me()};if(verdict==='全额退款'){o.st='refunded';o.pay.escrow='已退款'}sys(c,'已发起退款 '+money(amt)+'，原路退回')}
+   log(c,'发布处理结论：'+verdict)}
+  else{sys(c,how==='close'?'客服已结束会话，历史记录已保留':'客服已将会话标记为已解决，如仍有问题直接回复即可');const u=usr(buyerId(c)&&c.type==='bp'?buyerId(c):sellerId(c));if(text)u.notes.push({by:me(),t:now,text:'['+c.topic+'] '+text});log(c,(how==='close'?'关闭会话：':'标记已解决：')+verdict)}
+  if(how==='close'){c.status='closed';c.resolution.closedBy=me();c.resolution.closedAt=now;if(g){sys(c,'群组已结束并归档 · 历史记录永久保留');if(ord(c.orderId).dispute)ord(c.orderId).dispute.status='已结案'}}else{c.status='resolved';if(g)c.waiting='both'}
+  c.dueAt=null;S.modal=null;S.bottom=true;toast(how==='close'?'已关闭并归档':'已标记解决');render()},
+ archive(){const c=cur();c.status='closed';c.resolution=c.resolution||{verdict:'已解决',text:'',by:me(),t:Date.now()};c.resolution.closedBy=me();c.resolution.closedAt=Date.now();if(c.type==='group'){c.stage=4;const o=ord(c.orderId);if(o.dispute)o.dispute.status='已结案'}sys(c,(c.type==='group'?'群组':'会话')+'已结束并归档 · 历史记录永久保留');log(c,'归档');S.bottom=true;render()},
+ reopenDlg(){S.modal={title:'重新开启会话',body:()=>`<div class="fld"><label>重新开启原因</label><textarea id="f_text" placeholder="如：买家反馈退款未到账 / 账号再次被找回"></textarea><div class="help">历史消息、备注、结论与审计日志全部保留，会话回到「待客服回复」。</div></div>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn pri" data-a="doReopen">重新开启</button>`};render()},
+ doReopen(){const c=cur(),t=$('#f_text').value.trim();c.status='open';c.waiting='support';c.dueAt=Date.now()+15*6e4;if(c.type==='group'){c.stage=2;const o=ord(c.orderId);if(o.dispute)o.dispute.status='平台介入中'}sys(c,(c.type==='group'?'群组':'会话')+'已由平台重新开启');if(t)push(c,{kind:'note',vis:'internal',scope:'all',text:'【重新开启】'+t});log(c,'重新开启'+(t?'：'+t:''));if(!c.assignee)c.assignee=me();S.modal=null;S.bottom=true;render()},
+ extReopen(){const c=cur(),vr=role();c.status='open';if(c.type==='bs'){sys(c,RL[vr]+'重新发起了沟通')}else{c.waiting='support';c.dueAt=Date.now()+15*6e4;if(c.type==='group')c.stage=2;sys(c,RL[vr]+'申请重新开启：问题未解决')}log(c,'申请重新开启');S.bottom=true;render()},
+ extClose(){const c=cur();c.status='closed';c.resolution={verdict:'用户确认已解决',text:'',by:me(),t:Date.now(),reason:'用户主动结束',closedBy:c.assignee||'sysbot',closedAt:Date.now()};sys(c,RL[role()]+'确认问题已解决并结束了会话');log(c,'用户结束会话');c.dueAt=null;S.bottom=true;render()},
+ rate(d){cur().rating=+d.v;log(cur(),'用户评价：'+d.v+' 星');toast('感谢评价');render()},
+ resConfirm(d){const c=cur(),vr=role();c.resolution.confirm[vr]=d.v;if(d.v==='ok'){sys(c,RL[vr]+'已确认处理结论');const cf=c.resolution.confirm;if(cf.buyer==='ok'&&cf.seller==='ok'){c.waiting='support';sys(c,'买卖双方均已确认，等待平台执行并归档',{vis:'internal'})}}else{c.status='open';c.stage=2;c.waiting='support';c.dueAt=Date.now()+15*6e4;sys(c,RL[vr]+'对处理结论有异议，群组已重新进入协商')}log(c,d.v==='ok'?'确认处理结论':'对结论提出异议');S.bottom=true;render()},
+ /* directives */
+ dirDone(d){const c=cur(),vr=role(),m=c.msgs.find(x=>x.id===d.id);if(m.dir.req==='proof'){const a={type:'image',name:'proof_'+fmt(Date.now()).replace(':','')+'.png',size:'420 KB',proof:true};push(c,{text:'已按平台要求提交凭证。',att:a,re:m.id});if(c.orderId)ord(c.orderId).proofs.push({by:me(),name:a.name,type:'image',t:Date.now()})}
+  m.dir.st[vr]='done';sys(c,RL[vr]+'已完成平台处理要求，等待平台核验');c.waiting='support';c.dueAt=Date.now()+15*6e4;log(c,'完成处理要求');S.bottom=true;render()},
+ dirNudge(d){const c=cur(),m=c.msgs.find(x=>x.id===d.id);sys(c,'平台已催办'+RL[m.dir.to]+'：请尽快完成处理要求，逾期将按现有凭证处理');log(c,'催办'+RL[m.dir.to]);S.bottom=true;render()},
+ dirClose(d){const c=cur(),m=c.msgs.find(x=>x.id===d.id);Object.keys(m.dir.st).forEach(k=>m.dir.st[k]='done');log(c,'手动标记处理要求完成');render()},
+ /* order ops */
+ freeze(d){const o=ord(d.id),c=cur(),f=o.pay.escrow==='已冻结';o.pay.escrow=f?'托管中':'已冻结';sys(c,f?'订单货款已解除冻结':'订单货款已冻结，结案前不会结算给卖家',{vis:c.type==='group'?'public':'internal'});log(c,f?'解除货款冻结':'冻结订单货款');toast(f?'已解除冻结':'货款已冻结');render()},
+ extend(d){const o=ord(d.id),c=cur();o.delivery.deadline=Math.max(o.delivery.deadline,Date.now())+60*6e4;sys(c,'平台已将交付时限延长 60 分钟，新的截止时间 '+fmt(o.delivery.deadline),{vis:c.type==='bs'?'internal':'public'});log(c,'延长交付时限 60 分钟');toast('已延长 60 分钟');render()},
+ refundDlg(d){const o=ord(d.id);const part=o.delivery.prog?+(o.amount*(1-o.delivery.prog.done/o.delivery.prog.total)).toFixed(2):o.amount;S.modal={title:'发起退款 · #'+o.id,body:()=>`<div class="fld"><label>退款金额（订单金额 ${money(o.amount)}）</label><input type="number" id="f_amt" value="${part}" step="0.01" max="${o.amount}"><div class="help">${o.delivery.prog?'已按未交付比例预填':'默认全额'}，原路退回 ${esc(o.pay.method)}</div></div><div class="fld"><label>退款原因</label><select id="f_reason"><option>未交付 / 部分未交付</option><option>商品与描述不符</option><option>账号被找回</option><option>重复支付</option><option>双方协商一致</option></select></div>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn dark" data-a="doRefund" data-id="${o.key}">确认退款</button>`};render()},
+ doRefund(d){const o=ord(d.id),c=cur(),amt=Math.min(o.amount,+$('#f_amt').value||0),rs=$('#f_reason').value;if(amt<=0)return toast('请输入退款金额');o.refund={status:'退款处理中',amount:amt,t:Date.now(),by:me()};if(amt>=o.amount){o.st='refunded';o.pay.escrow='已退款'}sys(c,'平台已发起退款 '+money(amt)+'（'+rs+'），预计 1–3 个工作日原路退回',{vis:c.type==='bs'||c.type==='sp'?'internal':'public'});log(c,'发起退款 '+money(amt)+'：'+rs);S.modal=null;S.bottom=true;toast('退款已发起');render()},
+ linkOrder(d){if(!d.v)return;const c=cur(),o=ord(d.v);c.orderId=d.v;sys(c,'关联订单已切换为 #'+o.id,{vis:'internal'});log(c,'关联订单 → #'+o.id);S.tab='order';toast('已关联 #'+o.id);render()},
+ deliverDlg(d){const o=ord(d.id),p=o.delivery.prog;S.modal={title:'提交交付信息 · #'+o.id,body:()=>`${p?`<div class="fld"><label>累计已交付（${p.unit}，共 ${p.total.toLocaleString()}）</label><input type="number" id="f_done" value="${p.total}" max="${p.total}"></div>`:''}<div class="fld"><label>交付说明</label><textarea id="f_text">${o.cat==='Accounts'?'账号、密码及绑定邮箱已通过站内加密信息发送，请尽快改密改绑。':'Delivered in game, please check and confirm.'}</textarea></div><div class="fld"><label class="opt"><input type="checkbox" id="f_proof" checked> 附交付凭证截图（示例）— 凭证会同步归档到订单</label></div>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn pri" data-a="doDeliver" data-id="${o.key}">提交</button>`};render()},
+ doDeliver(d){const o=ord(d.id),c=cur(),p=o.delivery.prog;const done=p?Math.min(p.total,+$('#f_done').value||0):0;const txt=$('#f_text').value.trim();const a=$('#f_proof').checked?{type:'image',name:'delivery_'+fmt(Date.now()).replace(':','')+'.png',size:'455 KB',proof:true}:null;
+  if(p)p.done=done;const full=!p||done>=p.total;o.delivery.note=txt;if(full){o.delivery.deliveredAt=Date.now();o.delivery.status='已交付 · 待买家确认';if(o.st!=='dispute')o.st='delivered'}else o.delivery.status='部分交付';
+  push(c,{text:txt,att:a});if(a)o.proofs.push({by:me(),name:a.name,type:'image',t:Date.now()});sys(c,'卖家提交了交付信息'+(p?'：'+done.toLocaleString()+' / '+p.total.toLocaleString()+' '+p.unit:''));afterPublic(c,'seller');log(c,'提交交付信息');S.modal=null;S.bottom=true;render()},
+ confirmRecv(d){const o=ord(d.id),c=cur();o.st='done';o.delivery.status='已交付 · 买家已确认';sys(c,'买家已确认收货，订单完成');log(c,'确认收货');toast('已确认收货');S.bottom=true;render()},
+ /* report etc */
+ report(){S.modal={title:'举报',body:()=>`<div class="fld"><label>举报原因</label><select id="f_reason"><option>引导站外交易</option><option>索要账号密码 / 钓鱼</option><option>辱骂骚扰</option><option>虚假交付 / 欺诈</option><option>其他</option></select></div><div class="fld"><label>补充说明</label><textarea id="f_text"></textarea><div class="help">举报仅平台可见，对方不会收到通知。相关聊天记录将自动作为证据提交。</div></div>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn danger" data-a="doReport">提交举报</button>`};render()},
+ doReport(){const c=cur(),vr=role(),reason=$('#f_reason').value;c.reports.push({t:Date.now(),by:me(),reason,text:$('#f_text').value.trim()});sys(c,'你举报了该会话：'+reason+'，平台将尽快核查',{only:[vr]});if(c.type!=='bs')sys(c,RL[vr]+'举报：'+reason,{vis:'internal'});log(c,'举报：'+reason);S.modal=null;S.bottom=true;toast('举报已提交');render()},
+ block(){const c=cur();S.blocked[c.id]=!S.blocked[c.id];toast(S.blocked[c.id]?'已屏蔽对方（订单未完成期间仍会收到交付相关消息）':'已解除屏蔽');render()},
+ dnd(){const c=cur();S.dnd[c.id]=!S.dnd[c.id];toast(S.dnd[c.id]?'已开启本会话免打扰':'已取消免打扰');render()},dndAll(){S.dnd.all=!S.dnd.all;render()},
+ userNote(d){const i=document.getElementById('un_'+d.id),t=i.value.trim();if(!t)return;usr(d.id).notes.push({by:me(),t:Date.now(),text:t});toast('用户备注已添加');render()},
+ /* drawers */
+ orderDrawer(d){if(!d.id)return;const o=ord(d.id),vr=role();if(vr!=='agent'&&o.buyer!==me()&&o.seller!==me())return;S.drawer={title:'订单详情 · #'+o.id,body:()=>orderPanel(o,null,vr)+(vr==='agent'?`<div class="acts2"><button class="btn" data-a="fromOrder" data-id="${o.key}" data-v="bp">联系买家</button><button class="btn" data-a="fromOrder" data-id="${o.key}" data-v="sp">联系卖家</button><button class="btn dark" data-a="fromOrder" data-id="${o.key}" data-v="group">发起三方群组</button></div>`:'')};renderOv()},
+ userDrawer(d){const u=usr(d.id);S.modal=null;S.drawer={title:(u.role==='buyer'?'买家':'卖家')+'资料 · '+esc(u.name),body:()=>u.role==='buyer'?buyerPanel(u,true):sellerPanel(u,true)};render()},
+ histConv(d){const c=C(d.id),vr=role();S.drawer={title:`${TYPE[c.type][0]} · ${esc(convTitle(c,vr))} <span style="font-weight:400;font-size:12px;color:var(--ink3);margin-left:8px">只读</span>`,raw:true,body:()=>`<div class="msgs" style="flex:1">${msgsHtml(c,vr,me(),true)}</div><div class="mf"><span style="flex:1;font-size:12px;color:var(--ink3)">${waitChip(c)} · ${esc(convSub(c))}</span><button class="btn pri" data-a="open" data-id="${c.id}">进入该会话</button></div>`};renderOv()},
+ closeDrawer(){S.drawer=null;renderOv()},closeModal(){S.modal=null;S.newOrder=null;render()},ovClose(d,el,e){if(e.target===el)A.closeModal()},
+ upOrder(d){S.upKey=d.v;$('#mbody').innerHTML=S.modal.body()},
+ /* new conversation */
+ newConv(){S.newTab=role()==='agent'?'order':'order';S.newQ='';S.modal={title:role()==='agent'?'新建会话':'发起沟通',wide:true,body:newBody};render()},
+ newTab(d){S.newTab=d.v;S.newQ='';$('#mbody').innerHTML=newBody()},
+ fromOrder(d){const o=ord(d.id),vr=role(),now=Date.now();S.modal=null;S.drawer=null;
+  if(vr==='agent'){if(d.v==='group'){const ex=DB.convs.find(x=>x.type==='group'&&x.orderId===o.key&&x.status!=='closed');if(ex){toast('该订单已有进行中的三方群组');return go(ex.id)}const bs=DB.convs.find(x=>x.type==='bs'&&x.orderId===o.key);if(bs){go(bs.id);return A.upgrade()}
+    const g=mkConv({type:'group',orderId:o.key,topic:{Coins:'游戏币交付异常',Accounts:'账号找回 / 恢复',Boosting:'代练进度争议',Items:'商品与描述不符'}[o.cat],stage:1,priority:'high',assignee:me(),waiting:'both',origin:'客服从订单创建',members:[{uid:o.buyer,role:'buyer',joinedAt:now},{uid:o.seller,role:'seller',joinedAt:now},{uid:me(),role:'agent',joinedAt:now}]});sys(g,'平台客服创建了订单协调群组，买家与卖家已加入');push(g,{from:'sys',kind:'order'});log(g,'从订单创建三方群组');o.st='dispute';o.dispute={status:'平台介入中',type:g.topic,openedAt:now};return go(g.id)}
+   const uid=d.v==='bp'?o.buyer:o.seller;const ex=DB.convs.find(x=>x.type===d.v&&x.orderId===o.key&&member(x,uid)&&x.status!=='closed');if(ex){toast('已存在进行中的会话，已为你打开');return go(ex.id)}
+   const c=mkConv({type:d.v,orderId:o.key,topic:'订单回访',assignee:me(),origin:'客服主动联系',members:[{uid,role:usr(uid).role,joinedAt:now},{uid:me(),role:'agent',joinedAt:now}]});sys(c,'平台客服主动发起会话，已关联订单');push(c,{from:'sys',kind:'order'});log(c,'主动联系'+RL[usr(uid).role]);return go(c.id)}
+  if(d.v==='plat'){S.newTab='plat';S.newOrder=o.key;S.modal={title:'发起沟通',wide:true,body:newBody};return render()}
+  const other=vr==='buyer'?o.seller:o.buyer;let c=DB.convs.find(x=>(x.type==='bs'||x.type==='group')&&x.orderId===o.key&&member(x,me()));
+  if(!c){c=mkConv({type:'bs',orderId:o.key,topic:'订单沟通',members:[{uid:o.buyer,role:'buyer',joinedAt:now},{uid:o.seller,role:'seller',joinedAt:now}]});sys(c,RL[vr]+'从「订单详情页」发起会话，已关联订单');push(c,{from:'sys',kind:'order'});log(c,'从订单详情页创建会话')}else if(c.status==='closed'&&c.type==='bs'){c.status='open';sys(c,RL[vr]+'重新发起了沟通')}go(c.id)},
+ fromProduct(d){const p=DB.P[d.id],now=Date.now();S.modal=null;let c=DB.convs.find(x=>x.productId===p.id&&member(x,me()));if(!c){c=mkConv({type:'bs',productId:p.id,topic:'售前咨询',origin:'商品详情页',members:[{uid:me(),role:'buyer',joinedAt:now},{uid:p.seller,role:'seller',joinedAt:now}]});sys(c,'买家从「商品详情页」发起咨询');log(c,'从商品详情页创建会话')}go(c.id)},
+ contactUser(d){const u=usr(d.id),now=Date.now(),t=u.role==='buyer'?'bp':'sp';S.modal=null;S.drawer=null;const ex=DB.convs.find(x=>x.type===t&&member(x,u.id)&&x.status==='open'&&x.assignee===me()&&!x.orderId&&!x.ref);if(ex){toast('已存在进行中的会话');return go(ex.id)}const c=mkConv({type:t,topic:'平台主动联系',assignee:me(),origin:'客服主动联系',members:[{uid:u.id,role:u.role,joinedAt:now},{uid:me(),role:'agent',joinedAt:now}]});sys(c,'平台客服主动发起会话');log(c,'主动联系'+RL[u.role]);go(c.id)},
+ doPlat(){const vr=role(),now=Date.now(),topic=$('#f_topic').value,rel=$('#f_rel').value,desc=$('#f_desc').value.trim();if(!desc)return toast('请描述你的问题');let x={type:vr==='buyer'?'bp':'sp',topic,waiting:'support',dueAt:now+10*6e4,origin:rel?(rel.startsWith('o')?'订单详情页':'卖家中心'):'帮助中心',members:[{uid:me(),role:vr,joinedAt:now}]};
+  if(rel.startsWith('o'))x.orderId=rel;else if(rel){const [k,id]=rel.split(':');x.ref={kind:k,id}}
+  const c=mkConv(x);sys(c,RL[vr]+'从「'+c.origin+'」联系平台客服'+(c.orderId?'，已关联订单':c.ref?'，已关联'+refLabel(c.ref):''));if(c.orderId)push(c,{from:'sys',kind:'order'});push(c,{text:desc});sys(c,'已进入人工队列，预计 10 分钟内响应');log(c,'创建会话：'+topic);S.modal=null;S.newOrder=null;go(c.id)},
+ docs(d){S.drawer={title:{design:'核心设计说明',cover:'字段及功能覆盖说明',perm:'消息可见范围与操作权限矩阵'}[d.v],wide:true,body:()=>`<div class="doc">${DOCS[d.v]}</div>`};renderOv()},
+ reset(){DB=seed();Object.assign(S,{viewer:{role:'agent',uid:'a1'},cid:'g1',queue:'todo',tf:'all',q:'',tab:null,mode:'public',preview:null,replyTo:null,msearch:null,draft:{},warn:null,modal:null,drawer:null,bottom:true,n:0});toast('已恢复初始数据');render()}
+};
+function newBody(){const vr=role(),q=S.newQ.toLowerCase();const orow=(o,btns)=>`<div class="rowl"><span class="gico ${o.cat}" style="width:32px;height:32px;font-size:8px">${GL[o.cat]}</span><span class="g"><b>${esc(o.title)}</b><br><span style="color:var(--ink3)">#${o.id} · ${vr==='agent'?esc(usr(o.buyer).name+' ⇄ '+usr(o.seller).name):vr==='buyer'?esc(usr(o.seller).store):esc(usr(o.buyer).name)} · ${money(o.amount)}</span></span>${tg(ST[o.st][0],ST[o.st][1])}${btns}</div>`;
+ const tabs=vr==='agent'?[['order','从订单发起'],['buyer','联系买家'],['seller','联系卖家']]:vr==='buyer'?[['order','我的订单'],['product','商品咨询（售前）'],['plat','联系平台客服']]:[['order','我的订单'],['plat','联系平台客服']];
+ let h=`<div class="chips" style="margin:0 0 12px">${tabs.map(t=>`<button class="chipb ${S.newTab===t[0]?'on':''}" data-a="newTab" data-v="${t[0]}">${t[1]}</button>`).join('')}</div>`;
+ if(S.newTab==='order'){const os=Object.values(DB.O).filter(o=>vr==='agent'||o[vr]===me()).filter(o=>!q||[o.id,o.title,usr(o.buyer).name,usr(o.seller).name].join(' ').toLowerCase().includes(q));
+  h+=`<input class="search" style="margin:0 0 8px" data-i="nq" placeholder="搜索订单号 / 商品 / 用户名" value="${esc(S.newQ)}"><div id="newlist">${os.map(o=>orow(o,vr==='agent'?`<button class="btn sm" data-a="fromOrder" data-id="${o.key}" data-v="bp">联系买家</button><button class="btn sm" data-a="fromOrder" data-id="${o.key}" data-v="sp">联系卖家</button><button class="btn sm dark" data-a="fromOrder" data-id="${o.key}" data-v="group">三方群组</button>`:`<button class="btn sm" data-a="fromOrder" data-id="${o.key}" data-v="bs">联系${vr==='buyer'?'卖家':'买家'}</button><button class="btn sm" data-a="fromOrder" data-id="${o.key}" data-v="plat">联系客服</button>`)).join('')||'<div class="empty">没有匹配的订单</div>'}</div>`}
+ else if(S.newTab==='product'){h+=Object.values(DB.P).map(p=>`<div class="rowl"><span class="gico ${p.cat}" style="width:32px;height:32px;font-size:8px">${GL[p.cat]}</span><span class="g"><b>${esc(p.title)}</b><br><span style="color:var(--ink3)">${esc(usr(p.seller).store)} · ${money(p.price)}</span></span><button class="btn sm" data-a="fromProduct" data-id="${p.id}">咨询卖家</button></div>`).join('')+'<div class="priv" style="padding-top:10px">模拟「商品详情页 → 联系卖家」入口，会话自动关联商品</div>'}
+ else if(S.newTab==='plat'){const os=Object.values(DB.O).filter(o=>o[vr]===me());const u=usr(me());const topics=vr==='buyer'?['支付问题','订单 / 交付问题','申请退款','商品与描述不符','投诉卖家','账号安全','其他']:['订单问题','提现 / 资金 / 手续费','商品上架与审核','违规处罚申诉','反馈买家问题','其他'];
+  h+=`<div class="fld"><label>问题类型</label><select id="f_topic">${topics.map(t=>`<option>${t}</option>`).join('')}</select></div><div class="fld"><label>关联业务对象（选填，关联后客服无需再向你索要信息）</label><select id="f_rel"><option value="">不关联</option><optgroup label="订单">${os.map(o=>`<option value="${o.key}" ${S.newOrder===o.key?'selected':''}>#${o.id} · ${esc(o.title)}</option>`).join('')}</optgroup>${vr==='seller'?`<optgroup label="提现记录">${u.wd.map(w=>`<option value="withdraw:${w.id}">${w.id} · ${money(w.amount)} · ${w.status}</option>`).join('')}</optgroup><optgroup label="处罚记录">${u.pen.map(p=>`<option value="penalty:${p.id}">${p.id} · ${esc(p.type)}</option>`).join('')}</optgroup><optgroup label="商品">${u.listings.map(l=>`<option value="listing:${l.id}">${l.id} · ${esc(l.title)} · ${l.status}</option>`).join('')}</optgroup>`:''}</select></div><div class="fld"><label>问题描述</label><textarea id="f_desc" placeholder="请描述你遇到的问题"></textarea></div><div style="text-align:right"><button class="btn pri" data-a="doPlat">提交并进入会话</button></div>`}
+ else{const us=Object.values(DB.U).filter(u=>u.role===S.newTab).filter(u=>!q||(u.name+' '+u.no+' '+(u.store||'')).toLowerCase().includes(q));
+  h+=`<input class="search" style="margin:0 0 8px" data-i="nq" placeholder="搜索昵称 / ID" value="${esc(S.newQ)}"><div id="newlist">${us.map(u=>`<div class="rowl">${av(u.id,'agent')}<span class="g"><b>${esc(u.name)}</b> ${u.store?'· '+esc(u.store):''}<br><span style="color:var(--ink3)">${u.no} · ${esc(u.country)}</span></span><button class="btn sm" data-a="userDrawer" data-id="${u.id}">资料</button><button class="btn sm pri" data-a="contactUser" data-id="${u.id}">发起会话</button></div>`).join('')}</div>`}
+ return h}
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{if(!e.target.closest('details.pop'))document.querySelectorAll('details.pop[open]').forEach(x=>x.open=false);const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){if(el.closest('details.pop .menu'))el.closest('details.pop').open=false;f(el.dataset,el,e)}});
+document.addEventListener('change',e=>{const el=e.target.closest('[data-c]');if(el)A[el.dataset.c](Object.assign({},el.dataset,{v:el.value}),el,e);
+ if(e.target.id==='file'){const f=e.target.files[0];if(!f)return;const img=f.type.startsWith('image'),vid=f.type.startsWith('video');const lim=(img?10:vid?100:20)*1048576;if(f.size>lim){toast('文件超出大小限制（'+(img?'图片 10MB':vid?'视频 100MB':'文件 20MB')+'）');e.target.value='';return}sendAtt({type:img?'image':vid?'video':'file',name:f.name,size:(f.size/1024).toFixed(0)+' KB',url:img?URL.createObjectURL(f):''});e.target.value=''}});
+document.addEventListener('input',e=>{const k=e.target.dataset.i;if(!k)return;
+ if(k==='ta'){S.draft[S.cid]=e.target.value;if(S.warn){S.warn=null;const w=document.querySelector('.warnbox');w&&w.remove()}}
+ if(k==='lq'){S.q=e.target.value;$('#items').innerHTML=renderItems();if(role()==='agent'){document.querySelector('#listH h3').textContent=S.q?'搜索结果':QUEUES.find(q=>q[0]===S.queue)[1]}}
+ if(k==='ms'){S.msearch=e.target.value;const c=cur(),vr=S.preview||role(),uid=S.preview?(S.preview==='buyer'?buyerId(c):sellerId(c)):me();$('#msgs').innerHTML=msgsHtml(c,vr,uid,!!S.preview);$('#mscount').textContent=S.msearch?document.querySelectorAll('#msgs mark').length+' 处匹配':''}
+ if(k==='nq'){S.newQ=e.target.value;const pos=e.target.selectionStart;$('#mbody').innerHTML=newBody();const i=document.querySelector('[data-i=nq]');i.focus();i.setSelectionRange(pos,pos)}});
+document.addEventListener('keydown',e=>{if(e.target.id==='ta'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();doSend()}if(e.key==='Escape'){if(S.light)A.closeLight();else if(S.modal)A.closeModal();else if(S.drawer)A.closeDrawer()}});
+document.addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.k;if(k)S.sec[k]=e.target.open},true);
+render();
+
+</script></body></html>
