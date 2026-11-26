@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iGV 客服工作台 · 交互 Demo v3</title>
+<style>
+:root{--bg:#f2f3f5;--panel:#fff;--line:#e5e7eb;--line2:#eff0f2;--ink:#15171c;--ink2:#555c69;--ink3:#8d94a1;--brand:#0c8f62;--brand-bg:#e7f6ef;--buyer:#2563eb;--buyer-bg:#eaf1ff;--seller:#7c3aed;--seller-bg:#f1eaff;--note:#fff6d1;--note-line:#e9bf3a;--note-ink:#7a5a00;--danger:#d92d20;--danger-bg:#fdecea;--warn:#c76a06;--warn-bg:#fff1dd;--r:10px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;color:var(--ink);background:var(--bg);overflow:hidden;min-width:1180px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,h4,p{margin:0}
+.app{display:flex;flex-direction:column;height:100vh}
+/* top bar */
+.top{height:50px;flex:none;background:#12161c;color:#fff;display:flex;align-items:center;gap:14px;padding:0 14px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;white-space:nowrap}
+.logo i{width:26px;height:26px;border-radius:7px;background:var(--brand);display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;letter-spacing:.3px}
+.logo small{font-weight:400;color:#9aa3b2;font-size:12px}
+.demo-switch{display:flex;align-items:center;gap:8px;margin-left:10px;padding:4px 6px 4px 10px;border:1px dashed #3b4350;border-radius:9px;font-size:12px;color:#9aa3b2;white-space:nowrap}
+.seg{display:flex;background:#232a33;border-radius:7px;padding:2px}
+.seg button{border:0;background:none;color:#aeb6c4;padding:4px 12px;border-radius:5px;font-size:12px}
+.seg button.on{background:#fff;color:#12161c;font-weight:600}
+.top select{background:#232a33;color:#fff;border:0;border-radius:6px;padding:5px 8px;font-size:12px}
+.top .sp{flex:1}
+.tbtn{border:1px solid #3b4350;background:none;color:#dfe3ea;border-radius:7px;padding:5px 11px;font-size:12px;white-space:nowrap}
+.tbtn:hover{background:#232a33}
+.tbtn.pri{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.me{display:flex;align-items:center;gap:7px;font-size:12px;color:#dfe3ea;white-space:nowrap}
+/* layout */
+.main{flex:1;display:flex;min-height:0}
+.nav{width:196px;flex:none;background:#fafafb;border-right:1px solid var(--line);padding:10px 8px;overflow:auto}
+.nav h5{margin:12px 8px 4px;font-size:11px;color:var(--ink3);font-weight:600;letter-spacing:.5px}
+.nav h5:first-child{margin-top:2px}
+.q{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;text-align:left;padding:7px 9px;border-radius:7px;color:var(--ink2)}
+.q:hover{background:#eef0f2}
+.q.on{background:#e4ebe8;color:var(--ink);font-weight:600}
+.q .n{margin-left:auto;font-size:11px;color:var(--ink3);font-weight:500;font-variant-numeric:tabular-nums}
+.q .n.hot{background:var(--danger);color:#fff;border-radius:9px;padding:0 6px;font-weight:600}
+.q .n.warm{background:var(--brand);color:#fff;border-radius:9px;padding:0 6px;font-weight:600}
+.q .d{width:7px;height:7px;border-radius:50%;background:#c3c8d0;flex:none}
+.list{width:330px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.list-h{padding:10px 12px 8px;border-bottom:1px solid var(--line2)}
+.list-h .row{display:flex;align-items:center;gap:8px}
+.list-h h3{font-size:14px;flex:1}
+.search{width:100%;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#f7f8f9;margin-top:8px;outline:0}
+.search:focus{border-color:var(--brand);background:#fff}
+.chips{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.chipb{border:1px solid var(--line);background:#fff;border-radius:14px;padding:2px 10px;font-size:12px;color:var(--ink2)}
+.chipb.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chipb b{font-weight:600;margin-left:3px}
+.items{flex:1;overflow:auto}
+.it{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-bottom:1px solid var(--line2);position:relative}
+.it:hover{background:#f7f8f9}
+.it.on{background:#eef6f2}
+.it.on:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand)}
+.it .r1{display:flex;align-items:center;gap:6px}
+.it .ttl{font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .tm{font-size:11px;color:var(--ink3);flex:none}
+.it .sub{font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.it .last{font-size:12px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.it.unread .last{color:var(--ink);font-weight:500}
+.it .r4{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap}
+.badge{background:var(--danger);color:#fff;border-radius:9px;font-size:11px;padding:0 6px;font-weight:600;margin-left:auto}
+.empty{padding:40px 20px;text-align:center;color:var(--ink3)}
+/* tags */
+.tg{display:inline-flex;align-items:center;gap:3px;border-radius:5px;padding:1px 6px;font-size:11px;font-weight:600;white-space:nowrap;background:#eef0f2;color:var(--ink2)}
+.tg.buyer{background:var(--buyer-bg);color:var(--buyer)}
+.tg.seller{background:var(--seller-bg);color:var(--seller)}
+.tg.agent{background:var(--brand-bg);color:var(--brand)}
+.tg.group{background:#12161c;color:#fff}
+.tg.bs{background:#eef0f2;color:var(--ink2)}
+.tg.red{background:var(--danger-bg);color:var(--danger)}
+.tg.amber{background:var(--warn-bg);color:var(--warn)}
+.tg.green{background:var(--brand-bg);color:var(--brand)}
+.tg.note{background:var(--note);color:var(--note-ink)}
+.tg.line{background:#fff;border:1px solid var(--line);font-weight:500}
+.tg.x{cursor:pointer}
+.av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;color:#fff;flex:none;background:#8d94a1}
+.av.s{width:18px;height:18px;font-size:9px}
+.av.l{width:40px;height:40px;font-size:14px}
+.av.buyer{background:var(--buyer)}.av.seller{background:var(--seller)}.av.agent{background:var(--brand)}
+/* chat */
+.chat{flex:1;display:flex;flex-direction:column;min-width:0;background:#f7f8f9}
+.ch{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px}
+.ch .r1{display:flex;align-items:center;gap:8px}
+.ch h2{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch .who{font-size:12px;color:var(--ink2);margin-top:7px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ch .acts{margin-left:auto;display:flex;gap:6px;flex:none;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;font-size:12px;white-space:nowrap}
+.btn:hover{background:#f3f4f6}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.btn.pri:hover{filter:brightness(.95)}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.btn.warn{background:var(--note-line);border-color:var(--note-line);color:#3d2e00;font-weight:600}
+.btn.danger{color:var(--danger);border-color:#f3c2bd}
+.btn.sm{padding:2px 8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{border-color:transparent;background:none;color:var(--ink2)}
+.hbar{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);font-size:12px;color:var(--ink2)}
+.hbar label{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.hbar select,.sel{border:1px solid var(--line);border-radius:6px;padding:2px 6px;background:#fff;font-size:12px;max-width:150px}
+.next{flex:1;min-width:200px;display:flex;align-items:center;gap:6px}
+.next input{flex:1;border:1px solid transparent;border-radius:6px;padding:3px 6px;background:#f3f4f6;font-size:12px;outline:0}
+.next input:focus{border-color:var(--brand);background:#fff}
+.stages{display:flex;gap:0;align-items:center;font-size:11px}
+.stages span{padding:2px 9px;background:#eef0f2;color:var(--ink3);position:relative}
+.stages span:first-child{border-radius:10px 0 0 10px}.stages span:last-child{border-radius:0 10px 10px 0}
+.stages span.done{background:var(--brand-bg);color:var(--brand)}
+.stages span.cur{background:var(--brand);color:#fff;font-weight:600}
+.strip{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;border-bottom:1px solid var(--line)}
+.strip.info{background:#eef6f2;color:#0a5c40}
+.strip.task{background:var(--warn-bg);color:#7a4300}
+.strip.prev{background:#12161c;color:#fff}
+.strip.red{background:var(--danger-bg);color:#8f1d14}
+.strip .sp{flex:1}
+.msearch{display:flex;align-items:center;gap:8px;padding:6px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.msearch input{flex:1;border:1px solid var(--line);border-radius:6px;padding:4px 8px;outline:0}
+.msgs{flex:1;overflow:auto;padding:14px 18px 8px}
+.m{display:flex;gap:8px;margin:10px 0;max-width:78%;position:relative}
+.m.mine{margin-left:auto;flex-direction:row-reverse}
+.m .bd{min-width:0}
+.m .meta{font-size:11px;color:var(--ink3);display:flex;gap:6px;align-items:center;margin-bottom:3px}
+.m.mine .meta{justify-content:flex-end}
+.m .meta b{color:var(--ink);font-weight:600;font-size:12px}
+.bub{background:#fff;border:1px solid var(--line);border-radius:4px 12px 12px 12px;padding:8px 11px;white-space:pre-wrap;word-break:break-word;display:inline-block;text-align:left}
+.m.mine .bub{border-radius:12px 4px 12px 12px}
+.m.buyer .bub{border-left:3px solid var(--buyer)}
+.m.seller .bub{border-left:3px solid var(--seller)}
+.m.agent .bub{background:var(--brand-bg);border-color:#bfe5d3}
+.m.mine.buyer .bub,.m.mine.seller .bub{border-left:1px solid var(--line);background:#12161c;color:#fff;border-color:#12161c}
+.m.mine .bd{text-align:right}
+.m .foot{font-size:11px;color:var(--ink3);margin-top:2px}
+.m .ops{position:absolute;top:-6px;right:0;display:none;background:#fff;border:1px solid var(--line);border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:2px;z-index:2;white-space:nowrap}
+.m.mine .ops{right:auto;left:0}
+.m:hover .ops{display:flex}
+.ops button{border:0;background:none;padding:2px 7px;font-size:11px;color:var(--ink2);border-radius:5px}
+.ops button:hover{background:#f0f1f3;color:var(--ink)}
+.quote{border-left:2px solid #c3c8d0;padding:1px 7px;margin-bottom:5px;font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}
+.tr{margin-top:6px;padding-top:6px;border-top:1px dashed rgba(128,128,128,.4);font-size:12px;opacity:.85}
+.gone{font-style:italic;color:var(--ink3)}
+.hid{opacity:.55;text-decoration:line-through}
+.att{display:flex;align-items:center;gap:9px;margin-top:6px;border:1px solid var(--line);border-radius:8px;padding:6px 9px 6px 6px;background:#fff;color:var(--ink);cursor:pointer;min-width:200px;text-align:left}
+.att .th{width:44px;height:44px;border-radius:6px;flex:none;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#31445c,#6f89a8);background-size:cover;background-position:center}
+.att.video .th{background:linear-gradient(135deg,#3b2f5c,#8a6fc0)}
+.att.file .th{background:linear-gradient(135deg,#5c4a2f,#b59460)}
+.att .nm{font-size:12px;font-weight:600;word-break:break-all}
+.att .sz{font-size:11px;color:var(--ink3)}
+.sys{text-align:center;margin:12px 0}
+.sys span{display:inline-block;background:#e9ebee;color:var(--ink2);font-size:11.5px;padding:3px 12px;border-radius:12px;max-width:86%}
+.sys.int span{background:var(--note);color:var(--note-ink);border:1px dashed var(--note-line)}
+.sys a,.lnk{color:var(--brand);font-weight:600;cursor:pointer;text-decoration:underline;background:none;border:0;padding:0;font-size:inherit}
+.divider{display:flex;align-items:center;gap:12px;margin:22px 0 16px;color:var(--brand);font-size:12px;font-weight:600}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--brand)}
+.divider small{display:block;font-weight:400;color:var(--ink2);text-align:center}
+.note{margin:10px 0;border:1px solid var(--note-line);border-left:4px solid var(--note-line);border-radius:8px;padding:8px 12px;background:repeating-linear-gradient(135deg,var(--note),var(--note) 12px,#fff1bd 12px,#fff1bd 24px);position:relative}
+.note .nh{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--note-ink);margin-bottom:3px;font-weight:600}
+.note .nh .ops{top:4px}
+.note:hover .ops{display:flex}
+.note .ops{position:absolute;right:6px;top:4px;display:none;background:#fff;border:1px solid var(--line);border-radius:7px;padding:2px}
+.note .nb{white-space:pre-wrap;color:#3d2e00}
+.note.locked{background:#f3f4f6;border-color:#d5d8de;border-style:dashed;color:var(--ink3);font-size:12px}
+.card{border:1px solid var(--line);border-radius:var(--r);background:#fff;padding:10px 12px;margin:10px 0}
+.card.order{max-width:420px;margin-left:auto;margin-right:auto}
+.card.dir{border:1.5px solid var(--brand);max-width:520px;margin-left:auto;margin-right:auto}
+.card.dir.over{border-color:var(--danger)}
+.card.res{border:1.5px solid var(--ink);max-width:540px;margin-left:auto;margin-right:auto}
+.card h4{font-size:13px;display:flex;align-items:center;gap:6px}
+.card .kv{margin-top:6px}
+.card .cf{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}
+/* composer */
+.comp{background:#fff;border-top:1px solid var(--line);padding:8px 14px 10px;position:relative}
+.modes{display:flex;gap:4px;margin-bottom:6px;align-items:center}
+.modes button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:3px 11px;font-size:12px;color:var(--ink2)}
+.modes button.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.modes button.on.dirm{background:var(--ink);border-color:var(--ink)}
+.modes button.on.notem{background:var(--note-line);border-color:var(--note-line);color:#3d2e00}
+.aud{font-size:12px;margin-bottom:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;color:var(--ink2)}
+.comp.note-mode{background:repeating-linear-gradient(135deg,var(--note),var(--note) 12px,#fff1bd 12px,#fff1bd 24px);border-top:2px solid var(--note-line)}
+.comp.note-mode textarea{background:#fffdf2;border-color:var(--note-line)}
+.comp textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;resize:none;height:64px;outline:0;display:block}
+.comp textarea:focus{border-color:var(--brand)}
+.cbar{display:flex;align-items:center;gap:4px;margin-top:6px}
+.cbar .sp{flex:1}
+.cbar .hint{font-size:11px;color:var(--ink3);margin-right:8px}
+.ib{border:0;background:none;border-radius:6px;padding:4px 8px;font-size:12px;color:var(--ink2)}
+.ib:hover{background:#f0f1f3}
+.replying{display:flex;align-items:center;gap:8px;font-size:12px;background:#f3f4f6;border-radius:6px;padding:4px 8px;margin-bottom:6px;color:var(--ink2)}
+.warnbox{background:var(--danger-bg);color:#8f1d14;border:1px solid #f3c2bd;border-radius:8px;padding:7px 10px;font-size:12px;margin-bottom:6px}
+.closedbar{background:#fff;border-top:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:10px;color:var(--ink2)}
+.closedbar .sp{flex:1}
+details.pop{position:relative;display:inline-block}
+details.pop>summary{list-style:none;cursor:pointer}
+details.pop>summary::-webkit-details-marker{display:none}
+.menu{position:absolute;bottom:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.14);padding:5px;min-width:200px;z-index:20}
+.menu.down{bottom:auto;top:calc(100% + 6px);left:auto;right:0}
+.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:6px 10px;border-radius:6px;font-size:12px}
+.menu button:hover{background:#f0f1f3}
+.menu .mh{font-size:11px;color:var(--ink3);padding:4px 10px}
+.menu.emo{display:grid;grid-template-columns:repeat(6,1fr);min-width:0;width:200px}
+.menu.emo button{text-align:center;font-size:16px;padding:4px}
+/* context */
+.ctx{width:356px;flex:none;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;border-bottom:1px solid var(--line);padding:0 8px;flex:none}
+.tabs button{border:0;background:none;padding:10px 10px 8px;font-size:13px;color:var(--ink2);border-bottom:2px solid transparent}
+.tabs button.on{color:var(--ink);font-weight:600;border-color:var(--brand)}
+.cbody{flex:1;overflow:auto;padding:12px}
+.sec{border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;margin-bottom:10px}
+.sec>h4{font-size:12px;color:var(--ink2);font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.sec>h4 .sp{flex:1}
+details.sec>summary{font-size:12px;color:var(--ink2);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;list-style:none}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary:after{content:"▸";margin-left:auto;color:var(--ink3)}
+details.sec[open]>summary:after{content:"▾"}
+details.sec[open]>summary{margin-bottom:8px}
+.kv{display:grid;grid-template-columns:86px 1fr;gap:4px 8px;font-size:12px}
+.kv dt{color:var(--ink3)}.kv dd{margin:0;word-break:break-word}
+.ohead{display:flex;gap:10px;align-items:flex-start}
+.gico{width:42px;height:42px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:800;flex:none;text-align:center;line-height:1.1}
+.gico.Coins{background:linear-gradient(135deg,#b7791f,#ecc94b)}
+.gico.Accounts{background:linear-gradient(135deg,#2b4c7e,#5a8dee)}
+.gico.Items{background:linear-gradient(135deg,#7b2d8e,#c06ad6)}
+.gico.Boosting{background:linear-gradient(135deg,#9b2c2c,#f56565)}
+.ohead .t{font-weight:600}
+.ohead .s{font-size:12px;color:var(--ink2)}
+.price{font-weight:700;font-size:15px;margin-left:auto;white-space:nowrap}
+.bar{height:6px;border-radius:3px;background:#e9ebee;overflow:hidden;margin:6px 0 4px}
+.bar i{display:block;height:100%;background:var(--brand)}
+.bar.red i{background:var(--warn)}
+.rowl{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line2);font-size:12px;width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.rowl:first-of-type{border-top:0}
+button.rowl:hover{background:#f7f8f9}
+.rowl .g{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rowl .dim{color:var(--ink3);flex:none}
+.acts2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.stat div{background:#f7f8f9;border-radius:7px;padding:6px 4px;text-align:center}
+.stat b{display:block;font-size:14px}
+.stat span{font-size:11px;color:var(--ink3)}
+.ph{display:flex;gap:10px;align-items:center}
+.ph .n{font-weight:700;font-size:14px}
+.guide{font-size:12px;color:var(--ink2);padding-left:16px;margin:0}
+.guide li{margin:2px 0}
+.tl{font-size:12px;border-left:2px solid var(--line);margin-left:4px;padding-left:12px}
+.tl div{position:relative;padding:3px 0}
+.tl div:before{content:"";position:absolute;left:-17px;top:9px;width:8px;height:8px;border-radius:50%;background:#c3c8d0}
+.tl time{color:var(--ink3);margin-right:6px;font-variant-numeric:tabular-nums}
+.priv{font-size:11px;color:var(--ink3);text-align:center;padding:4px 0 10px}
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(15,18,24,.45);z-index:50;display:grid;place-items:center}
+.modal{background:#fff;border-radius:14px;width:520px;max-width:92vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal.wide{width:720px}
+.mh1{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;font-weight:700;font-size:15px}
+.mh1 button{margin-left:auto;border:0;background:none;font-size:18px;color:var(--ink3)}
+.mb{padding:16px 18px;overflow:auto}
+.mf{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.fld{margin-bottom:12px}
+.fld>label{display:block;font-size:12px;color:var(--ink2);font-weight:600;margin-bottom:4px}
+.fld input[type=text],.fld input[type=number],.fld select,.fld textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 9px;outline:0;background:#fff}
+.fld textarea{height:70px;resize:vertical}
+.fld .help{font-size:11px;color:var(--ink3);margin-top:3px}
+.fld .opt{display:flex;gap:6px;align-items:flex-start;font-size:12px;font-weight:400;color:var(--ink);margin:3px 0}
+.drawer-ov{position:fixed;inset:0;background:rgba(15,18,24,.35);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:560px;max-width:94vw;background:#fff;z-index:41;display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(0,0,0,.18)}
+.drawer.wide{width:860px}
+.drawer .msgs{background:#f7f8f9}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#12161c;color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:60;display:grid;place-items:center;color:#fff}
+.lightbox .pic{width:min(720px,80vw);height:min(440px,60vh);border-radius:12px;background:linear-gradient(135deg,#31445c,#6f89a8);display:grid;place-items:center;font-size:16px;background-size:contain;background-repeat:no-repeat;background-position:center}
+table.t{border-collapse:collapse;width:100%;font-size:12px}
+table.t th,table.t td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+table.t th{background:#f7f8f9;font-weight:600}
+.doc h3{font-size:14px;margin:18px 0 6px}.doc h3:first-child{margin-top:0}
+.doc p,.doc li{color:#333a45;font-size:13px;line-height:1.7}
+.doc ul{padding-left:18px;margin:4px 0}
+.y{color:var(--brand);font-weight:700}.nn{color:var(--danger);font-weight:700}
+mark{background:#ffe066;border-radius:2px}
+.stars button{border:0;background:none;font-size:22px;color:#d1d5db;padding:0 2px}
+.stars button.on{color:#f5b301}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:#c3c8d0}
+.dot.on{background:#22c55e}
+
+@media(max-width:1440px){.nav{width:172px}.list{width:292px}.ctx{width:324px}.q{padding:7px 6px;font-size:12.5px}}
+
+.main.buyer .list,.main.seller .list{width:340px}
+.lg{display:inline-block;font-size:10px;font-weight:700;border:1px solid currentColor;border-radius:4px;padding:0 4px;line-height:15px;opacity:.75;vertical-align:1px}
+.tnote{color:var(--ink3)}
+.m .foot .lnk,.sys .lnk{font-weight:500}
+.ch h2 small{font-weight:400;font-size:12px;color:var(--ink2);margin-left:6px}
+.btn.on{background:var(--brand-bg);border-color:#bfe5d3;color:var(--brand);font-weight:600}
+.obar{display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid var(--line);padding:9px 16px}
+.obar .oi{flex:1;min-width:0}.obar .t{font-weight:600}.obar .s{font-size:12px;color:var(--ink2);margin-top:2px}
+.obar .gico{width:36px;height:36px;font-size:9px}
+.price2{font-weight:700;margin-left:6px}
+.pvbox{background:#f3f7f5;border:1px dashed #bfe5d3;border-radius:8px;padding:6px 10px;margin-bottom:6px;font-size:12.5px}
+.pvbox div{margin:2px 0}.pvbox i{color:var(--ink3)}
+.rhead{font-weight:700;margin-bottom:4px}
+.bub.resb{border:1.5px solid var(--ink)!important;background:#fff!important;color:var(--ink)!important}
+.tr{white-space:pre-wrap}
+.s2{font-size:12px;color:var(--ink2)}
+.list-h .chips{margin:0 0 2px}
+.it .r4{margin-top:5px}
+.ctx{width:320px}
+.ocard{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);padding:9px 10px;min-width:330px;text-align:left}
+.ocard .oi{flex:1;min-width:0}.ocard .t{font-weight:600}.ocard .s{font-size:12px;color:var(--ink2);margin-top:1px}
+.oline{background:#f7f8f9;border-radius:7px;padding:6px 9px;font-size:12px}
+.phd{font-size:12px;font-weight:600;color:var(--ink2);margin:2px 2px 8px}
+.obtn{width:100%;border:0;background:none;padding:0;text-align:left;align-items:center}
+.sec.fold{background:#fafafb}.sec.fold:hover{background:#f3f4f6}
+.car{color:var(--ink3);flex:none}
+.sec .gico{width:38px;height:38px;font-size:9px}
+.sec .acts2{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.card.dir .stars button{font-size:20px;color:#d1d5db}.card.dir .stars button:hover{color:#f5b301}
+.demo-switch{gap:7px}
+.ctx .kv{grid-template-columns:104px 1fr}.ctx .kv dt{overflow-wrap:anywhere}
+
+</style></head><body>
+<div class="app" id="app"></div><div id="ov"></div><div id="toast" class="toast" hidden></div>
+<script>
+const LN={fr:'法语',en:'英语',zh:'中文'},LC={fr:'FR',en:'EN',zh:'中'};
+const R3={buyer:{zh:'买家',fr:"L'acheteur",en:'The buyer'},seller:{zh:'卖家',fr:'Le vendeur',en:'The seller'},support:{zh:'平台客服',fr:'Le support iGV',en:'iGV Support'}};
+const TOPIC={late:{zh:'交付超时',fr:'Retard de livraison',en:'Late delivery'},none:{zh:'未交付',fr:'Commande non livrée',en:'Not delivered'},mismatch:{zh:'商品与描述不符',fr:'Non conforme à la description',en:'Not as described'},recover:{zh:'账号被找回',fr:'Compte récupéré',en:'Account recovered'},boost:{zh:'代练进度争议',fr:'Litige sur le boost',en:'Boosting dispute'},pay:{zh:'支付问题',fr:'Problème de paiement',en:'Payment issue'},refund:{zh:'申请退款',fr:'Demande de remboursement',en:'Refund request'},withdraw:{zh:'提现 / 资金',fr:'Retrait / fonds',en:'Withdrawal / funds'},listing:{zh:'商品上架与审核',fr:'Annonce / validation',en:'Listing review'},penalty:{zh:'处罚申诉',fr:'Contestation de sanction',en:'Penalty appeal'},chat:{zh:'订单沟通',fr:'Commande',en:'Order'},presale:{zh:'售前咨询',fr:'Question avant achat',en:'Pre-sale question'},contact:{zh:'平台主动联系',fr:'Message du support',en:'Message from support'},other:{zh:'其他问题',fr:'Autre problème',en:'Other issue'}};
+const VERDICT={cont:{zh:'继续交付',fr:'Poursuite de la livraison',en:'Continue delivery'},part:{zh:'部分退款',fr:'Remboursement partiel',en:'Partial refund'},full:{zh:'全额退款',fr:'Remboursement intégral',en:'Full refund'},reject:{zh:'驳回诉求',fr:'Demande rejetée',en:'Claim rejected'}};
+const SYSD={
+ start:p=>({zh:R3[p.r].zh+'从订单页发起会话',fr:R3[p.r].fr+' a ouvert la conversation depuis la commande',en:R3[p.r].en+' opened this chat from the order page'}),
+ presale:()=>({zh:'买家从商品页发起咨询',fr:"L'acheteur a ouvert la conversation depuis la fiche produit",en:'The buyer opened this chat from the product page'}),
+ help:p=>({zh:R3[p.r].zh+'联系了平台客服',fr:R3[p.r].fr+' a contacté le support iGV',en:R3[p.r].en+' contacted iGV Support'}),
+ queue:()=>({zh:'已进入人工队列，客服会尽快回复',fr:"Votre demande est en file d'attente, un conseiller vous répond très vite",en:"You're in the queue, an agent will reply shortly"}),
+ contact:()=>({zh:'平台客服主动发起会话',fr:'Le support iGV a ouvert cette conversation',en:'iGV Support opened this conversation'}),
+ req:p=>({zh:R3[p.r].zh+'申请客服介入：'+TOPIC[p.i].zh,fr:R3[p.r].fr+" a demandé l'intervention du support : "+TOPIC[p.i].fr,en:R3[p.r].en+' asked support to step in: '+TOPIC[p.i].en}),
+ joined:()=>({zh:'平台客服已接入',fr:'Le support iGV a rejoint la conversation',en:'iGV Support has joined the conversation'}),
+ created:()=>({zh:'平台客服创建了订单群组，买家与卖家已加入',fr:"Le support iGV a créé un groupe de médiation pour cette commande ; l'acheteur et le vendeur y ont été ajoutés",en:'iGV Support created a mediation group for this order; buyer and seller have been added'}),
+ moved:()=>({zh:'已为该订单创建含平台客服的群组，请在群组中继续沟通',fr:'Un groupe avec le support iGV a été créé pour cette commande, merci de poursuivre dans le groupe',en:'A group with iGV Support was created for this order, please continue there'}),
+ frozen:()=>({zh:'订单货款已冻结，问题解决前不会结算给卖家',fr:'Le paiement est bloqué et ne sera pas versé au vendeur avant la résolution du litige',en:"The payment is frozen and won't be released to the seller until this is resolved"}),
+ unfrozen:()=>({zh:'订单货款已解除冻结',fr:'Le paiement a été débloqué',en:'The payment has been unfrozen'}),
+ refund:p=>({zh:'平台已发起退款 '+p.a+'，1–3 个工作日原路退回',fr:'La plateforme a lancé un remboursement de '+p.a+', crédité sous 1 à 3 jours ouvrés',en:'A refund of '+p.a+' has been issued and will arrive in 1–3 business days'}),
+ deliver:p=>({zh:'卖家提交了交付信息：'+p.x,fr:'Le vendeur a déclaré la livraison : '+p.x,en:'The seller submitted delivery info: '+p.x}),
+ confirm:()=>({zh:'买家已确认收货，订单完成',fr:"L'acheteur a confirmé la réception, commande terminée",en:'The buyer confirmed receipt, order completed'}),
+ closed:()=>({zh:'会话已结束，聊天记录已保留',fr:"Conversation clôturée, l'historique est conservé",en:'Conversation closed, history is kept'}),
+ reopen:()=>({zh:'会话已重新开启',fr:'Conversation rouverte',en:'Conversation reopened'}),
+ div:p=>({zh:(p.r?R3[p.r].zh+'已申请平台介入':'平台客服已介入')+' · 会话升级为群组',fr:(p.r?R3[p.r].fr+" a demandé l'intervention du support":'Le support iGV est intervenu')+' · conversation passée en groupe à trois',en:(p.r?R3[p.r].en+' asked support to step in':'iGV Support stepped in')+' · chat upgraded to a three-way group'}),
+ divsub:()=>({zh:'以上聊天记录已完整保留，无需重复描述',fr:"L'historique ci-dessus est conservé, inutile de tout réexpliquer",en:'The history above is kept, no need to repeat anything'})
+};
+/* 常用语：三语人工校对，演示中自由输入的内容只有命中这些句子才有离线译文 */
+const PH=[
+ {r:'agent',zh:'您好，我是 iGV 客服，订单和聊天记录我都看过了，不用重复说明。',fr:"Bonjour, ici le support iGV. J'ai consulté la commande et la conversation, inutile de tout réexpliquer.",en:"Hi, this is iGV Support. I've reviewed the order and the chat, no need to repeat anything."},
+ {r:'agent',zh:'凭证已收到，我们正在核实，稍后在这里回复您。',fr:'Nous avons bien reçu vos preuves, nous les vérifions et revenons vers vous ici très vite.',en:"We've received your evidence, we're verifying it and will update you here shortly."},
+ {r:'agent',zh:'您的货款由 iGV 平台托管，问题解决前不会结算给卖家。',fr:"Votre paiement est conservé en séquestre par iGV et ne sera pas versé au vendeur tant que le problème n'est pas résolu.",en:"Your payment is held in iGV escrow and won't be released to the seller until this is resolved."},
+ {r:'agent',zh:'请上传游戏内交易截图，需包含角色名、数量和时间。',fr:"Merci d'envoyer une capture de l'échange en jeu montrant le nom du personnage, la quantité et l'heure.",en:'Please upload the in-game trade screenshot showing character name, amount and time.'},
+ {r:'buyer',zh:'什么时候能交付？',fr:'Quand allez-vous livrer ?',en:'When will you deliver?'},
+ {r:'buyer',zh:'我还什么都没收到。',fr:"Je n'ai encore rien reçu.",en:"I haven't received anything yet."},
+ {r:'buyer',zh:'已收到，谢谢！',fr:'Bien reçu, merci !',en:'Received, thank you!'},
+ {r:'seller',zh:'正在交付，请保持在线。',fr:'Livraison en cours, merci de rester connecté.',en:'Delivering now, please stay online.'},
+ {r:'seller',zh:'已交付完成，请查收并确认订单。',fr:'Livraison terminée, merci de vérifier et de confirmer la commande.',en:'Delivery completed, please check and confirm the order.'},
+ {r:'seller',zh:'请提供您的角色名和服务器。',fr:"Merci d'indiquer le nom de votre personnage et votre serveur.",en:'Please tell me your character name and server.'}
+];
+function seed(){
+const NOW=Date.now(),ago=m=>NOW-m*60000;let mid=0;
+const U={
+ b1:{id:'b1',role:'buyer',name:'Camille_D',lang:'fr',country:'法国',orders:47,disputes:1,risk:'低'},
+ b2:{id:'b2',role:'buyer',name:'Théo_L',lang:'fr',country:'法国',orders:6,disputes:0,risk:'低'},
+ b3:{id:'b3',role:'buyer',name:'Lucas_B',lang:'fr',country:'比利时',orders:5,disputes:3,risk:'高'},
+ b4:{id:'b4',role:'buyer',name:'Hannah_W',lang:'en',country:'德国',orders:9,disputes:0,risk:'低'},
+ s1:{id:'s1',role:'seller',name:'GoldVault',store:'GoldVault Store',lang:'zh',country:'中国',level:'Lv.5',dispute:'0.6%',deposit:2000},
+ s2:{id:'s2',role:'seller',name:'AccZone',store:'AccZone',lang:'en',country:'越南',level:'Lv.3',dispute:'2.8%',deposit:500},
+ s3:{id:'s3',role:'seller',name:'BoostKings',store:'BoostKings',lang:'en',country:'波兰',level:'Lv.4',dispute:'1.4%',deposit:1000},
+ a1:{id:'a1',role:'agent',name:'Mia Chen',lang:'zh',team:'订单纠纷组'},
+ a2:{id:'a2',role:'agent',name:'Leo Wang',lang:'zh',team:'资金与提现组'},
+ bot:{id:'bot',role:'agent',name:'系统风控',lang:'zh'}
+};
+const O={
+ o1:{key:'o1',id:'IGV20261125001',buyer:'b1',seller:'s1',cat:'Coins',game:'WoW Classic',title:'WoW Classic Gold · 5,000 G',spec:'Whitemane · Horde',dinfo:'Raiderx · Whitemane · Horde',amount:89.5,st:'dispute',escrow:'held',paidAt:ago(183),deadline:ago(153),prog:{done:2000,total:5000,unit:'G'},proofs:['trade_2000g.png'],refund:null,rating:0},
+ o9:{key:'o9',id:'IGV20261122040',buyer:'b1',seller:'s1',cat:'Coins',game:'WoW Classic',title:'WoW Classic Gold · 2,000 G',spec:'Whitemane · Horde',dinfo:'Raiderx · Whitemane · Horde',amount:35.8,st:'done',escrow:'held',paidAt:ago(4400),deadline:ago(4370),prog:{done:2000,total:2000,unit:'G'},proofs:['trade_1122.png'],refund:null,rating:0},
+ o2:{key:'o2',id:'IGV20261123017',buyer:'b1',seller:'s2',cat:'Accounts',game:'Genshin Impact',title:'Genshin Impact AR58 Account',spec:'Asia · 7-day recovery warranty',dinfo:'c***e@gmail.com',amount:245,st:'done',escrow:'held',paidAt:ago(2900),deadline:ago(2780),prog:null,proofs:['account_handover.png'],refund:null,rating:0},
+ o3:{key:'o3',id:'IGV20261125008',buyer:'b2',seller:'s1',cat:'Coins',game:'EA FC 26',title:'EA FC 26 Coins · 2,000K',spec:'PS5 · Comfort Trade',dinfo:'PSN theo_l_fr · backup codes sent',amount:38,st:'delivering',escrow:'held',paidAt:ago(50),deadline:ago(-130),prog:{done:800,total:2000,unit:'K'},proofs:[],refund:null,rating:0},
+ o4:{key:'o4',id:'IGV20261123031',buyer:'b3',seller:'s3',cat:'Boosting',game:'League of Legends',title:'LoL Boost · Gold IV → Platinum I',spec:'EUW · Piloted',dinfo:'EUW · LucasB#EUW',amount:120,st:'dispute',escrow:'frozen',paidAt:ago(3000),deadline:ago(-1300),prog:{done:60,total:100,unit:'%'},proofs:['match_history.png'],refund:null,rating:0},
+ o6:{key:'o6',id:'IGV20261125012',buyer:'b4',seller:'s2',cat:'Accounts',game:'Valorant',title:'Valorant Immortal Account',spec:'EU · 42 skins',dinfo:'h***w@web.de',amount:60,st:'pending',escrow:'held',paidAt:ago(24),deadline:ago(-96),prog:null,proofs:[],refund:null,rating:0},
+ o8:{key:'o8',id:'IGV20261121009',buyer:'b3',seller:'s1',cat:'Coins',game:'WoW Classic',title:'WoW Classic Gold · 3,000 G',spec:'Faerlina · Alliance',dinfo:'Lucasb · Faerlina · Alliance',amount:64,st:'refunded',escrow:'refunded',paidAt:ago(5800),deadline:ago(5770),prog:{done:0,total:3000,unit:'G'},proofs:[],refund:{amount:64},rating:0}
+};
+const P={p1:{id:'p1',game:'League of Legends',seller:'s3',cat:'Boosting',title:'LoL Rank Boost · Any rank',price:30}};
+const T=(from,tx,minAgo,x={})=>Object.assign({id:'m'+(++mid),from,lang:U[from].lang,tx,t:ago(minAgo),kind:'text'},x);
+const SY=(k,p,minAgo,x={})=>Object.assign({id:'m'+(++mid),from:'sys',kind:'sys',k,p:p||{},t:ago(minAgo)},x);
+const NOTE=(from,text,minAgo)=>({id:'m'+(++mid),from,kind:'note',text,t:ago(minAgo)});
+const ISY=(text,minAgo)=>({id:'m'+(++mid),from:'sys',kind:'isys',text,t:ago(minAgo)});
+const mb=(uid,minAgo)=>({uid,role:U[uid].role,joinedAt:ago(minAgo)});
+const base=x=>Object.assign({status:'open',waiting:'support',assignee:null,dueAt:null,msgs:[],read:{},linked:[]},x);
+const convs=[
+ base({id:'g1',type:'group',orderId:'o1',topic:'late',assignee:'a1',dueAt:ago(-3),members:[mb('b1',172),mb('s1',172),mb('a1',45)],read:{b1:ago(12),s1:ago(29),a1:ago(20)},msgs:[
+  SY('start',{r:'buyer'},172),
+  T('b1',{fr:"Bonjour, je viens de payer 5 000 po sur Whitemane Horde. Mon personnage s'appelle Raiderx. Quand pouvez-vous livrer ?",en:'Hi, I just paid for 5,000G on Whitemane Horde. My character is Raiderx. When can you deliver?',zh:'你好，我刚付款买了 Whitemane 部落的 5,000 金，角色名是 Raiderx，什么时候能交付？'},170),
+  T('s1',{zh:'您好，感谢下单！交易员 10–20 分钟内在奥格瑞玛和您当面交易，请保持在线。',fr:"Bonjour, merci pour votre commande ! Notre livreur vous retrouvera à Orgrimmar d'ici 10 à 20 minutes, merci de rester connecté.",en:'Hello, thanks for your order! Our trader will meet you in Orgrimmar within 10–20 minutes, please stay online.'},168),
+  T('s1',{zh:'已当面交易 2,000 金，剩余 3,000 金正在补货，请稍等。',fr:'2 000 po vous ont été remises en échange direct. Les 3 000 po restantes sont en cours de réapprovisionnement, merci de patienter.',en:'2,000G delivered by trade. The remaining 3,000G is being restocked, please wait.'},140,{att:'trade_2000g.png'}),
+  T('b1',{fr:"Ça fait plus d'une heure. Je n'ai toujours pas reçu le reste de mon or.",en:"It's been over an hour. I still haven't received the rest of my gold.",zh:'已经一个多小时了，剩下的金币我还没收到。'},70),
+  T('s1',{zh:'正在交付中，请再等等。',fr:'La livraison est en cours, merci de patienter encore un peu.',en:'Delivery is in progress, please wait a little longer.'},65),
+  T('b1',{fr:"J'attends depuis 2 heures alors que l'annonce promettait 30 minutes. Je demande l'intervention du support iGV.",en:"I've been waiting 2 hours although the listing promised 30 minutes. I'm asking iGV Support to step in.",zh:'我已经等了 2 小时，商品页写的是 30 分钟。我申请 iGV 客服介入。'},48),
+  SY('req',{r:'buyer',i:'late'},47),SY('div',{r:'buyer'},47,{kind:'div'}),SY('joined',{},45),
+  T('a1',{zh:'两位好，我是 iGV 客服。订单和上面的聊天记录我都看过了，不用重复说明。目前已交付 2,000 / 5,000 金，已经超过承诺的 30 分钟。',fr:"Bonjour à tous les deux, ici le support iGV. J'ai consulté la commande et la conversation ci-dessus, inutile de tout réexpliquer. À ce stade, 2 000 / 5 000 po ont été livrées et le délai promis de 30 minutes est dépassé.",en:"Hi both, this is iGV Support. I've reviewed the order and the chat above, no need to repeat anything. So far 2,000 / 5,000G has been delivered and the promised 30 minutes have passed."},44),
+  NOTE('a1','卖家近 7 天有 2 单交付超时，Whitemane 库存疑似不足。1 小时内补不齐就按未交付的 3,000 金部分退款（约 $53.70）。',43),
+  T('a1',{zh:'@GoldVault 请在 1 小时内交付剩余 3,000 金并上传交易截图；做不到的话，平台会按未交付部分退款。',fr:"@GoldVault Merci de livrer les 3 000 po restantes d'ici 1 heure et d'envoyer une capture de l'échange ; à défaut, la plateforme remboursera la partie non livrée.",en:"@GoldVault Please deliver the remaining 3,000G within 1 hour and upload a trade screenshot; otherwise the platform will refund the undelivered part."},42),
+  T('s1',{zh:'抱歉，Whitemane 库存用完了，1 小时内到货后马上交付。',fr:"Désolé, notre stock sur Whitemane est épuisé. Le réapprovisionnement arrive d'ici 1 heure et nous livrons aussitôt.",en:'Sorry, our Whitemane stock ran out. Restock arrives within 1 hour and we will deliver right after.'},30),
+  T('b1',{fr:"D'accord. Si ce n'est pas livré d'ici une heure, je veux être remboursé pour la partie manquante.",en:"OK. If it's not delivered within the hour, I want a refund for the missing part.",zh:'好的。如果一小时内还没交付，我要求退还未交付部分的钱。'},12)]}),
+ base({id:'c2',type:'bp',orderId:'o2',topic:'recover',assignee:'a1',dueAt:ago(6),members:[mb('b1',21),mb('a1',20)],read:{b1:ago(9),a1:ago(19)},msgs:[
+  SY('help',{r:'buyer'},21),
+  T('b1',{fr:"Le compte Genshin que j'ai acheté il y a 2 jours : le mot de passe a été changé ce matin et l'e-mail lié n'est plus le mien. Je pense que le vendeur l'a récupéré.",en:"The Genshin account I bought 2 days ago: the password was changed this morning and the linked email is no longer mine. I think the seller recovered it.",zh:'两天前买的原神账号，今天早上密码被改了，绑定邮箱也不是我的了。我怀疑卖家把号找回了。'},21),
+  T('b1',{fr:"Voici l'avis de changement d'e-mail que j'ai reçu.",en:'Here is the email-change notice I received.',zh:'这是我收到的邮箱变更通知。'},20,{att:'email_changed_notice.png'}),
+  NOTE('bot','风控提示：卖家 AccZone 近 30 天已有 1 起账号找回纠纷。本单仍在 7 天质保期内，货款托管中。',20),
+  T('b1',{fr:"Il y a quelqu'un ? C'est urgent, j'ai payé 245 $.",en:'Is anyone there? This is urgent, I paid $245.',zh:'有人吗？很急，我花了 245 美元。'},9)]}),
+ base({id:'g2',type:'group',orderId:'o4',topic:'boost',assignee:'a1',waiting:'seller',members:[mb('b3',200),mb('s3',200),mb('a1',200)],read:{b3:ago(60),s3:ago(198),a1:ago(55)},msgs:[
+  SY('created',{},200),
+  T('a1',{zh:'大家好，我是 iGV 客服，本群用于处理这笔订单的代练进度争议。请只围绕本订单沟通，平台以双方提供的凭证为准。',fr:"Bonjour à tous, ici le support iGV. Ce groupe sert à traiter le litige sur l'avancement du boost de cette commande. Merci de ne parler que de cette commande ; la plateforme se base sur les preuves fournies par chacun.",en:'Hi all, this is iGV Support. This group is for the boosting-progress dispute on this order. Please keep to this order only; the platform decides based on the evidence from both sides.'},199),
+  T('b3',{fr:'2 jours et seulement 3 parties jouées ! Et une défaite en plus. Je veux un remboursement intégral.',en:'2 days and only 3 games played! And one loss on top. I want a full refund.',zh:'两天才打了 3 局！还输了一局。我要全额退款。'},195,{att:'match_history.png'}),
+  NOTE('a1','买家风险等级高：5 单 3 起纠纷。先以卖家对局记录为准，不要直接承诺全额退款。',194),
+  T('a1',{zh:'@BoostKings 请在 2 小时内提供本单完整的对局记录截图，并说明预计完成时间。',fr:"@BoostKings Merci de fournir sous 2 heures les captures de l'historique complet des parties et d'indiquer la date de fin prévue.",en:'@BoostKings Please provide full match-history screenshots for this order within 2 hours and tell us the expected completion time.'},192),
+  T('b3',{fr:'Toujours aucune réponse du booster ??',en:'Still no answer from the booster??',zh:'代练还是没回复？？'},60)]}),
+ base({id:'c6',type:'bp',orderId:'o6',topic:'pay',dueAt:ago(-11),members:[mb('b4',4)],read:{b4:ago(4)},msgs:[
+  SY('help',{r:'buyer'},4),
+  T('b4',{en:'Hi, my card seems to have been charged twice for this order (2 × $60). Can you check?',zh:'你好，这笔订单我的卡好像被扣了两次（2 × 60 美元），能帮忙查一下吗？',fr:'Bonjour, ma carte semble avoir été débitée deux fois pour cette commande (2 × 60 $). Pouvez-vous vérifier ?'},4,{att:'bank_statement.png'}),
+  SY('queue',{},4)]}),
+ base({id:'c7',type:'sp',topic:'withdraw',ref:{zh:'提现单 W-88213 · $1,250 · 审核中',en:'Withdrawal W-88213 · $1,250 · Under review',fr:'Retrait W-88213 · 1 250 $ · En cours de vérification'},assignee:'a1',waiting:'seller',members:[mb('s1',300),mb('a1',290)],read:{s1:ago(280),a1:ago(280)},msgs:[
+  SY('help',{r:'seller'},300),
+  T('s1',{zh:'你好，我 48 小时前申请的 1,250 美元提现还在审核，平时 24 小时就到了，麻烦帮忙看下。'},300),
+  T('a1',{zh:'您好，提现单 W-88213 已看到。Payoneer 通道在批量复核，我已提交财务加急，最迟明天中午前回复您。'},285),
+  NOTE('a1','财务工单 FIN-7731 已提。该卖家有 1 单纠纷中，冻结 $89.5 不影响本次提现。',284),
+  T('s1',{zh:'好的，谢谢。'},280)]}),
+ base({id:'c8',type:'sp',topic:'listing',ref:{zh:'商品 L-5521 · 审核驳回（价格异常）',en:'Listing L-5521 · Rejected (abnormal price)',fr:'Annonce L-5521 · Refusée (prix anormal)'},dueAt:ago(-4),members:[mb('s3',11)],read:{s3:ago(11)},msgs:[
+  SY('help',{r:'seller'},11),
+  T('s3',{en:'Hi, my listing "LoL Rank Boost – Duo" was rejected. The reason only says "price abnormal". What should I change?',zh:'你好，我的商品「LoL Rank Boost – Duo」被驳回了，原因只写了"价格异常"。我需要改什么？',fr:"Bonjour, mon annonce « LoL Rank Boost – Duo » a été refusée. Le motif indique seulement « prix anormal ». Que dois-je modifier ?"},11),
+  SY('queue',{},11)]}),
+ base({id:'c3',type:'bs',topic:'chat',waiting:null,members:[mb('b2',49),mb('s1',49)],read:{b2:ago(38),s1:ago(39)},msgs:[
+  SY('start',{r:'buyer'},49),
+  T('b2',{fr:"Bonjour, j'ai envoyé les codes de secours. Combien de temps prendra la livraison ?",zh:'你好，备份码已经发了，交付要多久？',en:'Hi, I sent the backup codes. How long will delivery take?'},48),
+  T('s1',{zh:'您好，正在转币，已完成 800K。接下来 60 分钟请不要登录账号。',fr:'Bonjour, le transfert est en cours, 800K déjà effectués. Merci de ne pas vous connecter pendant les 60 prochaines minutes.',en:'Hi, transfer in progress, 800K done. Please do not log in for the next 60 minutes.'},40),
+  T('b2',{fr:"Parfait, merci. Prévenez-moi quand c'est terminé.",zh:'好的，谢谢，完成后告诉我。',en:'Perfect, thanks. Let me know when it is done.'},38)]}),
+ base({id:'c11',type:'bs',productId:'p1',topic:'presale',waiting:null,members:[mb('b1',95),mb('s3',95)],read:{b1:ago(88),s3:ago(90)},msgs:[
+  SY('presale',{},95),
+  T('b1',{fr:'Bonjour, le boost Or IV → Platine I prend combien de jours ? Vous jouez en mode hors ligne ?',en:'Hi, how many days does the Gold IV → Platinum I boost take? Do you play in offline mode?',zh:'你好，黄金 IV 到铂金 I 的代练要几天？你们是离线模式上号吗？'},95),
+  T('s3',{en:'Hi! About 3 days. Yes, we always play in offline mode.',fr:'Bonjour ! Environ 3 jours. Oui, nous jouons toujours en mode hors ligne.',zh:'你好！大约 3 天。是的，我们一直用离线模式。'},90),
+  T('b1',{fr:'Super, merci.',en:'Great, thanks.',zh:'太好了，谢谢。'},88)]}),
+ base({id:'g3',type:'group',orderId:'o8',topic:'none',status:'closed',assignee:'a1',waiting:null,members:[mb('b3',5760),mb('s1',5760),mb('a1',5760)],read:{b3:ago(5700),s1:ago(5700),a1:ago(5700)},msgs:[
+  SY('created',{},5760),
+  T('b3',{fr:'Aucun or après 40 minutes. Remboursez-moi.',en:'No gold after 40 minutes. Refund me.',zh:'40 分钟了一点金币都没收到，给我退款。'},5758),
+  T('s1',{zh:'抱歉，Faerlina 联盟今天缺货，我们同意退款。',fr:"Désolé, nous sommes en rupture sur Faerlina Alliance aujourd'hui. Nous acceptons le remboursement.",en:"Sorry, we're out of stock on Faerlina Alliance today. We agree to refund."},5750),
+  T('a1',{zh:'卖家缺货无法交付，双方同意全额退款 $64.00，原路退回。',fr:"Le vendeur est en rupture et ne peut pas livrer ; les deux parties acceptent un remboursement intégral de 64,00 $, recrédité sur le moyen de paiement d'origine.",en:'The seller is out of stock and cannot deliver; both sides agree to a full refund of $64.00 to the original payment method.'},5745,{kind:'res',v:'full'}),
+  SY('refund',{a:'$64.00'},5744),SY('closed',{},5740)]})
+];
+/* 买卖会话按卖家建：把订单群组与买卖直聊拆开 */
+const g1=convs[0],i=g1.msgs.findIndex(m=>m.k==='req');
+convs.push(base({id:'c1',type:'bs',topic:'chat',waiting:null,members:[mb('b1',172),mb('s1',172)],read:{b1:ago(12),s1:ago(29)},msgs:[g1.msgs[0],{id:'m'+(++mid),from:'b1',kind:'order',key:'o1',t:ago(171)}].concat(g1.msgs.slice(1,i)).concat([SY('moved',{},47,{link:'g1'})])}));
+g1.msgs=g1.msgs.slice(i).filter(m=>m.kind!=='div');g1.members=[mb('b1',47),mb('s1',47),mb('a1',45)];g1.linked=['c1'];
+return{U,O,P,convs,mid:()=>'m'+(++mid)}}
+
+/* 买家 / 卖家端界面文案：中文 | English | Français */
+const LNAME={zh:{fr:'法语',en:'英语',zh:'中文'},en:{fr:'French',en:'English',zh:'Chinese'},fr:{fr:'français',en:'anglais',zh:'chinois'}};
+const STL={pending:[['待交付','To deliver','À livrer'],'amber'],delivering:[['交付中','Delivering','Livraison en cours'],'amber'],delivered:[['待确认收货','Awaiting confirmation','En attente de confirmation'],'green'],done:[['已完成','Completed','Terminée'],'green'],refunded:[['已退款','Refunded','Remboursée'],''],dispute:[['纠纷中','In dispute','En litige'],'red']};
+const I={
+center:['消息中心','Message Center','Messagerie'],msgs:['我的消息','Messages','Messages'],
+buyer:['买家','Buyer','Acheteur'],seller:['卖家','Seller','Vendeur'],plat:['平台','Platform','Plateforme'],group:['群组','Group','Groupe'],support:['iGV 客服','iGV Support','Support iGV'],
+start:['发起沟通','New chat','Nouvelle conversation'],empty:['暂无会话','No conversations','Aucune conversation'],
+img:['[图片]','[Image]','[Image]'],ordcard:['[订单]','[Order]','[Commande]'],
+autoOn:['自动翻译 开','Auto-translate on','Traduction auto : oui'],autoOff:['自动翻译 关','Auto-translate off','Traduction auto : non'],bi:['双语','Bilingual','Bilingue'],panel:['订单信息','Order info','Infos commande'],
+from:['译自{0}','Translated from {0}','Traduit de : {0}'],orig:['原文','Original','Original'],hideOrig:['收起原文','Hide original','Masquer l’original'],tr:['翻译','Translate','Traduire'],
+sentAs:['已译为{0}','Translated to {0}','Traduit en {0}'],viewTr:['查看译文','View translation','Voir la traduction'],hide:['收起','Hide','Masquer'],
+noTr:['未翻译（演示未接翻译引擎）','Not translated (demo has no translation engine)','Non traduit (démo sans moteur de traduction)'],trying:['翻译中…','Translating…','Traduction…'],mt:['机翻','machine','auto'],
+shot:['截图 / 凭证','Screenshot / proof','Capture / preuve'],verdict:['平台处理结论','Platform decision','Décision de la plateforme'],
+hint:['你用{0}输入，对方看到的是{1}译文','You write in {0}; the other side reads it in {1}','Vous écrivez en {0} ; votre interlocuteur lit en {1}'],same:['双方语言相同，无需翻译','Same language on both sides, no translation needed','Même langue des deux côtés, pas de traduction'],
+ph:['输入消息，Enter 发送','Type a message, Enter to send','Écrivez un message, Entrée pour envoyer'],
+quick:['快捷回复','Quick replies','Réponses rapides'],manage:['＋ 添加 / 管理我的快捷回复','＋ Add / manage my quick replies','＋ Ajouter / gérer mes réponses'],
+sendShot:['截图 / 凭证','Screenshot','Capture'],sendOrder:['发送订单','Send order','Envoyer une commande'],preview:['预览译文','Preview translation','Aperçu traduction'],send:['发送','Send','Envoyer'],
+pvNone:['发送后由翻译引擎生成','Generated by the translation engine after sending','Générée par le moteur de traduction après envoi'],
+sens:['消息未发送：检测到疑似站外联系方式。为保障资金安全，请在 iGV 站内沟通与交易。','Message not sent: it looks like off-platform contact details. For your safety, please keep all communication and trades on iGV.','Message non envoyé : il semble contenir des coordonnées externes. Pour votre sécurité, merci de rester sur iGV.'],
+closed:['会话已结束，聊天记录已保留','Conversation closed, history is kept','Conversation clôturée, historique conservé'],reopen:['问题未解决，重新开启','Not resolved? Reopen','Pas résolu ? Rouvrir'],
+orders:['与对方的订单（{0}）','Orders with this user ({0})','Commandes avec cet utilisateur ({0})'],order1:['订单','Order','Commande'],
+ordNo:['订单号','Order no.','N° commande'],game:['游戏','Game','Jeu'],biz:['业务','Category','Catégorie'],spec:['规格','Details','Détails'],amount:['金额','Amount','Montant'],paid:['支付时间','Paid at','Payée le'],status:['订单状态','Status','Statut'],prog:['交付进度','Delivery','Livraison'],
+late:['已超时 {0}','{0} overdue','{0} de retard'],due:['承诺交付','Promised by','Promise pour'],dinfo:['递送信息','Delivery info','Infos livraison'],funds:['货款','Payment','Paiement'],
+held:['由 iGV 托管','Held in iGV escrow','En séquestre chez iGV'],frozen:['已冻结（纠纷处理中）','Frozen (dispute in progress)','Bloqué (litige en cours)'],refunded:['已退款','Refunded','Remboursé'],refund:['退款','Refund','Remboursement'],proofs:['凭证','Proofs','Preuves'],none:['无','None','Aucune'],rating:['评价','Rating','Avis'],
+delivered:['已交付','Delivered','Livré'],notDelivered:['未交付','Not delivered','Non livré'],
+sendCard:['发送订单卡片','Send order card','Envoyer la fiche'],confirmRecv:['确认收货','Confirm receipt','Confirmer la réception'],deliver:['提交交付','Submit delivery','Déclarer la livraison'],
+askInfo:['请买家更新递送信息','Ask buyer to update delivery info','Demander la mise à jour des infos'],askRefund:['发起退款申请','Propose a refund','Proposer un remboursement'],askRate:['邀请评价','Ask for a review','Demander un avis'],
+noOrder:['暂无订单','No orders yet','Aucune commande'],product:['咨询商品','Product','Produit'],viewOrder:['查看订单','View order','Voir la commande'],
+aInfoT:['请更新递送信息','Please update your delivery info','Merci de mettre à jour vos infos de livraison'],aInfoD:['按当前递送信息无法完成交付，请买家核对并更新。','Delivery cannot be completed with the current info. The buyer is asked to check and update it.','La livraison est impossible avec les infos actuelles. L’acheteur est invité à les vérifier et à les mettre à jour.'],
+update:['更新递送信息','Update delivery info','Mettre à jour'],updated:['已更新为：{0}','Updated to: {0}','Mis à jour : {0}'],waitBuyer:['等待买家操作','Waiting for the buyer','En attente de l’acheteur'],waitSeller:['等待卖家操作','Waiting for the seller','En attente du vendeur'],
+aRefT:['退款申请 {0}','Refund proposal {0}','Proposition de remboursement {0}'],aRefD:['卖家提出为该订单退款。买家确认后将发起退款，原路退回。','The seller proposes a refund for this order. Once the buyer confirms, it is issued to the original payment method.','Le vendeur propose un remboursement pour cette commande. Après confirmation de l’acheteur, il est émis sur le moyen de paiement d’origine.'],
+agree:['确认退款','Confirm refund','Confirmer le remboursement'],agreed:['买家已确认，退款已发起','Buyer confirmed, refund issued','Confirmé par l’acheteur, remboursement émis'],
+aRateT:['邀请评价','How was this order?','Comment s’est passée cette commande ?'],aRateD:['订单已完成，欢迎为本次交易打分。','The order is complete. Please rate this trade.','La commande est terminée. Merci de noter cette transaction.'],ratedAs:['已评价 {0}','Rated {0}','Noté {0}'],
+aDelT:['请提交交付','Please submit delivery','Merci de déclarer la livraison'],aDelD:['平台请卖家完成交付并提交交付凭证。','The platform asks the seller to complete delivery and submit proof.','La plateforme demande au vendeur de finaliser la livraison et de fournir une preuve.'],delDone:['卖家已提交交付','Delivery submitted','Livraison déclarée'],
+cancel:['取消','Cancel','Annuler'],submit:['提交','Submit','Valider'],
+contactSeller:['联系卖家','Message seller','Contacter le vendeur'],contactBuyer:['联系买家','Message buyer','Contacter l’acheteur'],contactSup:['联系客服','Contact support','Contacter le support'],noOrderSup:['不关联订单，直接联系客服','Contact support without an order','Contacter le support sans commande'],
+topic:['问题类型','Topic','Sujet'],desc:['问题描述（用你的语言写即可）','Describe your issue (in your own language)','Décrivez votre problème (dans votre langue)'],needDesc:['请描述你的问题','Please describe your issue','Merci de décrire votre problème'],
+delQty:['累计已交付（{0}，共 {1}）','Delivered so far ({0}, total {1})','Livré à ce jour ({0}, total {1})'],delAcc:['确认已把账号信息通过站内加密信息发送给买家。','Confirm the account details were sent to the buyer via the encrypted in-site message.','Confirmez que les identifiants ont été envoyés à l’acheteur via le message chiffré du site.'],withShot:['附交付截图（示例）','Attach delivery screenshot (sample)','Joindre une capture (exemple)'],
+refundAmt:['退款金额（订单金额 {0}）','Refund amount (order total {0})','Montant du remboursement (total {0})'],newInfo:['新的递送信息','New delivery info','Nouvelles infos de livraison'],pick:['选择要发送的订单','Choose an order to send','Choisissez la commande à envoyer'],
+qrTitle:['我的快捷回复','My quick replies','Mes réponses rapides'],qrAdd:['添加','Add','Ajouter'],qrPh:['输入一条常用回复','Type a reply you use often','Saisissez une réponse fréquente'],del:['删除','Delete','Supprimer'],builtin:['系统预置（已人工翻译成三种语言）','Built-in (human-translated into 3 languages)','Prédéfinies (traduites manuellement en 3 langues)'],mine:['我添加的（发送时自动翻译）','Mine (auto-translated when sent)','Les miennes (traduites automatiquement à l’envoi)'],
+sentShot:['截图已发送','Screenshot sent','Capture envoyée'],typeFirst:['先输入内容','Type something first','Saisissez d’abord un message'],amtNeed:['请输入金额','Enter an amount','Saisissez un montant'],
+joinedLate:['群组创建前与对方的聊天记录保留在原会话中','Earlier chat with the other party stays in the original conversation','Les échanges antérieurs restent dans la conversation d’origine']
+};
+
+const DOCS=`
+<h3>这一版改了什么</h3>
+<p><b>买家端</b></p>
+<ul><li>去掉"申请客服介入"入口（待评估）。卖家端的"邀请客服介入"也一并隐藏，目前群组只能由客服创建。</li>
+<li>右侧固定订单栏，可收起 / 展开。与同一卖家有多笔订单时全部列出，点击切换展开；每笔订单都可"发送订单卡片"，输入框也有"发送订单"。聊天里的订单卡片点"查看订单"会在右侧定位到那一笔。</li>
+<li>界面支持中文 / English / Français。正式环境按浏览器语言自动设置；演示里用顶部"界面语言"手动切换。切换后界面文字、系统消息、订单卡片、消息译文都跟着变。</li></ul>
+<p><b>卖家端</b></p>
+<ul><li>会话标题是买家昵称，描述是"订单号 · 游戏 · 业务"；不再显示自己的昵称；列表只有未读数，不显示任何状态标签。订单状态在右侧订单栏看。</li>
+<li>按订单状态出现的操作：提交交付、请买家更新递送信息、发起退款申请（买家点确认后才退）、邀请评价（已完成且未评价）。这些都以卡片形式发到聊天里，对方在卡片上直接操作。</li>
+<li>快捷回复：系统预置（三语人工译文）+ 自己添加的，可增删。</li></ul>
+<p><b>客服端</b></p>
+<ul><li>列表只显示未读数，去掉"待接入 / 待回复 / 超时"等标签。</li>
+<li>不做"处理要求"。改为：客服在右侧订单栏直接操作订单（冻结、退款），或发送订单卡片、按场景发送请求卡片（请买家更新递送信息、请卖家提交交付），由对方在卡片上操作。</li>
+<li>去掉了"对外统一署名 iGV 客服"的提示文字。</li>
+<li><b>未改：</b>"待处理 / 等待对方 / 已结束"三个页签和接入、转交逻辑，等会话与排班方案确定后再调。</li></ul>
+<h3>翻译演示的限制</h3>
+<p style="background:var(--warn-bg);padding:8px 10px;border-radius:8px">纯前端文件，没有翻译引擎。预置对话、系统消息、卡片、预置快捷回复、自动生成的摘要和结论有真实三语内容；<b>自由输入的新句子和卖家自己添加的快捷回复</b>默认显示原文并标注"未翻译"。右上角「联网翻译」会调用 MyMemory 公共接口（文字会发给第三方，仅适合演示，未实测）。商品标题、规格、递送信息属于订单数据，不翻译。</p>`;
+
+'use strict';
+let DB=seed();
+const S={viewer:{role:'agent',uid:'a1'},cid:'g1',tab:'todo',q:'',mode:'reply',draft:{},orig:{},auto:true,bi:false,online:false,warn:null,prev:null,modal:null,drawer:null,bottom:true,n:0,req:{},panel:true,osel:{},myQ:{s1:['亲，在的，马上为您安排。'],s3:['Booster assigned, we start within 30 minutes.']}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const usr=id=>DB.U[id],ord=k=>DB.O[k],C=id=>DB.convs.find(c=>c.id===id),me=()=>S.viewer.uid,role=()=>S.viewer.role,cur=()=>C(S.cid),vl=()=>usr(me()).lang;
+const IDX={zh:0,en:1,fr:2};
+const t=(k,...a)=>{let s=I[k][IDX[vl()]];a.forEach((x,i)=>s=s.split('{'+i+'}').join(x));return s};
+const ln=l=>LNAME[vl()][l];
+const TYPE={bs:['买卖','bs'],bp:['买家','buyer'],sp:['卖家','seller'],group:['群组','group']};
+const GL={Coins:'COINS',Accounts:'ACCT',Items:'ITEMS',Boosting:'BOOST'};
+const SENS=/(discord|whats\s?app|telegram|wechat|微信|skype|paypal\.me|[\w.]+@[\w-]+\.\w{2,}|\+?\d[\d\s-]{9,})/i;
+const pad=n=>String(n).padStart(2,'0');
+function fmt(ts){const d=new Date(ts),n=new Date(),hm=pad(d.getHours())+':'+pad(d.getMinutes());return d.toDateString()===n.toDateString()?hm:(d.getMonth()+1)+'-'+pad(d.getDate())+' '+hm}
+function dur(ms){const m=Math.max(1,Math.round(Math.abs(ms)/6e4));return m<60?m+' min':m<1440?Math.floor(m/60)+' h':Math.round(m/1440)+' d'}
+const money=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const tg=(x,cls='')=>`<span class="tg ${cls}">${esc(x)}</span>`;
+const st=o=>tg(STL[o.st][0][IDX[vl()]],STL[o.st][1]);
+const lang=uid=>`<span class="lg">${LC[usr(uid).lang]}</span>`;
+function av(uid,vr){const u=usr(uid);if(u.role==='agent'&&vr!=='agent')return`<span class="av agent">iGV</span>`;return`<span class="av ${u.role}">${esc(u.name.replace(/[^A-Za-zÀ-ÿ一-龥]/g,'').slice(0,2).toUpperCase())}</span>`}
+const uname=(uid,vr)=>usr(uid).role==='agent'&&vr!=='agent'?t('support'):usr(uid).name;
+const member=(c,uid)=>c.members.find(m=>m.uid===uid);
+const buyerId=c=>(c.members.find(m=>m.role==='buyer')||{}).uid||(c.orderId&&ord(c.orderId).buyer)||null;
+const sellerId=c=>(c.members.find(m=>m.role==='seller')||{}).uid||(c.orderId&&ord(c.orderId).seller)||null;
+const isOpen=c=>c.status==='open';
+function bsOrders(c){const b=(c.members.find(m=>m.role==='buyer')||{}).uid,s=(c.members.find(m=>m.role==='seller')||{}).uid;return Object.values(DB.O).filter(o=>o.buyer===b&&o.seller===s).sort((x,y)=>y.paidAt-x.paidAt)}
+const convOrders=c=>c.type==='bs'?bsOrders(c):c.orderId?[ord(c.orderId)]:[];
+const oid=c=>{const l=convOrders(c);return l.length?l[0].key:undefined};
+function title(c,vr){const b=buyerId(c),s=sellerId(c);if(vr==='agent')return c.type==='group'||c.type==='bs'?usr(b).name+' ⇄ '+usr(s).name:c.type==='bp'?usr(b).name:usr(s).name;
+ const other=usr(vr==='buyer'?s:b);return c.type==='bs'?other.name:c.type==='group'?other.name+'、'+t('support'):t('support')}
+function subX(c){const k=oid(c);if(k){const o=ord(k);return'#'+o.id+' · '+o.game+' · '+o.cat}if(c.productId){const p=DB.P[c.productId];return p.game+' · '+p.cat}return c.ref?c.ref[vl()]:''}
+function subA(c){const k=oid(c);return TOPIC[c.topic].zh+(k?' · #'+ord(k).id+' · '+ord(k).game:c.ref?' · '+c.ref.zh:'')}
+function vis(c,m,vr,uid){if(vr==='agent')return true;if(m.kind==='note'||m.kind==='isys')return false;const mb=member(c,uid);return!!mb&&m.t>=mb.joinedAt}
+/* ---------- translation ---------- */
+const sysText=(m,l)=>SYSD[m.k](m.p)[l];
+function fillTx(m){const src=m.tx[m.lang].trim();const hit=PH.find(p=>p.fr===src||p.en===src||p.zh===src);if(hit)['fr','en','zh'].forEach(l=>{if(!m.tx[l])m.tx[l]=hit[l]})}
+const convLangs=c=>[...new Set(c.members.map(m=>usr(m.uid).lang).concat(c.type==='bs'?[]:['zh']))];
+function goOnline(m,to){const k=m.id+to;if(S.req[k])return;S.req[k]=1;const lp=l=>l==='zh'?'zh-CN':l;
+ fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(m.tx[m.lang])+'&langpair='+lp(m.lang)+'|'+lp(to)).then(r=>r.json()).then(j=>{const x=j&&j.responseData&&j.responseData.translatedText;if(x){m.tx[to]=x;m.mt=true;render()}else throw 0}).catch(()=>{S.req[k]=2;toast('联网翻译不可用，已显示原文')})}
+function previewTx(c,text,from){const src=text.trim();const hit=PH.find(p=>p.fr===src||p.en===src||p.zh===src);return convLangs(c).filter(l=>l!==from).map(l=>({l,t:hit?hit[l]:null}))}
+/* ---------- lists ---------- */
+function unread(c,uid,vr){if(vr==='agent'&&(c.type==='bs'||(c.assignee&&c.assignee!==uid)))return 0;const r=c.read[uid]||0;return c.msgs.filter(m=>m.t>r&&m.from!==uid&&m.kind!=='isys'&&vis(c,m,vr,uid)).length}
+function listFor(){const vr=role(),uid=me();let l;
+ if(vr==='agent'){l=DB.convs.filter(c=>c.type!=='bs');if(S.q){const q=S.q.toLowerCase();l=l.filter(c=>[title(c,vr),subA(c)].join(' ').toLowerCase().includes(q))}
+  else l=l.filter(c=>S.tab==='todo'?isOpen(c)&&c.waiting==='support'&&(!c.assignee||c.assignee===uid):S.tab==='wait'?isOpen(c)&&c.assignee===uid&&c.waiting!=='support':c.status==='closed')}
+ else l=DB.convs.filter(c=>member(c,uid));
+ const lt=c=>c.msgs[c.msgs.length-1].t;return l.sort((a,b)=>lt(b)-lt(a))}
+function actTitle(a){return a.type==='info'?t('aInfoT'):a.type==='refund'?t('aRefT',money(a.amt)):a.type==='rate'?t('aRateT'):t('aDelT')}
+function brief(c,vr,uid){const l=vl();for(let i=c.msgs.length-1;i>=0;i--){const m=c.msgs[i];if(!vis(c,m,vr,uid))continue;if(m.kind==='note')return'🔒 '+m.text;if(m.kind==='isys')return m.text;if(m.kind==='sys')return sysText(m,l);if(m.kind==='order')return uname(m.from,vr)+'：'+t('ordcard')+' '+ord(m.key).title;if(m.kind==='act')return uname(m.from,vr)+'：'+actTitle(m.act);const x=m.tx[l]||m.tx[m.lang];return uname(m.from,vr)+'：'+(x||t('img'))}return''}
+/* ---------- render ---------- */
+function renderTop(){const vr=role(),ids=Object.values(DB.U).filter(u=>u.role===vr&&u.id!=='bot');
+ return`<div class="logo"><i>iGV</i>${vr==='agent'?'客服工作台':t('center')+' <small>'+t(vr)+'</small>'}</div>
+ <div class="demo-switch">DEMO 视角<div class="seg">${['agent','buyer','seller'].map(r=>`<button class="${vr===r?'on':''}" data-a="role" data-v="${r}">${r==='agent'?'平台客服':r==='buyer'?'买家':'卖家'}</button>`).join('')}</div>
+ 示例账号 <select data-c="identity" title="仅用于演示：切换到另一个带不同模拟数据的账号">${ids.map(u=>`<option value="${u.id}" ${u.id===me()?'selected':''}>${esc(u.name)}</option>`).join('')}</select>
+ ${vr==='agent'?'':`界面语言 <select data-c="uilang" title="正式环境按浏览器语言自动设置；这里手动切换以便查看三种语言下的页面">${['zh','en','fr'].map(l=>`<option value="${l}" ${l===vl()?'selected':''}>${{zh:'中文',en:'English',fr:'Français'}[l]}</option>`).join('')}</select>`}</div><span class="sp"></span>
+ <button class="tbtn" data-a="online" title="开启后，演示会把你输入的文字发送到 MyMemory 公共翻译接口">联网翻译：${S.online?'开':'关'}</button>
+ <button class="tbtn pri" data-a="newConv">＋ ${vr==='agent'?'新建会话':t('start')}</button><button class="tbtn" data-a="docs">说明</button><button class="tbtn" data-a="reset">重置</button>`}
+function renderList(){const vr=role();const cnt=x=>{const s=S.tab,q=S.q;S.tab=x;S.q='';const n=listFor().length;S.tab=s;S.q=q;return n};
+ const head=vr==='agent'?`<div class="chips">${[['todo','待处理'],['wait','等待对方'],['closed','已结束']].map(x=>`<button class="chipb ${S.tab===x[0]&&!S.q?'on':''}" data-a="ltab" data-v="${x[0]}">${x[1]} <b>${cnt(x[0])}</b></button>`).join('')}</div><input class="search" data-i="lq" placeholder="搜索订单号 / 用户名" value="${esc(S.q)}">`:`<div class="row"><h3>${t('msgs')}</h3></div>`;
+ return`<div class="list-h">${head}</div><div class="items" id="items">${renderItems()}</div>`}
+function renderItems(){const vr=role(),uid=me(),l=listFor();return l.map(c=>{const n=unread(c,uid,vr),last=c.msgs[c.msgs.length-1];
+ const tag=vr==='agent'?tg(TYPE[c.type][0],TYPE[c.type][1]):c.type==='group'?tg(t('group'),'group'):c.type==='bs'?'':tg(t('plat'),'agent');
+ return`<button class="it ${c.id===S.cid?'on':''} ${n?'unread':''}" data-a="open" data-id="${c.id}"><div class="r1">${tag}<span class="ttl">${esc(title(c,vr))}</span><span class="tm">${fmt(last.t)}</span>${n?`<span class="badge" style="margin-left:0">${n}</span>`:''}</div><div class="sub">${esc(vr==='agent'?subA(c):subX(c))}</div><div class="last">${esc(brief(c,vr,uid))}</div></button>`}).join('')||`<div class="empty">${t('empty')}</div>`}
+function bubbleText(m,l){const o=m.tx[m.lang],x=m.tx[l];if(m.lang===l)return{main:o,foot:''};
+ if(!S.auto&&!S.orig[m.id])return{main:o,foot:`<button class="lnk" data-a="orig" data-id="${m.id}">${t('tr')}</button>`};
+ if(!x){if(S.online)goOnline(m,l);return{main:o,foot:`<span class="tnote">${S.online&&S.req[m.id+l]===1?t('trying'):t('noTr')}</span>`}}
+ const showO=S.bi||(S.auto&&S.orig[m.id]);return{main:x,sub:showO?o:'',foot:`<span class="tnote">🌐 ${t('from',ln(m.lang))}${m.mt?' ('+t('mt')+')':''}</span> ${S.bi?'':`<button class="lnk" data-a="orig" data-id="${m.id}">${showO?t('hideOrig'):t('orig')}</button>`}`}}
+function orderCardBody(o){return`<div class="ocard"><span class="gico ${o.cat}">${GL[o.cat]}</span><div class="oi"><div class="t">${esc(o.title)}</div><div class="s">#${o.id} · ${o.game} · ${o.cat}</div><div class="s"><b>${money(o.amount)}</b> ${st(o)}</div></div><button class="btn sm" data-a="focusOrder" data-id="${o.key}">${t('viewOrder')}</button></div>`}
+function actCard(c,m,vr){const a=m.act,o=ord(a.key),target=a.type==='deliver'?'seller':'buyer',can=vr===target&&isOpen(c)&&a.state==='pending';
+ const desc={info:t('aInfoD'),refund:t('aRefD'),rate:t('aRateD'),deliver:t('aDelD')}[a.type];let foot;
+ if(a.state==='done')foot=tg({info:t('updated',a.val||''),refund:t('agreed'),rate:t('ratedAs','★'.repeat(a.val||0)),deliver:t('delDone')}[a.type],'green');
+ else if(!can)foot=tg(target==='buyer'?t('waitBuyer'):t('waitSeller'),'amber');
+ else foot=a.type==='info'?`<button class="btn pri sm" data-a="actInfo" data-id="${m.id}">${t('update')}</button>`:a.type==='refund'?`<button class="btn pri sm" data-a="actRefund" data-id="${m.id}">${t('agree')}</button>`:a.type==='rate'?`<span class="stars">${[1,2,3,4,5].map(i=>`<button data-a="actRate" data-id="${m.id}" data-v="${i}">★</button>`).join('')}</span>`:`<button class="btn pri sm" data-a="deliverDlg" data-id="${o.key}">${t('deliver')}</button>`;
+ return`<div class="card dir" id="${m.id}"><h4>${{info:'📝',refund:'↩️',rate:'⭐',deliver:'📦'}[a.type]} ${esc(actTitle(a))}</h4><div class="s2" style="margin:4px 0 8px">${esc(desc)}</div><div class="oline"><b>${esc(o.title)}</b> · #${o.id}${a.type==='info'?'<br>'+t('dinfo')+'：'+esc(o.dinfo):''}</div><div class="cf"><span>${esc(uname(m.from,vr))} · ${fmt(m.t)}</span><span style="flex:1"></span>${foot}</div></div>`}
+function msgHtml(c,m,vr,uid){const l=usr(uid).lang;
+ if(m.kind==='sys')return`<div class="sys"><span>${esc(sysText(m,l))}${m.link?` <button class="lnk" data-a="open" data-id="${m.link}">→</button>`:''} · ${fmt(m.t)}</span></div>`;
+ if(m.kind==='isys')return`<div class="sys int"><span>🔒 ${esc(m.text)} · ${fmt(m.t)}</span></div>`;
+ if(m.kind==='note')return`<div class="note"><div class="nh">🔒 内部备注 · 买家和卖家看不到 <span style="font-weight:400">— ${esc(usr(m.from).name)} · ${fmt(m.t)}</span></div><div class="nb">${esc(m.text)}</div></div>`;
+ if(m.kind==='act')return actCard(c,m,vr);
+ const u=usr(m.from),mine=m.from===uid,rtag=u.role==='agent'?tg(t('plat'),'agent'):tg(t(u.role),u.role);
+ const head=`${av(m.from,vr)}<div class="bd"><div class="meta"><b>${esc(uname(m.from,vr))}</b>${rtag}<span>${fmt(m.t)}</span></div>`;
+ if(m.kind==='order')return`<div class="m ${u.role} ${mine?'mine':''}">${head}${orderCardBody(ord(m.key))}</div></div>`;
+ const b=bubbleText(m,l);let foot=b.foot;
+ if(mine){const others=convLangs(c).filter(x=>x!==m.lang),done=others.filter(x=>m.tx[x]);foot=others.length&&m.tx[m.lang]?`<span class="tnote">🌐 ${done.length?t('sentAs',done.map(ln).join(' / ')):t('noTr')}</span>${done.length?` <button class="lnk" data-a="orig" data-id="${m.id}">${S.orig[m.id]?t('hide'):t('viewTr')}</button>`:''}`:'';if(S.orig[m.id])b.sub=done.map(x=>'['+LC[x]+'] '+m.tx[x]).join('\n')}
+ const res=m.kind==='res'?`<div class="rhead">⚖️ ${t('verdict')}：${esc(VERDICT[m.v][l])}</div>`:'';
+ return`<div class="m ${u.role} ${mine?'mine':''}">${head}${b.main||res?`<div class="bub ${m.kind==='res'?'resb':''}">${res}${esc(b.main||'')}${b.sub?`<div class="tr">${esc(b.sub)}</div>`:''}</div>`:''}${m.att?`<button class="att image" data-a="light" data-n="${esc(m.att)}"><span class="th">IMG</span><span><div class="nm">${esc(m.att)}</div><div class="sz">${t('shot')}</div></span></button>`:''}${foot?`<div class="foot">${foot}</div>`:''}</div></div>`}
+function renderChat(){const c=cur(),vr=role(),uid=me();if(!c)return`<div class="empty" style="margin:auto">${t('empty')}</div>`;
+ let acts=`<button class="btn ${S.auto?'on':''}" data-a="auto">🌐 ${S.auto?t('autoOn'):t('autoOff')}</button><button class="btn ${S.bi?'on':''}" data-a="bi">${t('bi')}</button>`;
+ if(vr==='agent'&&c.type!=='bs'){if(!c.assignee&&isOpen(c))acts+=`<button class="btn pri" data-a="pickUp">接入</button>`;else if(isOpen(c))acts+=`${c.type!=='group'?'<button class="btn dark" data-a="upgrade">创建群组</button>':''}<button class="btn" data-a="transfer">转交</button><button class="btn" data-a="closeDlg">结束</button>`;else acts+=`<button class="btn" data-a="reopen">重新开启</button>`}
+ if(vr!=='agent')acts+=`<button class="btn ${S.panel?'on':''}" data-a="panel">${t('panel')} ${S.panel?'▸':'◂'}</button>`;
+ let h;
+ if(vr==='agent'){const parts=c.members.map(m=>`<span class="tg ${m.role}">${m.role==='agent'?'负责 ':m.role==='buyer'?'买家 ':'卖家 '}${esc(usr(m.uid).name)} ${m.role==='agent'?'':lang(m.uid)}</span>`).join('');
+  h=`<div class="ch"><div class="r1">${tg(TYPE[c.type][0]+(c.type==='group'?'':c.type==='bs'?'直聊 · 只读':'咨询'),TYPE[c.type][1])}<h2 style="flex:1;min-width:0">${esc(title(c,vr))} <small>${esc(TOPIC[c.topic].zh)}</small></h2><div class="acts">${acts}</div></div><div class="who">${parts}</div></div>`;
+  if(c.linked.length)h+=`<div class="strip info">🔗 关联会话：${c.linked.map(id=>`<button class="lnk" data-a="open" data-id="${id}">${esc(TYPE[C(id).type][0]+' · '+title(C(id),'agent'))}</button>`).join('、')}</div>`}
+ else h=`<div class="ch"><div class="r1">${c.type==='group'?tg(t('group'),'group'):''}<h2 style="flex:1;min-width:0">${esc(title(c,vr))} <small>${esc(subX(c))}</small></h2><div class="acts">${acts}</div></div></div>`;
+ h+=`<div class="msgs" id="msgs">${c.msgs.filter(m=>vis(c,m,vr,uid)).map(m=>msgHtml(c,m,vr,uid)).join('')}</div>`;
+ if(vr==='agent'&&c.type==='bs')return h+`<div class="closedbar">👁 这是买卖双方的直聊记录，客服只读，用于了解纠纷背景</div>`;
+ if(c.status==='closed')return h+`<div class="closedbar">🗄 ${t('closed')}<span class="sp"></span>${vr==='agent'?'':`<button class="btn" data-a="reopen">${t('reopen')}</button>`}</div>`;
+ const note=vr==='agent'&&S.mode==='note',my=usr(uid).lang,targets=convLangs(c).filter(l=>l!==my);
+ const hint=note?'<b style="color:var(--note-ink)">🔒 仅内部可见，不翻译，买家和卖家永远看不到</b>':targets.length?'🌐 '+t('hint','<b>'+ln(my)+'</b>','<b>'+targets.map(ln).join(' / ')+'</b>'):t('same');
+ const pv=S.prev&&!note?`<div class="pvbox">${S.prev.map(p=>`<div><span class="lg">${LC[p.l]}</span> ${p.t?esc(p.t):'<i>'+t('pvNone')+'</i>'}</div>`).join('')}</div>`:'';
+ const mine=vr==='seller'?(S.myQ[uid]||[]):[];
+ const quick=`<details class="pop"><summary class="ib">⚡ ${t('quick')}</summary><div class="menu" style="min-width:380px">${PH.filter(p=>p.r===vr).map(p=>`<button data-a="quick" data-v="${esc(p[my])}">${esc(p[my])}</button>`).join('')}${mine.map(q=>`<button data-a="quick" data-v="${esc(q)}">${esc(q)}</button>`).join('')}${vr==='seller'?`<button data-a="qrManage" style="color:var(--brand);font-weight:600">${t('manage')}</button>`:''}</div></details>`;
+ return h+`<div class="comp ${note?'note-mode':''}">${vr==='agent'?`<div class="modes"><button class="${note?'':'on'}" data-a="mode" data-v="reply">💬 回复${c.type==='group'?'买卖双方':c.type==='bp'?'买家':'卖家'}</button><button class="${note?'on notem':''}" data-a="mode" data-v="note">🔒 内部备注</button></div>`:''}
+ ${S.warn?`<div class="warnbox">🚫 ${S.warn}</div>`:''}<div class="aud">${hint}</div>${pv}
+ <textarea id="ta" data-i="ta" placeholder="${note?'写给同事的备注…':t('ph')}">${esc(S.draft[c.id]||'')}</textarea>
+ <div class="cbar">${note?'':`${quick}<button class="ib" data-a="attach">📎 ${t('sendShot')}</button>${convOrders(c).length?`<button class="ib" data-a="pickOrder">🧾 ${t('sendOrder')}</button>`:''}${targets.length?`<button class="ib" data-a="preview">👁 ${t('preview')}</button>`:''}`}<span class="sp"></span><button class="btn ${note?'warn':'pri'}" data-a="send">${note?'保存备注':t('send')}</button></div></div>`}
+function orderKV(o){const late=o.deadline<Date.now()&&['pending','delivering','dispute'].includes(o.st);
+ const rows=[[t('ordNo'),'#'+o.id],[t('game'),esc(o.game)],[t('biz'),o.cat],[t('spec'),esc(o.spec)],[t('amount'),'<b>'+money(o.amount)+'</b>'],[t('paid'),fmt(o.paidAt)],[t('status'),st(o)],[t('prog'),(o.prog?'<b>'+o.prog.done.toLocaleString()+' / '+o.prog.total.toLocaleString()+' '+o.prog.unit+'</b>':o.st==='pending'?t('notDelivered'):t('delivered'))+(late?' <b style="color:var(--danger)">'+t('late',dur(Date.now()-o.deadline))+'</b>':'')],[t('due'),fmt(o.deadline)],[t('dinfo'),esc(o.dinfo)],[t('funds'),t(o.escrow)],o.refund&&[t('refund'),money(o.refund.amount)],o.rating&&[t('rating'),'<span style="color:#f5b301">'+'★'.repeat(o.rating)+'</span>'],[t('proofs'),o.proofs.length?o.proofs.map(p=>`<button class="lnk" data-a="light" data-n="${esc(p)}">${esc(p)}</button>`).join(' '):t('none')]].filter(Boolean);
+ return`${o.prog?`<div class="bar ${late?'red':''}"><i style="width:${Math.round(o.prog.done/o.prog.total*100)}%"></i></div>`:''}<dl class="kv" style="margin-top:8px">${rows.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')}</dl>`}
+function orderActs(c,o,vr){if(!isOpen(c)||(vr==='agent'&&c.type==='bs'))return'';const b=(k,a,cls='')=>`<button class="btn sm ${cls}" data-a="${a}" data-id="${o.key}">${k}</button>`,live=['pending','delivering','dispute'].includes(o.st);let h=b(t('sendCard'),'sendCard');
+ if(vr==='buyer'&&o.st==='delivered')h+=b(t('confirmRecv'),'confirmRecv','pri');
+ if(vr==='seller'){if(live)h+=b(t('deliver'),'deliverDlg','pri')+b(t('askInfo'),'askInfo');if(o.st!=='refunded'&&!o.refund)h+=b(t('askRefund'),'askRefundDlg');if(o.st==='done'&&!o.rating)h+=b(t('askRate'),'askRate')}
+ if(vr==='agent'){if(member(c,o.buyer)&&live)h+=b('请买家更新递送信息','askInfo');if(member(c,o.seller)&&live)h+=b('请卖家提交交付','askDeliver');h+=b(o.escrow==='frozen'?'解除冻结':'冻结货款','freeze')+b('退款','refundDlg','danger')}
+ return`<div class="acts2">${h}</div>`}
+function orderList(c,vr){const os=convOrders(c);if(!os.length){if(c.productId){const p=DB.P[c.productId];return`<div class="sec"><h4>${t('product')}</h4><div class="ohead"><span class="gico ${p.cat}">${GL[p.cat]}</span><div><div class="t">${esc(p.title)}</div><div class="s">${p.game} · ${p.cat} · ${money(p.price)}</div></div></div></div>`}return`<div class="sec"><div class="priv">${c.ref?esc(c.ref[vl()]):t('noOrder')}</div></div>`}
+ const sel=S.osel[c.id]||os[0].key;
+ return(c.type==='bs'&&os.length>1?`<div class="phd">${t('orders',os.length)}</div>`:'')+os.map(o=>{const open=o.key===sel||os.length===1;return`<div class="sec ${open?'':'fold'}" id="ord_${o.key}"><button class="ohead obtn" data-a="selOrder" data-id="${o.key}"><span class="gico ${o.cat}">${GL[o.cat]}</span><div style="min-width:0;flex:1"><div class="t">${esc(o.title)}</div><div class="s">#${o.id} · ${money(o.amount)} ${st(o)}</div></div>${os.length>1?`<span class="car">${open?'▾':'▸'}</span>`:''}</button>${open?orderKV(o)+orderActs(c,o,vr):''}</div>`}).join('')}
+function renderSide(){const c=cur(),vr=role();if(!c)return'';let h=orderList(c,vr);
+ if(vr==='agent'){const b=buyerId(c),s=sellerId(c);
+  if(b){const u=usr(b);h+=`<div class="sec"><h4>买家</h4><div class="ph">${av(b,'agent')}<div style="flex:1"><div class="n">${esc(u.name)} ${lang(b)}</div><div class="s2">${u.country} · ${LN[u.lang]} · ${u.orders} 单 · ${u.disputes} 次纠纷</div></div>${tg('风险'+u.risk,u.risk==='高'?'red':'green')}</div></div>`}
+  if(s){const u=usr(s);h+=`<div class="sec"><h4>卖家</h4><div class="ph">${av(s,'agent')}<div style="flex:1"><div class="n">${esc(u.name)} ${lang(s)}</div><div class="s2">${u.country} · ${LN[u.lang]} · ${u.level} · 纠纷率 ${u.dispute} · 保证金 $${u.deposit}</div></div></div></div>`}
+  const rel=DB.convs.filter(x=>x.id!==c.id&&x.type!=='bs'&&((c.orderId&&x.orderId===c.orderId)||member(x,b)||member(x,s))).slice(0,5);
+  h+=`<div class="sec"><h4>相关会话（${rel.length}）</h4>${rel.map(x=>`<button class="rowl" data-a="open" data-id="${x.id}">${tg(TYPE[x.type][0],TYPE[x.type][1])}<span class="g">${esc(title(x,'agent')+' · '+TOPIC[x.topic].zh)}</span>${x.status==='closed'?tg('已结束'):''}</button>`).join('')||'<div class="priv">无</div>'}</div>`}
+ return`<div class="cbody" id="cbody">${h}</div>`}
+function renderOv(){let h='';if(S.drawer)h+=`<div class="drawer-ov" data-a="closeDrawer"></div><div class="drawer wide"><div class="mh1">${S.drawer.title}<button data-a="closeDrawer">×</button></div><div class="mb" style="flex:1"><div class="doc">${S.drawer.body}</div></div></div>`;
+ if(S.modal)h+=`<div class="ov" data-a="ovClose"><div class="modal ${S.modal.wide?'wide':''}"><div class="mh1">${S.modal.title}<button data-a="closeModal">×</button></div><div class="mb" id="mbody">${S.modal.body()}</div>${S.modal.foot?`<div class="mf">${S.modal.foot}</div>`:''}</div></div>`;
+ if(S.light)h+=`<div class="lightbox" data-a="closeLight"><div style="text-align:center"><div class="pic">🖼</div><p style="margin-top:12px">${esc(S.light)}</p></div></div>`;$('#ov').innerHTML=h}
+function fe(){const x=$('#ta');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}}
+function toast(x){const e=$('#toast');e.textContent=x;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
+function render(){const vr=role(),ms=$('#msgs'),sc=ms?ms.scrollTop:0,c=cur();if(c)c.read[me()]=Date.now();const foc=document.activeElement&&document.activeElement.id==='ta';
+ $('#app').innerHTML=`<div class="top">${renderTop()}</div><div class="main ${vr}"><div class="list">${renderList()}</div><div class="chat">${renderChat()}</div>${vr==='agent'||S.panel?`<div class="ctx">${renderSide()}</div>`:''}</div>`;
+ const m2=$('#msgs');if(m2)m2.scrollTop=S.bottom?m2.scrollHeight:sc;S.bottom=false;if(foc)fe();renderOv()}
+/* ---------- mutations ---------- */
+const sys=(c,k,p,x)=>c.msgs.push(Object.assign({id:DB.mid(),from:'sys',kind:'sys',k,p:p||{},t:Date.now()},x));
+const isys=(c,text)=>c.msgs.push({id:DB.mid(),from:'sys',kind:'isys',text,t:Date.now()});
+function say(c,text,x){const m=Object.assign({id:DB.mid(),from:me(),lang:vl(),tx:{[vl()]:text},t:Date.now(),kind:'text'},x);if(text)fillTx(m);c.msgs.push(m);return m}
+function post(c,x){if(role()==='agent')ensureAgent(c);c.msgs.push(Object.assign({id:DB.mid(),from:me(),t:Date.now()},x));after(c,role());S.modal=null;S.bottom=true;render()}
+function ensureAgent(c){const uid=me();if(c.assignee)return;c.assignee=uid;if(!member(c,uid))c.members.push({uid,role:'agent',joinedAt:Date.now()});if(c.type==='group'&&!c.msgs.some(m=>m.k==='joined'))sys(c,'joined');isys(c,usr(uid).name+' 接入并成为负责人')}
+function mk(x){const c=Object.assign({id:'n'+(++S.n),status:'open',waiting:'support',assignee:null,msgs:[],read:{},linked:[],members:[]},x);DB.convs.unshift(c);return c}
+function go(id){S.cid=id;S.mode='reply';S.warn=null;S.prev=null;S.bottom=true;S.q='';if(role()==='agent'&&C(id).type!=='bs'){const c=C(id);S.tab=c.status==='closed'?'closed':c.waiting==='support'?'todo':'wait'}render()}
+function after(c,vr){if(c.type==='bs')return;c.waiting=vr==='agent'?(c.type==='bp'?'buyer':c.type==='sp'?'seller':'both'):'support'}
+function doSend(){const c=cur(),vr=role(),text=($('#ta')?$('#ta').value:'').trim();if(!text)return;
+ if(vr==='agent'&&S.mode==='note'){c.msgs.push({id:DB.mid(),from:me(),kind:'note',text,t:Date.now()})}
+ else{if(vr!=='agent'&&SENS.test(text)){S.warn=t('sens');return render()}if(vr==='agent')ensureAgent(c);say(c,text);after(c,vr)}
+ S.warn=null;S.prev=null;S.draft[c.id]='';S.bottom=true;render();fe()}
+const A={
+ role(d){S.viewer={role:d.v,uid:Object.values(DB.U).find(u=>u.role===d.v).id};S.tab='todo';S.q='';const l=listFor();S.cid=l[0]?l[0].id:null;S.mode='reply';S.prev=null;S.warn=null;S.bottom=true;render()},
+ identity(d){S.viewer.uid=d.v;S.q='';S.tab='todo';const l=listFor();S.cid=l[0]?l[0].id:null;S.prev=null;S.bottom=true;render()},
+ uilang(d){usr(me()).lang=d.v;S.prev=null;S.orig={};render()},
+ ltab(d){S.tab=d.v;S.q='';const l=listFor();if(l.length&&!l.some(c=>c.id===S.cid)){S.cid=l[0].id;S.bottom=true}render()},
+ open(d){S.modal=null;go(d.id)},
+ mode(d){S.mode=d.v;S.prev=null;render();fe()},
+ send(){doSend()},
+ quick(d){S.draft[cur().id]=d.v;S.prev=previewTx(cur(),d.v,vl());render();fe()},
+ preview(){const c=cur(),x=S.draft[c.id]||'';if(!x.trim())return toast(t('typeFirst'));S.prev=previewTx(c,x,vl());render();fe()},
+ attach(){const c=cur(),vr=role();if(vr==='agent')ensureAgent(c);const n='proof_'+fmt(Date.now()).replace(':','')+'.png';say(c,'',{att:n});const k=S.osel[c.id]||oid(c);if(k)ord(k).proofs.push(n);after(c,vr);S.bottom=true;toast(t('sentShot'));render()},
+ light(d){S.light=d.n;renderOv()},closeLight(){S.light=null;renderOv()},
+ orig(d){S.orig[d.id]=!S.orig[d.id];render()},auto(){S.auto=!S.auto;S.orig={};render()},bi(){S.bi=!S.bi;render()},panel(){S.panel=!S.panel;render()},
+ online(){S.online=!S.online;S.req={};toast(S.online?'已开启：输入的文字会发送到公共翻译接口（仅用于演示）':'已关闭联网翻译');render()},
+ selOrder(d){const c=cur();S.osel[c.id]=d.id;render()},
+ focusOrder(d){const c=cur();if(role()!=='agent')S.panel=true;S.osel[c.id]=d.id;render();const e=document.getElementById('ord_'+d.id);if(e){e.scrollIntoView({block:'nearest'});e.style.outline='2px solid var(--brand)';setTimeout(()=>e.style.outline='',1500)}},
+ /* order cards & order-driven requests */
+ pickOrder(){const c=cur(),os=convOrders(c);if(os.length===1)return A.sendCard({id:os[0].key});S.modal={title:t('pick'),body:()=>os.map(o=>`<button class="rowl" data-a="sendCard" data-id="${o.key}"><span class="gico ${o.cat}" style="width:32px;height:32px;font-size:8px">${GL[o.cat]}</span><span class="g"><b>${esc(o.title)}</b><br><span style="color:var(--ink3)">#${o.id} · ${money(o.amount)}</span></span>${st(o)}</button>`).join('')};render()},
+ sendCard(d){post(cur(),{kind:'order',key:d.id})},
+ askInfo(d){post(cur(),{kind:'act',act:{type:'info',key:d.id,state:'pending'}})},
+ askRate(d){post(cur(),{kind:'act',act:{type:'rate',key:d.id,state:'pending'}})},
+ askDeliver(d){post(cur(),{kind:'act',act:{type:'deliver',key:d.id,state:'pending'}})},
+ askRefundDlg(d){const o=ord(d.id),part=o.prog&&o.prog.done>0&&o.prog.done<o.prog.total?+(o.amount*(1-o.prog.done/o.prog.total)).toFixed(2):o.amount;S.modal={title:t('askRefund')+' · #'+o.id,body:()=>`<div class="fld"><label>${t('refundAmt',money(o.amount))}</label><input type="number" id="f_amt" value="${part}" step="0.01"></div>`,foot:`<button class="btn" data-a="closeModal">${t('cancel')}</button><button class="btn pri" data-a="askRefund" data-id="${o.key}">${t('submit')}</button>`};render()},
+ askRefund(d){const o=ord(d.id),amt=Math.min(o.amount,+$('#f_amt').value||0);if(amt<=0)return toast(t('amtNeed'));post(cur(),{kind:'act',act:{type:'refund',key:d.id,amt,state:'pending'}})},
+ actInfo(d){const c=cur(),m=c.msgs.find(x=>x.id===d.id),o=ord(m.act.key);S.modal={title:t('aInfoT'),body:()=>`<div class="fld"><label>${t('newInfo')} · #${o.id}</label><input type="text" id="f_info" value="${esc(o.dinfo)}"></div>`,foot:`<button class="btn" data-a="closeModal">${t('cancel')}</button><button class="btn pri" data-a="doInfo" data-id="${m.id}">${t('submit')}</button>`};render()},
+ doInfo(d){const c=cur(),m=c.msgs.find(x=>x.id===d.id),v=$('#f_info').value.trim();if(!v)return;ord(m.act.key).dinfo=v;m.act.state='done';m.act.val=v;after(c,'buyer');S.modal=null;render()},
+ actRefund(d){const c=cur(),m=c.msgs.find(x=>x.id===d.id),o=ord(m.act.key);o.refund={amount:m.act.amt};if(m.act.amt>=o.amount){o.st='refunded';o.escrow='refunded'}m.act.state='done';sys(c,'refund',{a:money(m.act.amt)});S.bottom=true;render()},
+ actRate(d){const c=cur(),m=c.msgs.find(x=>x.id===d.id);ord(m.act.key).rating=+d.v;m.act.state='done';m.act.val=+d.v;render()},
+ deliverDlg(d){const o=ord(d.id),p=o.prog;S.modal={title:t('deliver')+' · #'+o.id,body:()=>`${p?`<div class="fld"><label>${t('delQty',p.unit,p.total.toLocaleString())}</label><input type="number" id="f_done" value="${p.total}"></div>`:`<p>${t('delAcc')}</p>`}<div class="fld"><label class="opt"><input type="checkbox" id="f_proof" checked> ${t('withShot')}</label></div>`,foot:`<button class="btn" data-a="closeModal">${t('cancel')}</button><button class="btn pri" data-a="doDeliver" data-id="${o.key}">${t('submit')}</button>`};render()},
+ doDeliver(d){const c=cur(),o=ord(d.id),p=o.prog;let x='✓';if(p){p.done=Math.min(p.total,+$('#f_done').value||0);x=p.done.toLocaleString()+' / '+p.total.toLocaleString()+' '+p.unit}if((!p||p.done>=p.total)&&o.st!=='dispute')o.st='delivered';if($('#f_proof').checked){const n='delivery_'+fmt(Date.now()).replace(':','')+'.png';say(c,'',{att:n});o.proofs.push(n)}c.msgs.filter(m=>m.kind==='act'&&m.act.type==='deliver'&&m.act.key===o.key).forEach(m=>m.act.state='done');sys(c,'deliver',{x});after(c,'seller');S.modal=null;S.bottom=true;render()},
+ confirmRecv(d){const c=cur(),o=ord(d.id);o.st='done';sys(c,'confirm');S.bottom=true;render()},
+ freeze(d){const c=cur(),o=ord(d.id),f=o.escrow==='frozen';o.escrow=f?'held':'frozen';sys(c,f?'unfrozen':'frozen');S.bottom=true;render()},
+ refundDlg(d){const o=ord(d.id);const part=o.prog?+(o.amount*(1-o.prog.done/o.prog.total)).toFixed(2):o.amount;S.modal={title:'退款 · #'+o.id,body:()=>`<div class="fld"><label>退款金额（订单金额 ${money(o.amount)}）</label><input type="number" id="f_amt" value="${part||o.amount}" step="0.01"><div class="help">客服直接退款，无需买家确认，原路退回</div></div>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn dark" data-a="doRefund" data-id="${o.key}">确认退款</button>`};render()},
+ doRefund(d){const c=cur(),o=ord(d.id),amt=Math.min(o.amount,+$('#f_amt').value||0);if(amt<=0)return toast('请输入金额');o.refund={amount:amt};if(amt>=o.amount){o.st='refunded';o.escrow='refunded'}sys(c,'refund',{a:money(amt)});S.modal=null;S.bottom=true;render()},
+ /* seller quick replies */
+ qrManage(){const uid=me();S.modal={title:t('qrTitle'),body:()=>`<div class="s2" style="margin-bottom:4px">${t('builtin')}</div>${PH.filter(p=>p.r==='seller').map(p=>`<div class="rowl"><span class="g" style="white-space:normal">${esc(p[vl()])}</span></div>`).join('')}<div class="s2" style="margin:14px 0 4px">${t('mine')}</div>${(S.myQ[uid]||[]).map((q,i)=>`<div class="rowl"><span class="g" style="white-space:normal">${esc(q)}</span><button class="btn sm danger" data-a="qrDel" data-v="${i}">${t('del')}</button></div>`).join('')}<div style="display:flex;gap:6px;margin-top:10px"><input class="search" style="margin:0" id="f_qr" placeholder="${t('qrPh')}"><button class="btn pri" data-a="qrAdd">${t('qrAdd')}</button></div>`};render()},
+ qrAdd(){const v=$('#f_qr').value.trim();if(!v)return;(S.myQ[me()]=S.myQ[me()]||[]).push(v);$('#mbody').innerHTML=S.modal.body();$('#f_qr').focus()},
+ qrDel(d){S.myQ[me()].splice(+d.v,1);$('#mbody').innerHTML=S.modal.body()},
+ /* agent */
+ pickUp(){ensureAgent(cur());toast('已接入');S.bottom=true;render()},
+ transfer(){const c=cur();S.modal={title:'转交会话',body:()=>`<div class="fld"><label>转交给</label><select id="f_to">${['a1','a2'].filter(a=>a!==c.assignee).map(a=>`<option value="${a}">${usr(a).name} · ${usr(a).team}</option>`).join('')}</select></div><div class="fld"><label>交接备注（必填，仅内部可见）</label><textarea id="f_note" placeholder="当前进展、下一步…"></textarea></div>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn pri" data-a="doTransfer">确认转交</button>`};render()},
+ doTransfer(){const c=cur(),to=$('#f_to').value,note=$('#f_note').value.trim();if(!note)return toast('请填写交接备注');const from=usr(c.assignee).name;c.members=c.members.filter(m=>m.role!=='agent');c.members.push({uid:to,role:'agent',joinedAt:c.msgs[0].t});c.assignee=to;c.msgs.push({id:DB.mid(),from:me(),kind:'note',text:'【交接】'+from+' → '+usr(to).name+'：'+note,t:Date.now()});S.modal=null;toast('已转交给 '+usr(to).name);const l=listFor();S.cid=l[0]?l[0].id:null;S.bottom=true;render()},
+ upgrade(){const c=cur(),b=buyerId(c),s=sellerId(c);const os=c.orderId?[ord(c.orderId)]:Object.values(DB.O).filter(o=>o.buyer===b||o.seller===s);const first=c.msgs.find(m=>m.kind==='text'&&usr(m.from).role!=='agent');
+  S.tpl=first&&first.tx.zh?{zh:(c.type==='bp'?'买家反馈：':'卖家反馈：')+first.tx.zh,fr:(c.type==='bp'?"Signalement de l'acheteur : ":'Signalement du vendeur : ')+(first.tx.fr||first.tx[first.lang]),en:(c.type==='bp'?'Buyer reports: ':'Seller reports: ')+(first.tx.en||first.tx[first.lang])}:null;
+  S.modal={title:'为订单创建群组',body:()=>os.length?`<div class="fld"><label>订单（群组绑定一笔订单，买家和卖家由订单自动带出）</label><select id="f_order" ${c.orderId?'disabled':''}>${os.map(o=>`<option value="${o.key}">#${o.id} · ${esc(o.title)} · ${esc(usr(o.buyer).name)} ⇄ ${esc(usr(o.seller).name)}</option>`).join('')}</select></div>
+  <div class="fld"><label>问题类型</label><select id="f_issue">${['late','none','mismatch','recover','boost','other'].map(k=>`<option value="${k}" ${k===c.topic?'selected':''}>${TOPIC[k].zh}</option>`).join('')}</select></div>
+  <div class="fld"><label>问题摘要（公开发到群里，自动翻译给双方）</label><textarea id="f_sum">${esc(S.tpl?S.tpl.zh:'')}</textarea><div class="help">🔒 当前一对一会话的内容不会公开给另一方，只有这段摘要会进群。</div></div>`:'<div class="empty">该用户没有可关联的订单</div>',foot:os.length?`<button class="btn" data-a="closeModal">取消</button><button class="btn dark" data-a="doUpgrade">创建群组</button>`:''};render()},
+ doUpgrade(){const c=cur(),o=ord($('#f_order').value),issue=$('#f_issue').value,sum=$('#f_sum').value.trim(),now=Date.now();S.modal=null;
+  const ex=DB.convs.find(x=>x.type==='group'&&x.orderId===o.key&&isOpen(x));if(ex){toast('该订单已有进行中的群组，已为你打开');return go(ex.id)}
+  const bs0=DB.convs.find(x=>x.type==='bs'&&member(x,o.buyer)&&member(x,o.seller));
+  const g=mk({type:'group',orderId:o.key,topic:issue,assignee:me(),waiting:'both',linked:bs0?[c.id,bs0.id]:[c.id],members:[{uid:o.buyer,role:'buyer',joinedAt:now},{uid:o.seller,role:'seller',joinedAt:now},{uid:me(),role:'agent',joinedAt:now}]});
+  sys(g,'created');g.msgs.push({id:DB.mid(),from:me(),kind:'order',key:o.key,t:now});if(sum){const m=say(g,sum);if(S.tpl&&sum===S.tpl.zh)Object.assign(m.tx,S.tpl)}c.orderId=o.key;c.linked.push(g.id);sys(c,'moved',{},{link:g.id});c.waiting=c.type==='bp'?'buyer':'seller';if(o.st!=='refunded')o.st='dispute';toast('群组已创建');go(g.id)},
+ closeDlg(){const c=cur(),g=c.type==='group',o=c.orderId&&ord(c.orderId);const part=o&&o.prog&&o.prog.done>0&&o.prog.done<o.prog.total;const d=part?o.prog.done.toLocaleString()+' / '+o.prog.total.toLocaleString()+' '+o.prog.unit:'',r=part?money(o.amount*(1-o.prog.done/o.prog.total)):'';
+  S.tpl=part?{zh:'已交付 '+d+'，未交付部分退款 '+r+'，原路退回。',fr:d+' ont été livrés ; la partie non livrée est remboursée ('+r+") sur le moyen de paiement d'origine.",en:d+' delivered; the undelivered part ('+r+') is refunded to the original payment method.'}:null;
+  S.modal={title:g?'结束群组并发布处理结论':'结束会话',body:()=>g?`<div class="fld"><label>处理结论</label><select id="f_v">${Object.keys(VERDICT).map(k=>`<option value="${k}" ${k==='part'&&part?'selected':''}>${VERDICT[k].zh}</option>`).join('')}</select></div><div class="fld"><label>结论说明（公开，自动翻译给买卖双方）</label><textarea id="f_text">${S.tpl?S.tpl.zh:''}</textarea><div class="help">选择部分 / 全额退款会同时发起退款。结束后记录保留，可重新开启。</div></div>`:`<p>结束后聊天记录保留，用户或客服都可以重新开启。</p>`,foot:`<button class="btn" data-a="closeModal">取消</button><button class="btn dark" data-a="doClose">确认结束</button>`};render()},
+ doClose(){const c=cur();ensureAgent(c);if(c.type==='group'){const v=$('#f_v').value,text=$('#f_text').value.trim(),o=ord(c.orderId);if(!text)return toast('请填写结论说明');const rm=say(c,text,{kind:'res',v});if(S.tpl&&text===S.tpl.zh)Object.assign(rm.tx,S.tpl);if(v==='part'||v==='full'){const amt=v==='full'||!o.prog?o.amount:+(o.amount*(1-o.prog.done/o.prog.total)).toFixed(2);o.refund={amount:amt};if(v==='full'){o.st='refunded';o.escrow='refunded'}sys(c,'refund',{a:money(amt)})}}
+  sys(c,'closed');c.status='closed';c.waiting=null;S.modal=null;S.tab='closed';S.bottom=true;toast('已结束');render()},
+ reopen(){const c=cur();c.status='open';c.waiting='support';sys(c,'reopen');if(role()==='agent')S.tab='todo';S.bottom=true;render()},
+ /* new conversation */
+ newConv(){S.newPlat=null;S.modal={title:role()==='agent'?'新建会话':t('start'),wide:true,body:newBody};render()},
+ fromOrder(d){const o=ord(d.id),vr=role(),now=Date.now();if(d.v==='plat'){S.newPlat=o.key;return $('#mbody').innerHTML=newBody()}S.modal=null;
+  if(vr==='agent'){if(d.v==='group'){let g=DB.convs.find(x=>x.type==='group'&&x.orderId===o.key&&isOpen(x));if(g){toast('该订单已有进行中的群组');return go(g.id)}const bs=DB.convs.find(x=>x.type==='bs'&&member(x,o.buyer)&&member(x,o.seller));g=mk({type:'group',orderId:o.key,topic:'other',assignee:me(),waiting:'both',linked:bs?[bs.id]:[],members:[{uid:o.buyer,role:'buyer',joinedAt:now},{uid:o.seller,role:'seller',joinedAt:now},{uid:me(),role:'agent',joinedAt:now}]});sys(g,'created');g.msgs.push({id:DB.mid(),from:me(),kind:'order',key:o.key,t:now});if(o.st!=='refunded')o.st='dispute';return go(g.id)}
+   const uid=d.v==='bp'?o.buyer:o.seller;let c=DB.convs.find(x=>x.type===d.v&&x.orderId===o.key&&isOpen(x));if(!c){c=mk({type:d.v,orderId:o.key,topic:'contact',assignee:me(),waiting:d.v==='bp'?'buyer':'seller',members:[{uid,role:usr(uid).role,joinedAt:now},{uid:me(),role:'agent',joinedAt:now}]});sys(c,'contact')}return go(c.id)}
+  let c=DB.convs.find(x=>x.type==='bs'&&member(x,o.buyer)&&member(x,o.seller));if(!c){c=mk({type:'bs',topic:'chat',waiting:null,members:[{uid:o.buyer,role:'buyer',joinedAt:now},{uid:o.seller,role:'seller',joinedAt:now}]});sys(c,'start',{r:vr})}S.osel[c.id]=o.key;go(c.id)},
+ doPlat(){const vr=role(),now=Date.now(),desc=$('#f_desc').value.trim();if(!desc)return toast(t('needDesc'));const c=mk({type:vr==='buyer'?'bp':'sp',topic:$('#f_topic').value,orderId:S.newPlat&&S.newPlat!=='none'?S.newPlat:undefined,members:[{uid:me(),role:vr,joinedAt:now}]});sys(c,'help',{r:vr});if(c.orderId)c.msgs.push({id:DB.mid(),from:me(),kind:'order',key:c.orderId,t:now});say(c,desc);sys(c,'queue');S.modal=null;go(c.id)},
+ platForm(){S.newPlat='none';$('#mbody').innerHTML=newBody()},
+ closeModal(){S.modal=null;render()},ovClose(d,el,e){if(e.target===el)A.closeModal()},closeDrawer(){S.drawer=null;renderOv()},
+ docs(){S.drawer={title:'第三版说明',body:DOCS};renderOv()},
+ reset(){DB=seed();Object.assign(S,{viewer:{role:'agent',uid:'a1'},cid:'g1',tab:'todo',q:'',mode:'reply',draft:{},orig:{},auto:true,bi:false,warn:null,prev:null,modal:null,drawer:null,bottom:true,n:0,req:{},panel:true,osel:{}});render()}
+};
+function newBody(){const vr=role();if(S.newPlat){const topics=vr==='buyer'?['pay','late','refund','mismatch','recover','other']:['withdraw','listing','penalty','other'];const o=S.newPlat!=='none'&&ord(S.newPlat);return`${o?`<div class="sec" style="background:#f7f8f9">#${o.id} · ${esc(o.title)}</div>`:''}<div class="fld"><label>${t('topic')}</label><select id="f_topic">${topics.map(k=>`<option value="${k}">${TOPIC[k][vl()]}</option>`).join('')}</select></div><div class="fld"><label>${t('desc')}</label><textarea id="f_desc"></textarea></div><div style="text-align:right"><button class="btn pri" data-a="doPlat">${t('submit')}</button></div>`}
+ const os=Object.values(DB.O).filter(o=>vr==='agent'||o[vr]===me());
+ return os.map(o=>`<div class="rowl"><span class="gico ${o.cat}" style="width:32px;height:32px;font-size:8px">${GL[o.cat]}</span><span class="g"><b>${esc(o.title)}</b><br><span style="color:var(--ink3)">#${o.id} · ${vr==='agent'?esc(usr(o.buyer).name+' ⇄ '+usr(o.seller).name):esc(usr(vr==='buyer'?o.seller:o.buyer).name)} · ${money(o.amount)}</span></span>${st(o)}${vr==='agent'?`<button class="btn sm" data-a="fromOrder" data-id="${o.key}" data-v="bp">联系买家</button><button class="btn sm" data-a="fromOrder" data-id="${o.key}" data-v="sp">联系卖家</button><button class="btn sm dark" data-a="fromOrder" data-id="${o.key}" data-v="group">创建群组</button>`:`<button class="btn sm" data-a="fromOrder" data-id="${o.key}" data-v="bs">${vr==='buyer'?t('contactSeller'):t('contactBuyer')}</button><button class="btn sm" data-a="fromOrder" data-id="${o.key}" data-v="plat">${t('contactSup')}</button>`}</div>`).join('')+(vr!=='agent'?`<div style="margin-top:12px;text-align:right"><button class="btn" data-a="platForm">${t('noOrderSup')}</button></div>`:'')}
+document.addEventListener('click',e=>{if(!e.target.closest('details.pop'))document.querySelectorAll('details.pop[open]').forEach(x=>x.open=false);const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){const p=el.closest('details.pop');if(p)p.open=false;f(el.dataset,el,e)}});
+document.addEventListener('change',e=>{const el=e.target.closest('[data-c]');if(el)A[el.dataset.c]({v:el.value})});
+document.addEventListener('input',e=>{const k=e.target.dataset.i;if(k==='ta'){S.draft[S.cid]=e.target.value;if(S.prev||S.warn){S.prev=null;S.warn=null;render()}}if(k==='lq'){S.q=e.target.value;$('#items').innerHTML=renderItems()}});
+document.addEventListener('keydown',e=>{if(e.target.id==='ta'&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();doSend()}if(e.key==='Escape'){if(S.light)A.closeLight();else if(S.modal)A.closeModal();else if(S.drawer)A.closeDrawer()}});
+render();
+
+</script></body></html>
